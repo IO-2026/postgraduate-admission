@@ -1,0 +1,36 @@
+name: Backend CI (Spring Boot)
+
+on:
+  push:
+    paths:
+      - 'backend/**' # Odpala przy każdym pushu, jeśli zmieniono coś w backendzie
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**' # Uruchamia się tylko przy zmianach w folderze backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Pobranie kodu repozytorium
+      uses: actions/checkout@v4
+
+    - name: Konfiguracja środowiska Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Konfiguracja cache dla Gradle (przyspiesza budowanie)
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Nadanie uprawnień do pliku gradlew
+      run: chmod +x ./gradlew
+
+    - name: Budowanie i testowanie projektu
+      run: ./gradlew build

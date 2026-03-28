@@ -1,0 +1,37 @@
+name: Frontend CI (React + Vite)
+
+on:
+  push:
+    paths:
+      - 'frontend/**' # Odpala przy każdym pushu, jeśli zmieniono coś w backendzie
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**' # Uruchamia się tylko przy zmianach w folderze frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - name: Pobranie kodu repozytorium
+      uses: actions/checkout@v4
+
+    - name: Konfiguracja Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # LTS, stabilna wersja
+        cache: 'npm'       # Przyspiesza pobieranie paczek
+        cache-dependency-path: './frontend/package-lock.json'
+
+    - name: Instalacja zależności
+      run: npm ci # Szybsze i bezpieczniejsze niż npm install na CI
+
+    - name: Sprawdzenie jakości kodu (Linting)
+      run: npm run lint # Szablon Vite automatycznie dodaje ten skrypt
+
+    - name: Budowanie aplikacji
+      run: npm run build

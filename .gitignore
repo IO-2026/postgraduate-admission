@@ -1,0 +1,13 @@
+# Node / Frontend
+node_modules/
+dist/
+.env
+
+# Java / Gradle / Backend
+.gradle/
+build/
+out/
+
+# VS Code / OS
+.vscode/
+.DS_Store
