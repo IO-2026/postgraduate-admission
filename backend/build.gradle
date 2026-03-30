@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation(platform("me.paulschwarz:spring-dotenv-bom:5.1.0"))
-	developmentOnly("me.paulschwarz:springboot4-dotenv")
+	developmentOnly("me.paulschwarz:spring-dotenv")
 }
 
 tasks.named('test') {
