@@ -34,3 +34,5 @@ jobs:
 
     - name: Budowanie i testowanie projektu
       run: ./gradlew build
+      env:
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
