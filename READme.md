@@ -27,6 +27,13 @@ cd postgraduate-admission
 
 Backend znajduje się w folderze `backend`. Używamy Gradle jako narzędzia do budowania, więc nie musisz instalować go globalnie na komputerze – projekt używa wbudowanego wrappera (`gradlew`).
 
+W katalogu głównym należy stworzyć plik `.env` (obok pliku `.env.example`) i wpisać do niego:
+
+```
+DB_PASSWORD=hasło
+```
+(hasło należy zastąpić rzeczywistym hasłem do bazy danych)
+
 ```bash
 cd backend
 
