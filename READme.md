@@ -73,3 +73,11 @@ Aby uniknąć konfliktów i niedziałającego kodu na głównej gałęzi, trzyma
 4. **GitHub Actions (CI):** Przy każdym Twoim pushu i Pull Requeście automatycznie uruchomią się testy i budowanie aplikacji. 
    * Twój kod zostanie dołączony do `maina` dopiero, gdy wszystkie akcje zaświecą się na zielono ✅.
 5. Zanim zmergujesz swój PR, poproś kogoś z zespołu o Code Review.
+
+## ✅ Definition of done
+1. Kod realizuje funkcjonalność taska w pełni
+2. Przechodzi Checkstyle
+3. Deweloper pracujący nad taskiem przetestował kod i kod przechodzi Github Actions
+4. Pull Request jest sprawdzony przez 3 osoby z teamu.
+5. Po merge kod na branchu develop działa z nową funkcjonalnością
+
