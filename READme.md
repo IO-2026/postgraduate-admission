@@ -79,5 +79,5 @@ Aby uniknąć konfliktów i niedziałającego kodu na głównej gałęzi, trzyma
 2. Przechodzi Checkstyle
 3. Deweloper pracujący nad taskiem przetestował kod i kod przechodzi GitHub Actions
 4. Pull Request jest sprawdzony przez 3 osoby z teamu.
-5. Po merge kod na branchu develop działa z nową funkcjonalnością
+5. Po merge kod na branchu main działa z nową funkcjonalnością
 
