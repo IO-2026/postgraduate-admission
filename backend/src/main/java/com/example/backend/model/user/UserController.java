@@ -2,6 +2,7 @@ package com.example.backend.model.user;
 
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
+import com.example.backend.security.AuthService;
 import com.example.backend.security.DTO.JwtResponse;
 import com.example.backend.security.DTO.LoginRequest;
 import com.example.backend.security.DTO.RegisterRequest;
@@ -23,18 +24,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(userService.loginUser(loginRequest));
+        return ResponseEntity.ok(authService.loginUser(loginRequest));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         userService.registerUser(registerRequest);
         return ResponseEntity.ok("User registered successfully!");
-    }}
+    }
+}

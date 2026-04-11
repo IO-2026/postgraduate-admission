@@ -23,20 +23,14 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
 
 
     public UserService(UserRepository userRepository,
                        RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager,
-                       JwtUtil jwtUtil) {
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
     }
 
     public void registerUser(RegisterRequest registerRequest) {
@@ -60,20 +54,6 @@ public class UserService implements UserDetailsService {
         user.setRole(userRole);
 
         userRepository.save(user);
-    }
-
-    public JwtResponse loginUser(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        String jwt = jwtUtil.generateToken(userDetails);
-
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-        return new JwtResponse(jwt, "Bearer", user.getId(), user.getEmail(), user.getRole().getName());
-
     }
 
     @Override
