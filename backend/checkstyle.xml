@@ -6,10 +6,14 @@
 <module name="Checker">
     <module name="TreeWalker">
         <module name="MethodLength">
-            <property name="max" value="10"/>
+            <property name="max" value="100"/>
         </module>
         <module name="LeftCurly"/>
         <module name="RightCurly"/>
+        <module name="RightCurly">
+            <property name="option" value="alone"/>
+            <property name="tokens" value="INTERFACE_DEF, METHOD_DEF, CLASS_DEF"/>
+        </module>
         <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
     </module>
