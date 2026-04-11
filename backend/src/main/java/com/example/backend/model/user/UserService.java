@@ -31,7 +31,7 @@ public class UserService {
         }
 
         Role userRole = roleRepository.findById(registerRequest.getRoleId())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Role not found!"));
 
         User user = new User();
         user.setName(registerRequest.getName());
