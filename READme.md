@@ -31,6 +31,7 @@ W katalogu głównym należy stworzyć plik `.env` (obok pliku `.env.example`) i
 
 ```
 DB_PASSWORD=hasło
+JWT_SECRET=twoj-bardzo-dlugi-sekretny-klucz-minimum-32-znaki
 ```
 (hasło należy zastąpić rzeczywistym hasłem do bazy danych)
 
