@@ -43,13 +43,12 @@ public class AuthTests {
     private ObjectMapper objectMapper;
 
     private Role testRole;
-    private User testUser;
 
     @BeforeEach
     void setUp() {
         testRole = roleRepository.findById(1).orElse(null);
 
-        testUser = new User();
+        User testUser = new User();
         testUser.setName("Jane");
         testUser.setSurname("Doe");
         testUser.setEmail("jane.doe@example.com");
@@ -58,6 +57,8 @@ public class AuthTests {
         testUser.setRole(testRole);
         userRepository.save(testUser);
     }
+
+    //Registration tests
 
     @Test
     void registerUser_ShouldSucceed_WhenValidPayload() throws Exception {
@@ -93,6 +94,24 @@ public class AuthTests {
     }
 
     @Test
+    void registerUser_ShouldFail_WhenRoleIdIsInvalid() throws Exception {
+        Map<String, Object> registerRequest = new HashMap<>();
+        registerRequest.put("name", "Invalid");
+        registerRequest.put("surname", "Role");
+        registerRequest.put("email", "invalid.role@example.com");
+        registerRequest.put("password", "Pass123!");
+        registerRequest.put("telNumber", "123456789");
+        registerRequest.put("roleId", 9999L);
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    //Login tests
+
+    @Test
     void loginUser_ShouldSucceed_WhenCredentialsAreValid() throws Exception {
         Map<String, String> loginRequest = new HashMap<>();
         loginRequest.put("email", "jane.doe@example.com");
@@ -102,6 +121,18 @@ public class AuthTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void loginUser_ShouldFail_WhenUserDoesNotExist() throws Exception {
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("email", "ghost@example.com");
+        loginRequest.put("password", "SomePassword123!");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
