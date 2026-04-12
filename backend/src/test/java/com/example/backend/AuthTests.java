@@ -74,7 +74,7 @@ public class AuthTests {
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        assertTrue(userRepository.findByEmail("john.smiths@example.com").isPresent());
+        assertTrue(userRepository.findByEmail("john.smith@example.com").isPresent());
     }
 
     @Test
