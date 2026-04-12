@@ -298,6 +298,7 @@ function App() {
                 )}
 
                 {renderField(field)}
+                
 
                 {field.validationHint && (
                   <p className="hint">Plan walidacji: {field.validationHint}</p>
