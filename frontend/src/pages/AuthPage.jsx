@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginUser, registerUser } from '../services/authApi'
 
 const LOGIN_INITIAL_STATE = {
   email: '',
@@ -7,7 +8,9 @@ const LOGIN_INITIAL_STATE = {
 }
 
 const REGISTER_INITIAL_STATE = {
-  fullName: '',
+  name: '',
+  surname: '',
+  telNumber: '',
   email: '',
   password: '',
   confirmPassword: '',
@@ -17,12 +20,15 @@ function AuthPage({ onAuthSuccess }) {
   const navigate = useNavigate()
   const [mode, setMode] = useState('login')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [loginData, setLoginData] = useState(LOGIN_INITIAL_STATE)
   const [registerData, setRegisterData] = useState(REGISTER_INITIAL_STATE)
 
   const switchMode = (nextMode) => {
     setMode(nextMode)
     setError('')
+    setInfo('')
   }
 
   const onLoginInput = (event) => {
@@ -35,22 +41,40 @@ function AuthPage({ onAuthSuccess }) {
     setRegisterData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const submitLogin = (event) => {
+  const submitLogin = async (event) => {
     event.preventDefault()
     if (!loginData.email || !loginData.password) {
       setError('Please complete both login fields.')
       return
     }
 
-    onAuthSuccess({ email: loginData.email })
-    navigate('/')
+    setError('')
+    setInfo('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await loginUser({
+        email: loginData.email.trim(),
+        username: loginData.email.trim(),
+        password: loginData.password,
+      })
+
+      onAuthSuccess({ email: loginData.email.trim() }, response)
+      navigate('/')
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const submitRegister = (event) => {
+  const submitRegister = async (event) => {
     event.preventDefault()
 
     if (
-      !registerData.fullName ||
+      !registerData.name ||
+      !registerData.surname ||
+      !registerData.telNumber ||
       !registerData.email ||
       !registerData.password ||
       !registerData.confirmPassword
@@ -64,11 +88,42 @@ function AuthPage({ onAuthSuccess }) {
       return
     }
 
-    onAuthSuccess({
-      fullName: registerData.fullName,
-      email: registerData.email,
-    })
-    navigate('/')
+    setError('')
+    setInfo('')
+    setIsSubmitting(true)
+
+    try {
+      await registerUser({
+        name: registerData.name.trim(),
+        surname: registerData.surname.trim(),
+        telNumber: registerData.telNumber.trim(),
+        email: registerData.email.trim(),
+        password: registerData.password,
+      })
+
+      const loginResponse = await loginUser({
+        email: registerData.email.trim(),
+        username: registerData.email.trim(),
+        password: registerData.password,
+      })
+
+      onAuthSuccess(
+        {
+          name: registerData.name.trim(),
+          surname: registerData.surname.trim(),
+          fullName: `${registerData.name.trim()} ${registerData.surname.trim()}`,
+          telNumber: registerData.telNumber.trim(),
+          email: registerData.email.trim(),
+        },
+        loginResponse,
+      )
+      navigate('/')
+    } catch (requestError) {
+      setError(requestError.message)
+      setInfo('')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -103,6 +158,7 @@ function AuthPage({ onAuthSuccess }) {
         </p>
 
         {error ? <p className="form-error">{error}</p> : null}
+        {info ? <p className="form-info">{info}</p> : null}
 
         {mode === 'login' ? (
           <form className="auth-form" onSubmit={submitLogin}>
@@ -114,6 +170,7 @@ function AuthPage({ onAuthSuccess }) {
                 autoComplete="email"
                 value={loginData.email}
                 onChange={onLoginInput}
+                disabled={isSubmitting}
               />
             </label>
 
@@ -125,23 +182,49 @@ function AuthPage({ onAuthSuccess }) {
                 autoComplete="current-password"
                 value={loginData.password}
                 onChange={onLoginInput}
+                disabled={isSubmitting}
               />
             </label>
 
-            <button type="submit" className="primary-btn">
-              Login
+            <button type="submit" className="primary-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Logging in...' : 'Login'}
             </button>
           </form>
         ) : (
           <form className="auth-form" onSubmit={submitRegister}>
             <label>
-              Full name
+              Name
               <input
                 type="text"
-                name="fullName"
-                autoComplete="name"
-                value={registerData.fullName}
+                name="name"
+                autoComplete="given-name"
+                value={registerData.name}
                 onChange={onRegisterInput}
+                disabled={isSubmitting}
+              />
+            </label>
+
+            <label>
+              Surname
+              <input
+                type="text"
+                name="surname"
+                autoComplete="family-name"
+                value={registerData.surname}
+                onChange={onRegisterInput}
+                disabled={isSubmitting}
+              />
+            </label>
+
+            <label>
+              Telephone number
+              <input
+                type="tel"
+                name="telNumber"
+                autoComplete="tel"
+                value={registerData.telNumber}
+                onChange={onRegisterInput}
+                disabled={isSubmitting}
               />
             </label>
 
@@ -153,6 +236,7 @@ function AuthPage({ onAuthSuccess }) {
                 autoComplete="email"
                 value={registerData.email}
                 onChange={onRegisterInput}
+                disabled={isSubmitting}
               />
             </label>
 
@@ -164,6 +248,7 @@ function AuthPage({ onAuthSuccess }) {
                 autoComplete="new-password"
                 value={registerData.password}
                 onChange={onRegisterInput}
+                disabled={isSubmitting}
               />
             </label>
 
@@ -175,11 +260,12 @@ function AuthPage({ onAuthSuccess }) {
                 autoComplete="new-password"
                 value={registerData.confirmPassword}
                 onChange={onRegisterInput}
+                disabled={isSubmitting}
               />
             </label>
 
-            <button type="submit" className="primary-btn">
-              Register
+            <button type="submit" className="primary-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating account...' : 'Register'}
             </button>
           </form>
         )}

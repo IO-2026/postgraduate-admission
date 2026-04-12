@@ -1,7 +1,10 @@
 import { useCallback, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import AdmissionPage from './pages/AdmissionPage'
 import AuthPage from './pages/AuthPage'
 import HomePage from './pages/HomePage'
+import MessagesPage from './pages/MessagesPage'
+import ProfilePage from './pages/ProfilePage'
 import './App.css'
 
 const AUTH_STORAGE_KEY = 'pg-admission-auth'
@@ -23,12 +26,18 @@ function getInitialAuthState() {
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(getInitialAuthState)
 
-  const handleAuthSuccess = useCallback((user) => {
+  const handleAuthSuccess = useCallback((user, authPayload) => {
+    const token =
+      typeof authPayload === 'string'
+        ? authPayload
+        : authPayload?.token || authPayload?.jwt || authPayload?.accessToken
+
     localStorage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
         isLoggedIn: true,
         user,
+        token: token || null,
       }),
     )
     setIsLoggedIn(true)
@@ -44,7 +53,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<HomePage isLoggedIn={isLoggedIn} onLogout={handleLogout} />}
+          element={<HomePage isLoggedIn={isLoggedIn} />}
         />
         <Route
           path="/auth"
@@ -54,6 +63,20 @@ function App() {
             ) : (
               <AuthPage onAuthSuccess={handleAuthSuccess} />
             )
+          }
+        />
+        <Route
+          path="/admission"
+          element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/messages"
+          element={isLoggedIn ? <MessagesPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/profile"
+          element={
+            isLoggedIn ? <ProfilePage onLogout={handleLogout} /> : <Navigate to="/" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

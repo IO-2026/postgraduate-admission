@@ -37,6 +37,12 @@
   outline-offset: 3px;
 }
 
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
 .home-view {
   display: grid;
   gap: 20px;
@@ -52,6 +58,39 @@
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(230, 244, 241, 0.82));
   box-shadow: var(--shadow-soft);
   padding: 36px;
+}
+
+.profile-corner-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-strong);
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 14px rgba(17, 47, 74, 0.14);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  z-index: 2;
+}
+
+.profile-corner-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.profile-corner-btn:focus-visible {
+  outline: 3px solid rgba(15, 127, 115, 0.32);
+  outline-offset: 2px;
+}
+
+.profile-corner-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .home-header::after {
@@ -89,6 +128,14 @@
   font-size: 1.05rem;
 }
 
+.home-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ghost-link,
 .ghost-btn {
   border: 0;
   border-radius: 999px;
@@ -97,21 +144,19 @@
   font-family: var(--font-display);
   font-weight: 700;
   padding: 11px 20px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
+.ghost-link:hover,
 .ghost-btn:hover {
   background: var(--ghost-hover);
 }
 
-.home-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.home-card {
+.applications-section {
   border-radius: 22px;
   border: 1px solid var(--panel-border);
   background: var(--panel-bg);
@@ -119,15 +164,106 @@
   padding: 24px;
 }
 
-.home-card h2 {
-  margin: 0 0 10px;
+.applications-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.applications-header h2 {
+  margin: 0;
   font-family: var(--font-display);
   font-size: 1.35rem;
   color: var(--text-strong);
 }
 
-.home-card p {
+.applications-count {
+  min-width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-strong);
+  background: rgba(15, 127, 115, 0.12);
+}
+
+.applications-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.applications-empty {
+  margin-top: 14px;
+}
+
+.admission-view {
+  min-height: calc(100svh - 64px);
+}
+
+.messages-view {
+  min-height: calc(100svh - 64px);
+  display: grid;
+  place-items: center;
+}
+
+.messages-card {
+  width: min(680px, 100%);
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+.messages-card h1 {
   margin: 0;
+  font-family: var(--font-display);
+  color: var(--text-strong);
+}
+
+.messages-subtitle {
+  margin: 10px 0;
+}
+
+.messages-empty {
+  margin: 0 0 20px;
+}
+
+.profile-view {
+  min-height: calc(100svh - 64px);
+  display: grid;
+  place-items: center;
+}
+
+.profile-card {
+  width: min(680px, 100%);
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+.profile-card h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--text-strong);
+}
+
+.profile-subtitle {
+  margin: 10px 0 20px;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .auth-view {
@@ -190,6 +326,12 @@
   font-weight: 500;
 }
 
+.form-info {
+  margin: 0 0 12px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
 .auth-form {
   display: grid;
   gap: 12px;
@@ -233,8 +375,8 @@
 }
 
 @media (max-width: 920px) {
-  .home-grid {
-    grid-template-columns: 1fr;
+  .applications-header {
+    align-items: flex-start;
   }
 }
 
@@ -243,9 +385,21 @@
     padding: 18px 14px;
   }
 
+  .profile-corner-btn {
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+  }
+
   .auth-card,
   .home-header,
-  .home-card {
+  .applications-section {
+    padding: 20px;
+  }
+
+  .profile-card,
+  .messages-card {
     padding: 20px;
   }
 }
