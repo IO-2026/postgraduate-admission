@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import AdmissionPage from './pages/AdmissionPage'
-import AuthPage from './pages/AuthPage'
-import HomePage from './pages/HomePage'
-import MessagesPage from './pages/MessagesPage'
-import ProfilePage from './pages/ProfilePage'
-import './App.css'
+import AdmissionPage from './pages/AdmissionPage/AdmissionPage'
+import AuthPage from './pages/AuthPage/AuthPage'
+import HomePage from './pages/HomePage/HomePage'
+import MessagesPage from './pages/MessagesPage/MessagesPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
+import './styles/layout.css'
 
 const AUTH_STORAGE_KEY = 'pg-admission-auth'
 

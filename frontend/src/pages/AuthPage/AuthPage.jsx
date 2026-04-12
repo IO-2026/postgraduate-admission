@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginUser, registerUser } from '../services/authApi'
+import { loginUser, registerUser } from '../../services/authApi'
+import './AuthPage.css'
 
 const LOGIN_INITIAL_STATE = {
   email: '',
@@ -44,7 +45,7 @@ function AuthPage({ onAuthSuccess }) {
   const submitLogin = async (event) => {
     event.preventDefault()
     if (!loginData.email || !loginData.password) {
-      setError('Please complete both login fields.')
+      setError('Uzupełnij oba pola logowania.')
       return
     }
 
@@ -79,12 +80,12 @@ function AuthPage({ onAuthSuccess }) {
       !registerData.password ||
       !registerData.confirmPassword
     ) {
-      setError('Please complete all registration fields.')
+      setError('Uzupełnij wszystkie pola rejestracji.')
       return
     }
 
     if (registerData.password !== registerData.confirmPassword) {
-      setError('Passwords do not match.')
+      setError('Hasła nie są takie same.')
       return
     }
 
@@ -129,7 +130,7 @@ function AuthPage({ onAuthSuccess }) {
   return (
     <section className="auth-view">
       <div className="auth-card">
-        <div className="auth-switch" role="tablist" aria-label="Auth mode">
+        <div className="auth-switch" role="tablist" aria-label="Tryb autoryzacji">
           <button
             type="button"
             className={mode === 'login' ? 'active' : ''}
@@ -137,7 +138,7 @@ function AuthPage({ onAuthSuccess }) {
             role="tab"
             aria-selected={mode === 'login'}
           >
-            Login
+            Logowanie
           </button>
           <button
             type="button"
@@ -146,15 +147,15 @@ function AuthPage({ onAuthSuccess }) {
             role="tab"
             aria-selected={mode === 'register'}
           >
-            Register
+            Rejestracja
           </button>
         </div>
 
-        <h1>{mode === 'login' ? 'Welcome back' : 'Create account'}</h1>
+        <h1>{mode === 'login' ? 'Witaj ponownie' : 'Utwórz konto'}</h1>
         <p className="auth-subtitle">
           {mode === 'login'
-            ? 'Sign in to open your admission home page.'
-            : 'Create a profile to access the admission portal.'}
+            ? 'Zaloguj się, aby otworzyć stronę główną rekrutacji.'
+            : 'Utwórz profil, aby uzyskać dostęp do portalu rekrutacyjnego.'}
         </p>
 
         {error ? <p className="form-error">{error}</p> : null}
@@ -163,7 +164,7 @@ function AuthPage({ onAuthSuccess }) {
         {mode === 'login' ? (
           <form className="auth-form" onSubmit={submitLogin}>
             <label>
-              Email
+              E-mail
               <input
                 type="email"
                 name="email"
@@ -175,7 +176,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Password
+              Hasło
               <input
                 type="password"
                 name="password"
@@ -187,13 +188,13 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <button type="submit" className="primary-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Logging in...' : 'Login'}
+              {isSubmitting ? 'Trwa logowanie...' : 'Zaloguj się'}
             </button>
           </form>
         ) : (
           <form className="auth-form" onSubmit={submitRegister}>
             <label>
-              Name
+              Imię
               <input
                 type="text"
                 name="name"
@@ -205,7 +206,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Surname
+              Nazwisko
               <input
                 type="text"
                 name="surname"
@@ -217,7 +218,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Telephone number
+              Numer telefonu
               <input
                 type="tel"
                 name="telNumber"
@@ -229,7 +230,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Email
+              E-mail
               <input
                 type="email"
                 name="email"
@@ -241,7 +242,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Password
+              Hasło
               <input
                 type="password"
                 name="password"
@@ -253,7 +254,7 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <label>
-              Confirm password
+              Potwierdź hasło
               <input
                 type="password"
                 name="confirmPassword"
@@ -265,13 +266,13 @@ function AuthPage({ onAuthSuccess }) {
             </label>
 
             <button type="submit" className="primary-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating account...' : 'Register'}
+              {isSubmitting ? 'Trwa tworzenie konta...' : 'Zarejestruj się'}
             </button>
           </form>
         )}
 
         <Link className="text-btn" to="/">
-          Back to home gate
+          Wróć na stronę główną
         </Link>
       </div>
     </section>

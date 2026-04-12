@@ -1,0 +1,3 @@
+.admission-view {
+  min-height: calc(100svh - 64px);
+}

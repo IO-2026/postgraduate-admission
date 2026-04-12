@@ -1,20 +1,21 @@
 import { Link } from 'react-router-dom'
+import './ProfilePage.css'
 
 function ProfilePage({ onLogout }) {
   return (
     <section className="profile-view">
       <div className="profile-card">
-        <h1>Profile</h1>
+        <h1>Profil</h1>
         <p className="profile-subtitle">
-          Manage your account settings and sign out from your admission session.
+          Zarządzaj ustawieniami konta i wyloguj się z sesji rekrutacyjnej.
         </p>
 
         <div className="profile-actions">
           <Link className="primary-btn" to="/">
-            Back to home
+            Wróć do strony głównej
           </Link>
           <button type="button" className="ghost-btn" onClick={onLogout}>
-            Logout
+            Wyloguj się
           </button>
         </div>
       </div>
