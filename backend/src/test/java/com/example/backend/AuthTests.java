@@ -74,7 +74,7 @@ public class AuthTests {
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        assertTrue(userRepository.findByEmail("john.smith@example.com").isPresent());
+        assertTrue(userRepository.findByEmail("john.smiths@example.com").isPresent());
     }
 
     @Test
@@ -90,6 +90,30 @@ public class AuthTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void loginUser_ShouldSucceed_WhenCredentialsAreValid() throws Exception {
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("email", "jane.doe@example.com");
+        loginRequest.put("password", "SecurePass123!");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void loginUser_ShouldFail_WhenPasswordIsIncorrect() throws Exception {
+        Map<String, String> loginRequest = new HashMap<>();
+        loginRequest.put("email", "jane.doe@example.com");
+        loginRequest.put("password", "WrongPassword!");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
     }
 
 }
