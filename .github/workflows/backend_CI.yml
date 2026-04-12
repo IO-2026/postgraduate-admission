@@ -5,6 +5,7 @@ on:
     paths:
       - 'backend/**' # Odpala przy każdym pushu, jeśli zmieniono coś w backendzie
   pull_request:
+    branches: [ "main" ]
     paths:
       - 'backend/**' # Uruchamia się tylko przy zmianach w folderze backend
 
