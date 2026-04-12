@@ -21,6 +21,12 @@ checkstyle {
 	showViolations = true
 }
 
+tasks.withType(Test) {
+	filter {
+		failOnNoDiscoveredTests = false
+	}
+}
+
 tasks.withType(Checkstyle) {
 	reports {
 		xml.required = true
