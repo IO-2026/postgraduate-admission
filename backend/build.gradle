@@ -54,6 +54,8 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation "org.mockito:mockito-core:5.23.0"
 }
