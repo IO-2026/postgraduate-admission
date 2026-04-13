@@ -1,8 +1,9 @@
 package com.example.backend.model.user;
 
-import com.example.backend.security.AuthService;
-import com.example.backend.security.DTO.LoginRequest;
-import com.example.backend.security.DTO.RegisterRequest;
+import com.example.backend.auth.AuthService;
+import com.example.backend.auth.DTO.LoginRequest;
+import com.example.backend.auth.DTO.RegisterRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,12 +23,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.loginUser(loginRequest));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         userService.registerUser(registerRequest);
         return ResponseEntity.ok("User registered successfully!");
     }
