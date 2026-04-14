@@ -5,7 +5,7 @@ import './AuthPage.css'
 
 const LOGIN_INITIAL_STATE = {
     email: '',
-    password: '',
+password: '',
 }
 
 const REGISTER_INITIAL_STATE = {
