@@ -30,8 +30,11 @@ jobs:
     - name: Instalacja zależności
       run: npm ci # Szybsze i bezpieczniejsze niż npm install na CI
 
-    - name: Sprawdzenie jakości kodu (Linting)
-      run: npm run lint # Szablon Vite automatycznie dodaje ten skrypt
+    - name: Sprawczanie jakości kodu (1)
+      run: npx prettier --check .
+
+    - name: Sprawdzenie jakości kodu (2)
+      run: npm run lint
 
     - name: Budowanie aplikacji
       run: npm run build
