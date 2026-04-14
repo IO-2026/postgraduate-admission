@@ -1,8 +1,10 @@
 package com.example.backend.model.user;
 
+import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
 import com.example.backend.auth.DTO.RegisterRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,20 +14,14 @@ import org.springframework.stereotype.Service;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-
-    public UserService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public void registerUser(RegisterRequest registerRequest) {
         String email = normalizeEmail(registerRequest.getEmail());
@@ -50,14 +46,13 @@ public class UserService implements UserDetailsService {
         user.setRole(userRole);
 
         userRepository.save(user);
+        emailService.sendWelcomeEmail(user);
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(normalizeEmail(email))
+        return userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
-
-        return user;
     }
 
     private String normalizeEmail(String email) {

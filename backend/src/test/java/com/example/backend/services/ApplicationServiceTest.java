@@ -2,9 +2,8 @@ package com.example.backend.services;
 
 
 import com.example.backend.auth.DTO.ApplicationRequest;
-import com.example.backend.model.application.Application;
-import com.example.backend.model.application.ApplicationRepository;
-import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.application.*;
+import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +29,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -57,5 +60,24 @@ public class ApplicationServiceTest {
 
         verify(userRepository, times(1)).findById(1L);
         verify(applicationRepository, times(1)).save(any(Application.class));
+    }
+
+    @Test
+    void shouldSendEmailAfterSavingApplication() {
+        ApplicationRequest request = new ApplicationRequest();
+        request.setUserId(1L);
+        request.setUniversity("Test University");
+        request.setCourseId(100L);
+
+        User mockUser = new User();
+        mockUser.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(applicationRepository.save(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        applicationService.saveApplication(request);
+
+        verify(emailService, times(1)).sendApplicationConfirmation(eq(mockUser), any(Application.class));
+
+
     }
 }
