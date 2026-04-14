@@ -2,7 +2,9 @@ package com.example.backend.services;
 
 
 import com.example.backend.auth.DTO.ApplicationRequest;
-import com.example.backend.model.application.*;
+import com.example.backend.model.application.Application;
+import com.example.backend.model.application.ApplicationRepository;
+import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
