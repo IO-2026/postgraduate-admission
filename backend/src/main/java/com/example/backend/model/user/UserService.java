@@ -2,20 +2,14 @@ package com.example.backend.model.user;
 
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
-import com.example.backend.security.DTO.JwtResponse;
-import com.example.backend.security.DTO.LoginRequest;
-import com.example.backend.security.DTO.RegisterRequest;
-import com.example.backend.security.JwtUtil;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.example.backend.auth.DTO.RegisterRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Locale;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -34,7 +28,9 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+        String email = normalizeEmail(registerRequest.getEmail());
+
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email is already taken!");
         }
 
@@ -46,11 +42,11 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("Role not found!"));
 
         User user = new User();
-        user.setName(registerRequest.getName());
-        user.setSurname(registerRequest.getSurname());
-        user.setEmail(registerRequest.getEmail());
+        user.setName(registerRequest.getName().trim());
+        user.setSurname(registerRequest.getSurname().trim());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setTelNumber(registerRequest.getTelNumber());
+        user.setTelNumber(registerRequest.getTelNumber().trim());
         user.setRole(userRole);
 
         userRepository.save(user);
@@ -58,9 +54,14 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
 
         return user;
     }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+
 }

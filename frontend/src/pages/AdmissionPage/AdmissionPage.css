@@ -1,0 +1,160 @@
+.admission-view {
+  min-height: calc(100svh - 64px);
+  display: grid;
+  place-items: center;
+}
+
+.admission-shell {
+  width: min(920px, 100%);
+  border-radius: 28px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 32px;
+  backdrop-filter: blur(8px);
+}
+
+.admission-header {
+  margin-bottom: 24px;
+}
+
+.admission-tag {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.admission-header h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+  line-height: 1.12;
+  color: var(--text-strong);
+}
+
+.admission-subtitle {
+  margin-top: 12px;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.admission-form {
+  display: grid;
+  gap: 16px;
+}
+
+.admission-field {
+  display: grid;
+  gap: 8px;
+}
+
+.admission-field label {
+  font-size: 0.93rem;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.admission-field input:not([type="checkbox"]),
+.admission-field textarea,
+.admission-field select {
+  width: 100%;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 0.95rem;
+  background: var(--field-bg);
+  color: var(--text-strong);
+}
+
+.admission-field input[type="file"] {
+  padding: 10px 12px;
+}
+
+.admission-field textarea {
+  resize: vertical;
+}
+
+.admission-field input:focus,
+.admission-field textarea:focus,
+.admission-field select:focus {
+  border-color: var(--field-focus);
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+}
+
+.admission-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.admission-checkbox input {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--primary);
+}
+
+.admission-hint {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.admission-error {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--error);
+  font-weight: 500;
+}
+
+.admission-actions {
+  margin-top: 10px;
+}
+
+.admission-alert {
+  margin-top: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--panel-border);
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text-strong);
+}
+
+.admission-alert--info {
+  background: var(--ghost-bg);
+}
+
+.admission-alert--error {
+  border-color: color-mix(in srgb, var(--error) 55%, var(--panel-border));
+  background: color-mix(in srgb, var(--error) 14%, transparent);
+  color: var(--error);
+}
+
+.admission-alert--success {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border));
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.admission-alert h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-strong);
+}
+
+.admission-alert p {
+  margin: 4px 0;
+}
+
+@media (max-width: 640px) {
+  .admission-shell {
+    padding: 20px;
+    border-radius: 20px;
+  }
+}
