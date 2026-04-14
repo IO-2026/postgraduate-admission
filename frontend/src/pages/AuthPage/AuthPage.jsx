@@ -4,8 +4,8 @@ import {loginUser, registerUser} from '../../services/authApi'
 import './AuthPage.css'
 
 const LOGIN_INITIAL_STATE = {
-    email: '',
-password: '',
+email: '',
+    password: '',
 }
 
 const REGISTER_INITIAL_STATE = {
