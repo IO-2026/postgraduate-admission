@@ -20,8 +20,7 @@ public class ApplicationService {
     @Transactional
     public Application saveApplication(ApplicationRequest applicationRequest) {
 
-        User user = userRepository.findById(applicationRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(applicationRequest.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
 
         Application application = new Application();
         application.setUser(user);
