@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import './MessagesPage.css'
+import { Link } from "react-router-dom";
+import "./MessagesPage.css";
 
 function MessagesPage() {
   return (
@@ -16,7 +16,7 @@ function MessagesPage() {
         </Link>
       </div>
     </section>
-  )
+  );
 }
 
-export default MessagesPage
+export default MessagesPage;

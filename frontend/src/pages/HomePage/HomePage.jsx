@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
-import './HomePage.css'
+import { Link } from "react-router-dom";
+import "./HomePage.css";
 
 function HomePage({ isLoggedIn }) {
-  const applications = []
+  const applications = [];
 
   if (!isLoggedIn) {
     return (
@@ -20,13 +20,17 @@ function HomePage({ isLoggedIn }) {
           </Link>
         </div>
       </section>
-    )
+    );
   }
 
   return (
     <section className="home-view">
       <header className="home-header">
-        <Link className="profile-corner-btn" to="/profile" aria-label="Otwórz profil">
+        <Link
+          className="profile-corner-btn"
+          to="/profile"
+          aria-label="Otwórz profil"
+        >
           <svg
             className="profile-corner-icon"
             viewBox="0 0 24 24"
@@ -72,7 +76,7 @@ function HomePage({ isLoggedIn }) {
         ) : null}
       </section>
     </section>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;
