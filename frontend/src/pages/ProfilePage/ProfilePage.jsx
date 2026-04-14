@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import './ProfilePage.css'
+import { Link } from "react-router-dom";
+import "./ProfilePage.css";
 
 function ProfilePage({ onLogout }) {
   return (
@@ -20,7 +20,7 @@ function ProfilePage({ onLogout }) {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default ProfilePage
+export default ProfilePage;

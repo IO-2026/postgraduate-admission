@@ -1,7 +1,7 @@
-import './AdmissionPage.css'
+import "./AdmissionPage.css";
 
 function AdmissionPage() {
-  return <section className="admission-view" aria-label="Strona rekrutacji" />
+  return <section className="admission-view" aria-label="Strona rekrutacji" />;
 }
 
-export default AdmissionPage
+export default AdmissionPage;

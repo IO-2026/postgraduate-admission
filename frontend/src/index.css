@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap");
 
 :root {
   --bg-base: #f2f6f3;
@@ -19,8 +19,8 @@
   --switch-bg: #dfe9f0;
   --switch-active-bg: #ffffff;
   --shadow-soft: 0 12px 30px rgba(17, 47, 74, 0.13);
-  --font-body: 'Outfit', 'Avenir Next', 'Segoe UI', sans-serif;
-  --font-display: 'Space Grotesk', 'Trebuchet MS', sans-serif;
+  --font-body: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Trebuchet MS", sans-serif;
 }
 
 * {
