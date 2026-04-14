@@ -14,64 +14,61 @@ import java.util.UUID;
 public class AdmissionFormService {
 
     public AdmissionFormMetadataResponse getFormMetadata() {
-        List<AdmissionFieldDefinitionDto> fields = List.of(
-                new AdmissionFieldDefinitionDto(
+        List<AdmissionFieldDefinitionDto> fields = buildFieldDefinitions();
+        return new AdmissionFormMetadataResponse(
+                "Rekrutacja na studia podyplomowe",
+                "Uzupelnij formularz. I wyślij swoje zgłoszenie",
+                fields
+        );
+    }
+
+    private static List<AdmissionFieldDefinitionDto> buildFieldDefinitions() {
+        return List.of(
+                fieldText(
                         "name",
                         "Imie",
-                        "text",
                         true,
                         "np. Euzebiusz",
-                        "W przyszlosci: minimum 2 znaki, tylko litery i myslnik.",
-                        List.of()
+                        "W przyszlosci: minimum 2 znaki, tylko litery i myslnik."
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldText(
                         "surname",
                         "Nazwisko",
-                        "text",
                         true,
                         "np. Kowalski",
-                        "W przyszlosci: minimum 2 znaki.",
-                        List.of()
+                        "W przyszlosci: minimum 2 znaki."
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldText(
                         "email",
                         "Adres e-mail",
                         "email",
                         true,
                         "np. euzebiusz.kowalski@example.com",
-                        "W przyszlosci: format e-mail i unikalnosc.",
-                        List.of()
+                        "W przyszlosci: format e-mail i unikalnosc."
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldText(
                         "telNumber",
                         "Numer telefonu",
                         "tel",
                         true,
                         "+48 600 700 800",
-                        "W przyszlosci: normalizacja i sprawdzenie formatu.",
-                        List.of()
+                        "W przyszlosci: normalizacja i sprawdzenie formatu."
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldSelect(
                         "programCode",
                         "Kierunek studiow podyplomowych",
-                        "select",
                         true,
-                        null,
                         "W przyszlosci: mapowanie do encji kierunku.",
-
-                        // w przyszłości pobranie z listy dostępnych
                         List.of(
                                 new AdmissionFieldOptionDto("IT_PM", "Zarzadzanie projektami IT"),
                                 new AdmissionFieldOptionDto("AN_DATA", "Analityka danych"),
                                 new AdmissionFieldOptionDto("CYBER", "Cyberbezpieczenstwo")
                         )
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldSelect(
                         "educationLevel",
                         "Ukonczony poziom wyksztalcenia",
-                        "select",
                         true,
-                        null,
                         "W przyszlosci: walidacja zgodnosci z regulaminem rekrutacji.",
                         List.of(
                                 new AdmissionFieldOptionDto("BACHELOR", "Licencjat / inzynier"),
@@ -79,50 +76,130 @@ public class AdmissionFormService {
                                 new AdmissionFieldOptionDto("DOCTORATE", "Doktor")
                         )
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldFile(
                         "diploma",
                         "Skan dyplomu ukończenia studiów",
-                        "file",
                         true,
-                        null,
-                        "W przyszlosci: walidacja zgodnosci typu pliku",
-                        List.of()
-
+                        "W przyszlosci: walidacja zgodnosci typu pliku"
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldTextarea(
                         "motivation",
                         "Motywacja",
-                        "textarea",
                         false,
                         "Napisz kilka zdan, dlaczego chcesz dolaczyc do programu.",
-                        "W przyszlosci: limit dlugosci i wykrywanie pustej tresci.",
-                        List.of()
+                        "W przyszlosci: limit dlugosci i wykrywanie pustej tresci."
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldFile(
                         "profilePicture",
                         "Zdjęcie do legityjmacji",
-                        "file",
                         true,
-                        null,
-                        "W przyszlosci: walidacja zgodnosci typu pliku",
-                        List.of()
-
+                        "W przyszlosci: walidacja zgodnosci typu pliku"
                 ),
-                new AdmissionFieldDefinitionDto(
+                fieldCheckbox(
                         "consentAccepted",
                         "Akceptuje regulamin rekrutacji i polityke prywatnosci",
-                        "checkbox",
                         true,
-                        null,
-                        "W przyszlosci: wymagane true przed zapisem do bazy.",
-                        List.of()
+                        "W przyszlosci: wymagane true przed zapisem do bazy."
                 )
         );
+    }
 
-        return new AdmissionFormMetadataResponse(
-                "Rekrutacja na studia podyplomowe",
-                "Uzupelnij formularz. I wyślij swoje zgłoszenie",
-                fields
+    private static AdmissionFieldDefinitionDto fieldText(
+            String name,
+            String label,
+            boolean required,
+            String placeholder,
+            String validationHint
+    ) {
+        return fieldText(name, label, "text", required, placeholder, validationHint);
+    }
+
+    private static AdmissionFieldDefinitionDto fieldText(
+            String name,
+            String label,
+            String type,
+            boolean required,
+            String placeholder,
+            String validationHint
+    ) {
+        return new AdmissionFieldDefinitionDto(
+                name,
+                label,
+                type,
+                required,
+                placeholder,
+                validationHint,
+                List.of()
+        );
+    }
+
+    private static AdmissionFieldDefinitionDto fieldSelect(
+            String name,
+            String label,
+            boolean required,
+            String validationHint,
+            List<AdmissionFieldOptionDto> options
+    ) {
+        return new AdmissionFieldDefinitionDto(
+                name,
+                label,
+                "select",
+                required,
+                null,
+                validationHint,
+                options
+        );
+    }
+
+    private static AdmissionFieldDefinitionDto fieldFile(
+            String name,
+            String label,
+            boolean required,
+            String validationHint
+    ) {
+        return new AdmissionFieldDefinitionDto(
+                name,
+                label,
+                "file",
+                required,
+                null,
+                validationHint,
+                List.of()
+        );
+    }
+
+    private static AdmissionFieldDefinitionDto fieldTextarea(
+            String name,
+            String label,
+            boolean required,
+            String placeholder,
+            String validationHint
+    ) {
+        return new AdmissionFieldDefinitionDto(
+                name,
+                label,
+                "textarea",
+                required,
+                placeholder,
+                validationHint,
+                List.of()
+        );
+    }
+
+    private static AdmissionFieldDefinitionDto fieldCheckbox(
+            String name,
+            String label,
+            boolean required,
+            String validationHint
+    ) {
+        return new AdmissionFieldDefinitionDto(
+                name,
+                label,
+                "checkbox",
+                required,
+                null,
+                validationHint,
+                List.of()
         );
     }
 
