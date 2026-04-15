@@ -5,6 +5,7 @@ import com.example.backend.auth.DTO.ApplicationRequest;
 import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -78,8 +79,22 @@ public class ApplicationServiceTest {
 
         applicationService.saveApplication(request);
 
-        verify(emailService, times(1)).sendApplicationConfirmation(eq(mockUser), any(Application.class));
+        verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
 
+    }
+
+    @Test
+    void shouldChangeStatusToWithdrawn(){
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setStatus(ApplicationStatus.SUBMITTED);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        applicationService.updateStatus(id, ApplicationStatus.WITHDRAWN);
+
+        assertEquals(ApplicationStatus.WITHDRAWN, application.getStatus());
     }
 }

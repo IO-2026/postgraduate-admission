@@ -14,12 +14,21 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
 
-    public void sendApplicationConfirmation(User user, Application application) {
-        String content = String.format(
-                "Cześć %s!\n\nTwoje zgłoszenie na kierunek: %d zostało pomyślnie zarejestrowane.",
-                user.getName(), application.getCourseId()
+    public void sendApplicationStatusChange(User user, Application application) {
+        String statusDescription = application.getStatus().getDescription();
+
+        String content = String.format("""
+        Cześć %s!
+        
+        Status Twojego zgłoszenia na kurs (ID: %d) zmienił się.
+        Aktualny status: %s.
+        """,
+                user.getName(),
+                application.getCourseId(),
+                statusDescription
         );
-        send(user.getEmail(), "Potwierdzenie zgłoszenia", content);
+
+        send(user.getEmail(), "Zmiana statusu zgłoszenia", content);
     }
 
     public void sendWelcomeEmail(User user) {
