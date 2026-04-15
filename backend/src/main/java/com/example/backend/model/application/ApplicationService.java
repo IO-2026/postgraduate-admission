@@ -28,11 +28,25 @@ public class ApplicationService {
         application.setCourseId(applicationRequest.getCourseId());
         application.setDiplomaUrl(applicationRequest.getDiplomaUrl());
         application.setIsPaid(false);
+        application.setStatus(ApplicationStatus.SUBMITTED);
 
         Application savedApplication = applicationRepository.save(application);
 
-        emailService.sendApplicationConfirmation(user, application);
+        emailService.sendApplicationStatusChange(user, application);
 
         return savedApplication;
+    }
+
+    @Transactional
+    public void updateStatus(Long applicationId, ApplicationStatus newStatus) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        User user = application.getUser();
+
+        if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
+            throw new IllegalStateException("Wniosek jest już wycofany.");
+        }
+
+        application.setStatus(newStatus);
+        emailService.sendApplicationStatusChange(user, application);
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/api/applications")
@@ -20,5 +23,17 @@ public class ApplicationController {
     public ResponseEntity<?> submit(@RequestBody ApplicationRequest request) {
         applicationService.saveApplication(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/{id}/withdraw")
+    public ResponseEntity<?> withdraw(@PathVariable Long id) {
+        applicationService.updateStatus(id, ApplicationStatus.WITHDRAWN);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody ApplicationStatus newStatus) {
+        applicationService.updateStatus(id, newStatus);
+        return ResponseEntity.ok().build();
     }
 }
