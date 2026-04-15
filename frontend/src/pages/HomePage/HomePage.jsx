@@ -15,9 +15,14 @@ function HomePage({ isLoggedIn }) {
             i otrzymywać najważniejsze komunikaty.
           </p>
 
-          <Link className="primary-btn" to="/auth">
-            Zaloguj się
-          </Link>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link className="primary-btn" to="/auth">
+              Zaloguj się
+            </Link>
+            <Link className="secondary-btn" to="/courses" style={{ padding: '0.8rem 1.5rem', borderRadius: '8px', textDecoration: 'none', color: 'var(--text-dark)', border: '1px solid var(--border)', background: 'white' }}>
+              Oferta studiów
+            </Link>
+          </div>
         </div>
       </section>
     );
@@ -56,6 +61,9 @@ function HomePage({ isLoggedIn }) {
         <div className="home-actions">
           <Link className="primary-btn" to="/admission">
             Otwórz stronę rekrutacji
+          </Link>
+          <Link className="ghost-link" to="/courses">
+            Kierunki studiów
           </Link>
           <Link className="ghost-link" to="/messages">
             Wiadomości
