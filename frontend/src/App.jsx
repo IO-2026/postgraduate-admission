@@ -5,6 +5,7 @@ import AuthPage from "./pages/AuthPage/AuthPage";
 import HomePage from "./pages/HomePage/HomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import CoursesPage from "./pages/CoursesPage/CoursesPage";
 import "./styles/layout.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -61,6 +62,10 @@ function App() {
               <AuthPage onAuthSuccess={handleAuthSuccess} />
             )
           }
+        />
+        <Route
+          path="/courses"
+          element={<CoursesPage isLoggedIn={isLoggedIn} />}
         />
         <Route
           path="/admission"
