@@ -63,7 +63,10 @@ function App() {
             )
           }
         />
-        <Route path="/courses" element={<CoursesPage isLoggedIn={isLoggedIn} />} />
+        <Route
+          path="/courses"
+          element={<CoursesPage isLoggedIn={isLoggedIn} />}
+        />
         <Route
           path="/admission"
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}

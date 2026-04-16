@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchCourses, createCourse, updateCourse, deleteCourse } from "../../services/courseApi";
+import {
+  fetchCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+} from "../../services/courseApi";
 import "./CoursesPage.css";
 
 function CoursesPage({ isLoggedIn }) {
@@ -97,9 +102,15 @@ function CoursesPage({ isLoggedIn }) {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
-        ...(formData.recruitmentStart && { recruitmentStart: formData.recruitmentStart }),
-        ...(formData.recruitmentEnd && { recruitmentEnd: formData.recruitmentEnd }),
-        ...(formData.coordinatorId && { coordinatorId: parseInt(formData.coordinatorId, 10) }),
+        ...(formData.recruitmentStart && {
+          recruitmentStart: formData.recruitmentStart,
+        }),
+        ...(formData.recruitmentEnd && {
+          recruitmentEnd: formData.recruitmentEnd,
+        }),
+        ...(formData.coordinatorId && {
+          coordinatorId: parseInt(formData.coordinatorId, 10),
+        }),
       };
 
       if (editingId) {
@@ -107,7 +118,7 @@ function CoursesPage({ isLoggedIn }) {
       } else {
         await createCourse(payload);
       }
-      
+
       resetForm();
       await loadCourses();
     } catch (err) {
@@ -176,7 +187,7 @@ function CoursesPage({ isLoggedIn }) {
                 placeholder="Krótki opis programu..."
               ></textarea>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Data rozpoczęcia rekrutacji</label>
@@ -252,17 +263,30 @@ function CoursesPage({ isLoggedIn }) {
               <div className="course-meta">
                 {course.recruitmentStart && course.recruitmentEnd && (
                   <span className="meta-tag">
-                    Rekrutacja: {course.recruitmentStart} - {course.recruitmentEnd}
+                    Rekrutacja: {course.recruitmentStart} -{" "}
+                    {course.recruitmentEnd}
                   </span>
                 )}
                 {course.coordinatorId && (
-                  <span className="meta-tag">Koordynator ID: {course.coordinatorId}</span>
+                  <span className="meta-tag">
+                    Koordynator ID: {course.coordinatorId}
+                  </span>
                 )}
               </div>
               {isLoggedIn && (
                 <div className="course-card-actions">
-                  <button className="secondary-btn edit-btn" onClick={() => handleEdit(course)}>Edytuj</button>
-                  <button className="secondary-btn delete-btn" onClick={() => handleDelete(course.id)}>Usuń</button>
+                  <button
+                    className="secondary-btn edit-btn"
+                    onClick={() => handleEdit(course)}
+                  >
+                    Edytuj
+                  </button>
+                  <button
+                    className="secondary-btn delete-btn"
+                    onClick={() => handleDelete(course.id)}
+                  >
+                    Usuń
+                  </button>
                 </div>
               )}
             </div>
