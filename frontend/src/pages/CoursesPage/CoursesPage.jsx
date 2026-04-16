@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchCourses, createCourse } from "../../services/courseApi";
+import { fetchCourses, createCourse, updateCourse, deleteCourse } from "../../services/courseApi";
 import "./CoursesPage.css";
 
 function CoursesPage({ isLoggedIn }) {
@@ -10,10 +10,14 @@ function CoursesPage({ isLoggedIn }) {
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
+    recruitmentStart: "",
+    recruitmentEnd: "",
+    coordinatorId: "1",
   });
   const [formError, setFormError] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -39,6 +43,44 @@ function CoursesPage({ isLoggedIn }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      recruitmentStart: "",
+      recruitmentEnd: "",
+      coordinatorId: "1",
+    });
+    setEditingId(null);
+    setIsFormOpen(false);
+    setFormError("");
+  };
+
+  const handleEdit = (course) => {
+    setFormData({
+      name: course.name || "",
+      description: course.description || "",
+      price: course.price || "",
+      recruitmentStart: course.recruitmentStart || "",
+      recruitmentEnd: course.recruitmentEnd || "",
+      coordinatorId: course.coordinatorId || "1",
+    });
+    setEditingId(course.id);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Czy na pewno chcesz usunąć ten kierunek?")) return;
+    try {
+      await deleteCourse(id);
+      await loadCourses();
+    } catch (err) {
+      alert("Nie udało się usunąć kierunku.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -51,16 +93,25 @@ function CoursesPage({ isLoggedIn }) {
     }
 
     try {
-      await createCourse({
+      const payload = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
-      });
-      setFormData({ name: "", description: "", price: "" });
-      setIsFormOpen(false);
+        ...(formData.recruitmentStart && { recruitmentStart: formData.recruitmentStart }),
+        ...(formData.recruitmentEnd && { recruitmentEnd: formData.recruitmentEnd }),
+        ...(formData.coordinatorId && { coordinatorId: parseInt(formData.coordinatorId, 10) }),
+      };
+
+      if (editingId) {
+        await updateCourse(editingId, payload);
+      } else {
+        await createCourse(payload);
+      }
+      
+      resetForm();
       await loadCourses();
     } catch (err) {
-      setFormError("Wystąpił błąd podczas dodawania kierunku.");
+      setFormError("Wystąpił błąd podczas zapisywania kierunku.");
     } finally {
       setFormSubmitting(false);
     }
@@ -91,7 +142,7 @@ function CoursesPage({ isLoggedIn }) {
 
       {isFormOpen && (
         <div className="course-form-container">
-          <h2>Nowy kierunek</h2>
+          <h2>{editingId ? "Edytuj kierunek" : "Nowy kierunek"}</h2>
           <form className="course-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Nazwa kierunku</label>
@@ -125,6 +176,38 @@ function CoursesPage({ isLoggedIn }) {
                 placeholder="Krótki opis programu..."
               ></textarea>
             </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label>Data rozpoczęcia rekrutacji</label>
+                <input
+                  type="date"
+                  name="recruitmentStart"
+                  value={formData.recruitmentStart}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Data zakończenia rekrutacji</label>
+                <input
+                  type="date"
+                  name="recruitmentEnd"
+                  value={formData.recruitmentEnd}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>ID Koordynatora</label>
+              <input
+                type="number"
+                name="coordinatorId"
+                value={formData.coordinatorId}
+                onChange={handleInputChange}
+                placeholder="np. 1"
+              />
+            </div>
 
             {formError && <div className="form-error">{formError}</div>}
 
@@ -132,7 +215,7 @@ function CoursesPage({ isLoggedIn }) {
               <button
                 type="button"
                 className="secondary-btn"
-                onClick={() => setIsFormOpen(false)}
+                onClick={resetForm}
                 disabled={formSubmitting}
               >
                 Anuluj
@@ -166,6 +249,22 @@ function CoursesPage({ isLoggedIn }) {
               <p className="course-description">
                 {course.description || "Brak opisu dla tego programu."}
               </p>
+              <div className="course-meta">
+                {course.recruitmentStart && course.recruitmentEnd && (
+                  <span className="meta-tag">
+                    Rekrutacja: {course.recruitmentStart} - {course.recruitmentEnd}
+                  </span>
+                )}
+                {course.coordinatorId && (
+                  <span className="meta-tag">Koordynator ID: {course.coordinatorId}</span>
+                )}
+              </div>
+              {isLoggedIn && (
+                <div className="course-card-actions">
+                  <button className="secondary-btn edit-btn" onClick={() => handleEdit(course)}>Edytuj</button>
+                  <button className="secondary-btn delete-btn" onClick={() => handleDelete(course.id)}>Usuń</button>
+                </div>
+              )}
             </div>
           ))}
         </div>

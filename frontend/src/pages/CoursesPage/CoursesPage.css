@@ -203,3 +203,55 @@
     transform: translateY(0);
   }
 }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.course-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.meta-tag {
+  background: var(--surface);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.course-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.edit-btn {
+  flex: 1;
+}
+
+.delete-btn {
+  flex: 1;
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+.delete-btn:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
