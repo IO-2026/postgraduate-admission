@@ -36,3 +36,35 @@ export async function createCourse(courseData) {
   }
   return response.json();
 }
+
+export async function updateCourse(id, courseData) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/courses/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(courseData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się zaktualizować kierunku");
+  }
+  return response.json();
+}
+
+export async function deleteCourse(id) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/courses/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się usunąć kierunku");
+  }
+  return true;
+}
