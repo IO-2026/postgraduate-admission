@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
-
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -30,9 +29,11 @@ public class ApplicationService {
         application.setIsPaid(false);
         application.setStatus(ApplicationStatus.SUBMITTED);
 
-        Application savedApplication = applicationRepository.save(application);
+        // Flush early so DB errors happen before we attempt to send email.
+        // This also ensures we don't send confirmation for a record that can't be persisted.
+        Application savedApplication = applicationRepository.saveAndFlush(application);
 
-        emailService.sendApplicationStatusChange(user, application);
+        emailService.sendApplicationStatusChange(user, savedApplication);
 
         return savedApplication;
     }

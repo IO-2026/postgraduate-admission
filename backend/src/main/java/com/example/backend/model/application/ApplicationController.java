@@ -20,7 +20,7 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @PostMapping("/submit")
-    public ResponseEntity<?> submit(@RequestBody ApplicationRequest request) {
+    public ResponseEntity<Void> submit(@RequestBody ApplicationRequest request) {
         applicationService.saveApplication(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

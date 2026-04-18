@@ -4,8 +4,11 @@ package com.example.backend.model.notification;
 import com.example.backend.model.application.Application;
 import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,13 +16,34 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender mailSender;
 
+    private static final Object RATE_LIMIT_LOCK = new Object();
+    private static long lastSendAtMillis = 0L;
+    private static final long MIN_INTERVAL_BETWEEN_EMAILS_MS = 5000L;
 
+    @Retryable(
+            retryFor = {MailException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void sendWelcomeEmail(User user) {
+        String content = String.format(
+                "Witaj w systemie, %s! Twoje konto zostało utworzone.",
+                user.getName()
+        );
+        send(user.getEmail(), "Witamy w rekrutacji!", content);
+    }
+
+    @Retryable(
+            retryFor = {MailException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     public void sendApplicationStatusChange(User user, Application application) {
         String statusDescription = application.getStatus().getDescription();
 
         String content = String.format("""
         Cześć %s!
-        
+
         Status Twojego zgłoszenia na kurs (ID: %d) zmienił się.
         Aktualny status: %s.
         """,
@@ -31,20 +55,15 @@ public class EmailService {
         send(user.getEmail(), "Zmiana statusu zgłoszenia", content);
     }
 
-    public void sendWelcomeEmail(User user) {
-        String content = String.format(
-                "Witaj w systemie, %s! Twoje konto zostało utworzone.",
-                user.getName()
-        );
-        send(user.getEmail(), "Witamy w rekrutacji!", content);
-    }
-
     private void send(String to, String subject, String body) {
+        
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("rekrutacja@twojprojekt.pl");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
+
         mailSender.send(message);
     }
+    
 }
