@@ -34,7 +34,8 @@ function updateAuthUser(patch) {
     return;
   }
 
-  const currentUser = current.user && typeof current.user === "object" ? current.user : {};
+  const currentUser =
+    current.user && typeof current.user === "object" ? current.user : {};
   const nextUser = {
     ...currentUser,
     ...patch,
@@ -120,7 +121,8 @@ function getAccountDefaults(user) {
 }
 
 function getDraftDefaults(existingDraft) {
-  const safeDraft = existingDraft && typeof existingDraft === "object" ? existingDraft : {};
+  const safeDraft =
+    existingDraft && typeof existingDraft === "object" ? existingDraft : {};
 
   return {
     university: safeDraft.university || "",
@@ -145,7 +147,9 @@ function AdmissionPage() {
   const userId = user?.id ?? null;
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
-  const [draft, setDraft] = useState(() => getDraftDefaults(loadDraft(courseId)));
+  const [draft, setDraft] = useState(() =>
+    getDraftDefaults(loadDraft(courseId)),
+  );
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [submitInfo, setSubmitInfo] = useState("");
@@ -240,8 +244,8 @@ function AdmissionPage() {
         {missingSession ? (
           <div className="admission-session">
             <p className="form-error" role="alert">
-              Brakuje danych sesji (token lub identyfikator użytkownika). Zaloguj
-              się ponownie.
+              Brakuje danych sesji (token lub identyfikator użytkownika).
+              Zaloguj się ponownie.
             </p>
             <div className="admission-actions">
               <Link className="primary-btn" to="/auth">
@@ -327,10 +331,7 @@ function AdmissionPage() {
               </label>
             </section>
 
-            <section
-              className="admission-section"
-              aria-label="Dane do wniosku"
-            >
+            <section className="admission-section" aria-label="Dane do wniosku">
               <h2>Dane do wniosku</h2>
 
               <label>
@@ -419,10 +420,7 @@ function AdmissionPage() {
               </label>
             </section>
 
-            <section
-              className="admission-section"
-              aria-label="Dokumenty"
-            >
+            <section className="admission-section" aria-label="Dokumenty">
               <h2>Dokumenty</h2>
 
               <label>
@@ -437,15 +435,12 @@ function AdmissionPage() {
                 />
               </label>
               <p className="admission-hint">
-                Na tym etapie wystarczy link. Przesyłanie plików zostanie
-                dodane później.
+                Na tym etapie wystarczy link. Przesyłanie plików zostanie dodane
+                później.
               </p>
             </section>
 
-            <section
-              className="admission-section"
-              aria-label="Zgody"
-            >
+            <section className="admission-section" aria-label="Zgody">
               <h2>Zgody</h2>
 
               <label className="admission-checkbox">
