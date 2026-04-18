@@ -44,6 +44,11 @@ public class EmailService {
         send(user.getEmail(), "Witamy w rekrutacji!", content);
     }
 
+@Retryable(
+            retryFor = {MailException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     private void send(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("rekrutacja@twojprojekt.pl");
