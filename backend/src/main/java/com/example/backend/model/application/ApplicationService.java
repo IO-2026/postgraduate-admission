@@ -6,12 +6,16 @@ import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
@@ -30,9 +34,23 @@ public class ApplicationService {
         application.setIsPaid(false);
         application.setStatus(ApplicationStatus.SUBMITTED);
 
-        Application savedApplication = applicationRepository.save(application);
+        final Application savedApplication;
+        try {
+            // Flush early so DB errors happen before we attempt to send email.
+            // This also ensures we don't send confirmation for a record that can't be persisted.
+            savedApplication = applicationRepository.saveAndFlush(application);
+        } catch (Exception exception) {
+            logger.error(
+                    "Failed to persist application (userId={}, courseId={}): {}: {}",
+                    applicationRequest.getUserId(),
+                    applicationRequest.getCourseId(),
+                    exception.getClass().getName(),
+                    exception.getMessage()
+            );
+            throw exception;
+        }
 
-        emailService.sendApplicationStatusChange(user, application);
+        emailService.sendApplicationStatusChange(user, savedApplication);
 
         return savedApplication;
     }

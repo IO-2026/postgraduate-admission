@@ -4,6 +4,7 @@ package com.example.backend.model.notification;
 import com.example.backend.model.application.Application;
 import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
+
+    private static final Object RATE_LIMIT_LOCK = new Object();
+    private static long lastSendAtMillis = 0L;
+    private static final long MIN_INTERVAL_BETWEEN_EMAILS_MS = 5000L;
 
 
     public void sendApplicationStatusChange(User user, Application application) {
@@ -45,6 +50,52 @@ public class EmailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
-        mailSender.send(message);
+
+        int attempt = 0;
+        while (true) {
+            attempt++;
+            try {
+                throttle();
+                mailSender.send(message);
+                return;
+            } catch (MailException exception) {
+                if (attempt >= 5 || !isRetryable(exception)) {
+                    throw exception;
+                }
+
+                try {
+                    Thread.sleep(1000L * attempt);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw exception;
+                }
+            }
+        }
+    }
+
+    private boolean isRetryable(MailException exception) {
+        String message = exception.getMessage();
+        if (message == null) {
+            return false;
+        }
+        String lower = message.toLowerCase();
+        // Mailtrap free plan can rate-limit; brief retry helps for bursty dev testing.
+        return lower.contains("too many emails") || lower.contains("too many emails per second");
+    }
+
+    private void throttle() {
+        synchronized (RATE_LIMIT_LOCK) {
+            long now = System.currentTimeMillis();
+            long elapsed = now - lastSendAtMillis;
+            long waitMs = MIN_INTERVAL_BETWEEN_EMAILS_MS - elapsed;
+            if (waitMs > 0) {
+                try {
+                    Thread.sleep(waitMs);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            lastSendAtMillis = System.currentTimeMillis();
+        }
     }
 }

@@ -32,11 +32,25 @@ function App() {
         ? authPayload
         : authPayload?.token || authPayload?.jwt || authPayload?.accessToken;
 
+    const payloadUserId =
+      typeof authPayload === "object" && authPayload ? authPayload.id : null;
+    const payloadEmail =
+      typeof authPayload === "object" && authPayload ? authPayload.email : null;
+    const payloadRole =
+      typeof authPayload === "object" && authPayload ? authPayload.role : null;
+
+    const mergedUser = {
+      ...(user || {}),
+      id: payloadUserId ?? user?.id ?? null,
+      email: user?.email ?? payloadEmail ?? null,
+      role: user?.role ?? payloadRole ?? null,
+    };
+
     localStorage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
         isLoggedIn: true,
-        user,
+        user: mergedUser,
         token: token || null,
       }),
     );

@@ -50,7 +50,7 @@ public class ApplicationServiceTest {
         User mockUser = new User();
         mockUser.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-        when(applicationRepository.save(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
         Application result = applicationService.saveApplication(request);
@@ -60,9 +60,10 @@ public class ApplicationServiceTest {
         assertEquals("Test University", result.getUniversity());
         assertEquals(100L, result.getCourseId());
         assertEquals(mockUser, result.getUser());
+        assertEquals(ApplicationStatus.SUBMITTED, result.getStatus());
 
         verify(userRepository, times(1)).findById(1L);
-        verify(applicationRepository, times(1)).save(any(Application.class));
+        verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
     }
 
     @Test
@@ -75,7 +76,7 @@ public class ApplicationServiceTest {
         User mockUser = new User();
         mockUser.setId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-        when(applicationRepository.save(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         applicationService.saveApplication(request);
 

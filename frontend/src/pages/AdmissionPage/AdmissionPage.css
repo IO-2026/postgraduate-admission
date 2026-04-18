@@ -1,3 +1,151 @@
 .admission-view {
   min-height: calc(100svh - 64px);
 }
+
+.admission-header {
+  border-radius: 28px;
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(230, 244, 241, 0.82)
+  );
+  box-shadow: var(--shadow-soft);
+  padding: 36px;
+}
+
+.admission-tag {
+  margin-bottom: 6px;
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.admission-header h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  line-height: 1.1;
+  color: var(--text-strong);
+}
+
+.admission-subtitle {
+  margin-top: 12px;
+  max-width: 60ch;
+  font-size: 1.05rem;
+}
+
+.admission-card {
+  margin-top: 18px;
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+.admission-form {
+  display: grid;
+  gap: 22px;
+}
+
+.admission-section {
+  display: grid;
+  gap: 12px;
+}
+
+.admission-section h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--text-strong);
+}
+
+.admission-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.93rem;
+  color: var(--text-strong);
+}
+
+.admission-form input {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  padding: 0 14px;
+  color: var(--text-strong);
+}
+
+.admission-form input:focus {
+  border-color: var(--field-focus);
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+}
+
+.admission-form input:disabled {
+  opacity: 0.8;
+}
+
+.admission-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admission-hint {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.admission-checkbox {
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+}
+
+.admission-checkbox input {
+  width: 18px;
+  height: 18px;
+  margin-top: 4px;
+  padding: 0;
+}
+
+.admission-checkbox span {
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.admission-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--error);
+  font-weight: 500;
+}
+
+.form-info {
+  margin: 0;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .admission-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .admission-header,
+  .admission-card {
+    padding: 20px;
+  }
+}
