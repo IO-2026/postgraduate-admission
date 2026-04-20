@@ -81,7 +81,8 @@ function CoursesPage({ isLoggedIn }) {
     try {
       await deleteCourse(id);
       await loadCourses();
-    } catch (err) {
+    } catch (error) {
+      console.error("Error deleting course:", error);
       alert("Nie udało się usunąć kierunku.");
     }
   };
@@ -121,7 +122,8 @@ function CoursesPage({ isLoggedIn }) {
 
       resetForm();
       await loadCourses();
-    } catch (err) {
+    } catch (error) {
+      console.error("Error saving course:", error);
       setFormError("Wystąpił błąd podczas zapisywania kierunku.");
     } finally {
       setFormSubmitting(false);
