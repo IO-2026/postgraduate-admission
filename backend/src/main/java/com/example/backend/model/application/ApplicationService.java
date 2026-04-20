@@ -1,7 +1,11 @@
 package com.example.backend.model.application;
 
 
-import com.example.backend.auth.DTO.ApplicationRequest;
+import com.example.backend.model.application.dto.AdmissionAddressDto;
+import com.example.backend.model.application.dto.AdmissionApplicantDto;
+import com.example.backend.model.application.dto.AdmissionDetailsDto;
+import com.example.backend.model.application.dto.AdmissionEducationDto;
+import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -17,15 +21,41 @@ public class ApplicationService {
     private final EmailService emailService;
 
     @Transactional
-    public Application saveApplication(ApplicationRequest applicationRequest) {
+    public Application saveApplication(AdmissionSubmitRequest admissionRequest) {
 
-        User user = userRepository.findById(applicationRequest.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        AdmissionApplicantDto applicant = admissionRequest.getApplicant();
+        AdmissionAddressDto address = applicant.getAddress();
+        AdmissionEducationDto education = admissionRequest.getEducation();
+        AdmissionDetailsDto details = admissionRequest.getDetails();
+
+        User user = userRepository.findById(admissionRequest.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Application application = new Application();
         application.setUser(user);
-        application.setUniversity(applicationRequest.getUniversity());
-        application.setCourseId(applicationRequest.getCourseId());
-        application.setDiplomaUrl(applicationRequest.getDiplomaUrl());
+
+        application.setUniversity(details.getUniversity());
+        application.setCourseId(details.getCourseId());
+        application.setDiplomaUrl(details.getDiplomaUrl());
+
+        application.setApplicantName(applicant.getName());
+        application.setApplicantSurname(applicant.getSurname());
+        application.setApplicantTelNumber(applicant.getTelNumber());
+        application.setApplicantDateOfBirth(applicant.getDateOfBirth());
+        application.setApplicantPesel(applicant.getPesel());
+
+        application.setAddressStreet(address.getStreet());
+        application.setAddressPostalCode(address.getPostalCode());
+        application.setAddressCity(address.getCity());
+
+        application.setPreviousDegree(education.getPreviousDegree());
+        application.setFieldOfStudy(education.getFieldOfStudy());
+        application.setGraduationYear(education.getGraduationYear());
+
+        application.setNotes(details.getNotes());
+        application.setTruthfulnessConsent(details.isTruthfulnessConsent());
+        application.setGdprConsent(details.isGdprConsent());
+
         application.setIsPaid(false);
         application.setStatus(ApplicationStatus.SUBMITTED);
 

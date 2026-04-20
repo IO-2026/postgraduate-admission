@@ -207,12 +207,45 @@ function AdmissionPage() {
     setIsSubmitting(true);
 
     try {
+      const previousDegree = String(draft.previousDegree || "").trim();
+      const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
+      const notes = String(draft.notes || "").trim();
+      const graduationYearRaw = String(draft.graduationYear || "").trim();
+      const graduationYear = graduationYearRaw
+        ? Number.parseInt(graduationYearRaw, 10)
+        : null;
+
       await submitApplication(
         {
           userId,
-          university: String(draft.university).trim(),
-          diplomaUrl: String(draft.diplomaUrl).trim(),
-          courseId,
+          applicant: {
+            name: String(account.name).trim(),
+            surname: String(account.surname).trim(),
+            telNumber: String(account.telNumber).trim(),
+            dateOfBirth: String(account.dateOfBirth).trim(),
+            pesel: String(account.pesel).trim(),
+            address: {
+              street: String(draft.street).trim(),
+              postalCode: String(draft.postalCode).trim(),
+              city: String(draft.city).trim(),
+            },
+          },
+          education: {
+            previousDegree: previousDegree || null,
+            fieldOfStudy: fieldOfStudy || null,
+            graduationYear:
+              Number.isFinite(graduationYear) && graduationYear > 0
+                ? graduationYear
+                : null,
+          },
+          details: {
+            courseId,
+            university: String(draft.university).trim(),
+            diplomaUrl: String(draft.diplomaUrl).trim(),
+            notes: notes || null,
+            truthfulnessConsent: Boolean(draft.truthfulnessConsent),
+            gdprConsent: Boolean(draft.gdprConsent),
+          },
         },
         token,
       );

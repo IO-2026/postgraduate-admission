@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "applications")
 @Getter
@@ -44,6 +46,48 @@ public class Application {
 
     @Column(name = "is_paid")
     private Boolean isPaid = false;
+
+    @Column(name = "applicant_name")
+    private String applicantName;
+
+    @Column(name = "applicant_surname")
+    private String applicantSurname;
+
+    @Column(name = "applicant_tel_number")
+    private String applicantTelNumber;
+
+    @Column(name = "applicant_date_of_birth")
+    private LocalDate applicantDateOfBirth;
+
+    @Column(name = "applicant_pesel")
+    private String applicantPesel;
+
+    @Column(name = "address_street")
+    private String addressStreet;
+
+    @Column(name = "address_postal_code")
+    private String addressPostalCode;
+
+    @Column(name = "address_city")
+    private String addressCity;
+
+    @Column(name = "previous_degree")
+    private String previousDegree;
+
+    @Column(name = "field_of_study")
+    private String fieldOfStudy;
+
+    @Column(name = "graduation_year")
+    private Integer graduationYear;
+
+    @Column(name = "notes", length = 2000)
+    private String notes;
+
+    @Column(name = "truthfulness_consent")
+    private Boolean truthfulnessConsent;
+
+    @Column(name = "gdpr_consent")
+    private Boolean gdprConsent;
 
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)

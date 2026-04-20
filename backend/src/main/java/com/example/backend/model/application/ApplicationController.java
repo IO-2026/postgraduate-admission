@@ -1,8 +1,8 @@
 package com.example.backend.model.application;
 
-
-import com.example.backend.auth.DTO.ApplicationRequest;
+import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +20,7 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @PostMapping("/submit")
-    public ResponseEntity<Void> submit(@RequestBody ApplicationRequest request) {
+    public ResponseEntity<Void> submit(@Valid @RequestBody AdmissionSubmitRequest request) {
         applicationService.saveApplication(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

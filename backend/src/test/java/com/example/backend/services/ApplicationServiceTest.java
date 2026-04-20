@@ -1,7 +1,11 @@
 package com.example.backend.services;
 
 
-import com.example.backend.auth.DTO.ApplicationRequest;
+import com.example.backend.model.application.dto.AdmissionAddressDto;
+import com.example.backend.model.application.dto.AdmissionApplicantDto;
+import com.example.backend.model.application.dto.AdmissionDetailsDto;
+import com.example.backend.model.application.dto.AdmissionEducationDto;
+import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
@@ -42,10 +46,37 @@ public class ApplicationServiceTest {
     @Test
     void shouldSuccessfullySaveApplication() {
         // GIVEN: Przygotowujemy dane wejściowe
-        ApplicationRequest request = new ApplicationRequest();
+        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
         request.setUserId(1L);
-        request.setUniversity("Test University");
-        request.setCourseId(100L);
+
+        AdmissionAddressDto address = new AdmissionAddressDto();
+        address.setStreet("Testowa 1");
+        address.setPostalCode("30-059");
+        address.setCity("Kraków");
+
+        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
+        applicant.setName("Jan");
+        applicant.setSurname("Kowalski");
+        applicant.setTelNumber("123456789");
+        applicant.setPesel("44051401458");
+        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
+        applicant.setAddress(address);
+
+        AdmissionEducationDto education = new AdmissionEducationDto();
+        education.setPreviousDegree("Inżynier");
+        education.setFieldOfStudy("Informatyka");
+        education.setGraduationYear(2015);
+
+        AdmissionDetailsDto details = new AdmissionDetailsDto();
+        details.setUniversity("Test University");
+        details.setCourseId(100L);
+        details.setDiplomaUrl("https://example.com/diploma.pdf");
+        details.setTruthfulnessConsent(true);
+        details.setGdprConsent(true);
+
+        request.setApplicant(applicant);
+        request.setEducation(education);
+        request.setDetails(details);
 
         User mockUser = new User();
         mockUser.setId(1L);
@@ -68,10 +99,37 @@ public class ApplicationServiceTest {
 
     @Test
     void shouldSendEmailAfterSavingApplication() {
-        ApplicationRequest request = new ApplicationRequest();
+        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
         request.setUserId(1L);
-        request.setUniversity("Test University");
-        request.setCourseId(100L);
+
+        AdmissionAddressDto address = new AdmissionAddressDto();
+        address.setStreet("Testowa 1");
+        address.setPostalCode("30-059");
+        address.setCity("Kraków");
+
+        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
+        applicant.setName("Jan");
+        applicant.setSurname("Kowalski");
+        applicant.setTelNumber("123456789");
+        applicant.setPesel("44051401458");
+        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
+        applicant.setAddress(address);
+
+        AdmissionEducationDto education = new AdmissionEducationDto();
+        education.setPreviousDegree("Inżynier");
+        education.setFieldOfStudy("Informatyka");
+        education.setGraduationYear(2015);
+
+        AdmissionDetailsDto details = new AdmissionDetailsDto();
+        details.setUniversity("Test University");
+        details.setCourseId(100L);
+        details.setDiplomaUrl("https://example.com/diploma.pdf");
+        details.setTruthfulnessConsent(true);
+        details.setGdprConsent(true);
+
+        request.setApplicant(applicant);
+        request.setEducation(education);
+        request.setDetails(details);
 
         User mockUser = new User();
         mockUser.setId(1L);
