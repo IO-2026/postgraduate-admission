@@ -6,9 +6,8 @@ import AuthPage from "./pages/AuthPage/AuthPage";
 import HomePage from "./pages/HomePage/HomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import AdminCoordinatorAssignment from "./pages/admin/AdminCoordinatorAssignment";
-
-import AdminCoordinators from "./pages/admin/AdminCoordinators";
+import AdminCoordinatorAssignment from "./pages/AdminPage/AdminCoordinatorAssignment";
+import AdminCoordinators from "./pages/AdminPage/AdminCoordinators";
 import "./styles/layout.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
