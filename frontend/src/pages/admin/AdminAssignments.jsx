@@ -43,7 +43,8 @@ function AdminAssignments() {
         const data = await res.json();
         if (mounted) setAssignments(data);
       } catch (e) {
-        if (mounted) setError("Nie można pobrać przypisań. " + (e?.message || ""));
+        if (mounted)
+          setError("Nie można pobrać przypisań. " + (e?.message || ""));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -54,12 +55,12 @@ function AdminAssignments() {
 
   // keep assignments in deterministic order to avoid UI flicker
   const sortedAssignments = (assignments || []).slice().sort((a, b) => {
-    const ac = (a?.courseName || '').toLowerCase();
-    const bc = (b?.courseName || '').toLowerCase();
+    const ac = (a?.courseName || "").toLowerCase();
+    const bc = (b?.courseName || "").toLowerCase();
     if (ac < bc) return -1;
     if (ac > bc) return 1;
-    const an = (a?.cohortName || '').toLowerCase();
-    const bn = (b?.cohortName || '').toLowerCase();
+    const an = (a?.cohortName || "").toLowerCase();
+    const bn = (b?.cohortName || "").toLowerCase();
     if (an < bn) return -1;
     if (an > bn) return 1;
     return (a?.id || 0) - (b?.id || 0);
@@ -87,7 +88,9 @@ function AdminAssignments() {
         {loading ? (
           <p>Ładowanie…</p>
         ) : error ? (
-          <p className="form-error" role="alert">{error}</p>
+          <p className="form-error" role="alert">
+            {error}
+          </p>
         ) : assignments.length === 0 ? (
           <p>Brak przypisań.</p>
         ) : (
@@ -103,7 +106,8 @@ function AdminAssignments() {
               {sortedAssignments.map((a) => (
                 <tr key={a.id}>
                   <td>
-                    {a.coordinatorName} {a.coordinatorEmail ? `(${a.coordinatorEmail})` : ""}
+                    {a.coordinatorName}{" "}
+                    {a.coordinatorEmail ? `(${a.coordinatorEmail})` : ""}
                   </td>
                   <td>{a.courseName}</td>
                   <td>{a.cohortName}</td>
