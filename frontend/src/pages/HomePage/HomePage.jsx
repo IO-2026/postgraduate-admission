@@ -4,6 +4,22 @@ import "./HomePage.css";
 function HomePage({ isLoggedIn }) {
   const applications = [];
 
+  function safeJsonParse(value) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
+  const authRaw =
+    typeof window !== "undefined"
+      ? localStorage.getItem("pg-admission-auth")
+      : null;
+  const auth = safeJsonParse(authRaw);
+  const role = auth?.user?.role || null;
+  const isAdmin = !!(role && String(role).toUpperCase().includes("ADMIN"));
+
   if (!isLoggedIn) {
     return (
       <section className="gate-view" aria-label="Brama dostępu dla gościa">
@@ -60,6 +76,16 @@ function HomePage({ isLoggedIn }) {
           <Link className="ghost-link" to="/messages">
             Wiadomości
           </Link>
+          {isAdmin ? (
+            <>
+              <Link className="ghost-link" to="/admin/assign-coordinators">
+                Przydziel koordynatorów
+              </Link>
+              <Link className="ghost-link" to="/admin/coordinators">
+                Koordynatorzy
+              </Link>
+            </>
+          ) : null}
         </div>
       </header>
 

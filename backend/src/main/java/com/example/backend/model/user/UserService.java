@@ -46,7 +46,6 @@ public class UserService implements UserDetailsService {
         user.setRole(userRole);
 
         userRepository.save(user);
-        // Welcome email re-enabled.
         emailService.sendWelcomeEmail(user);
     }
 
