@@ -5,6 +5,7 @@ import com.example.backend.auth.DTO.LoginRequest;
 import com.example.backend.auth.DTO.RegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.loginUser(loginRequest));
+        try {
+            return ResponseEntity.ok(authService.loginUser(loginRequest));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
     @PostMapping("/register")
