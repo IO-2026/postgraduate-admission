@@ -1,10 +1,14 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import AdmissionPage from "./pages/AdmissionPage/AdmissionPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import HomePage from "./pages/HomePage/HomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import AdminCoordinatorAssignment from "./pages/admin/AdminCoordinatorAssignment";
+
+import AdminCoordinators from "./pages/admin/AdminCoordinators";
 import "./styles/layout.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -25,6 +29,8 @@ function getInitialAuthState() {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(getInitialAuthState);
+
+  const queryClient = useQueryClient();
 
   const handleAuthSuccess = useCallback((user, authPayload) => {
     const token =
@@ -54,13 +60,90 @@ function App() {
         token: token || null,
       }),
     );
+
+    // Prefetch admin-related data if user is admin
+    if (mergedUser.role && String(mergedUser.role).toLowerCase().includes("admin")) {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      // Prefetch users, courses, cohorts, assignments and coordinators-with-cohorts
+      queryClient.prefetchQuery(["allUsers", token], async () => {
+        const r = await fetch("/api/admin/users/search", { headers });
+        if (!r.ok) throw new Error("Failed to fetch users");
+        return r.json();
+      }, { staleTime: 1000 * 60 * 5 });
+
+      queryClient.prefetchQuery(["courses", token], async () => {
+        const r = await fetch("/api/courses", { headers });
+        if (!r.ok) throw new Error("Failed to fetch courses");
+        return r.json();
+      }, { staleTime: 1000 * 60 * 5 });
+
+      queryClient.prefetchQuery(["cohorts", token], async () => {
+        const r = await fetch("/api/cohorts", { headers });
+        if (!r.ok) throw new Error("Failed to fetch cohorts");
+        return r.json();
+      }, { staleTime: 1000 * 60 * 5 });
+
+      queryClient.prefetchQuery(["coordinatorsWithCohorts", token], async () => {
+        const r = await fetch("/api/admin/coordinators-with-cohorts", { headers });
+        if (!r.ok) throw new Error("Failed to fetch coordinators");
+        return r.json();
+      }, { staleTime: 1000 * 60 * 5 });
+    }
+
     setIsLoggedIn(true);
-  }, []);
+  }, [queryClient]);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     setIsLoggedIn(false);
   }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.isLoggedIn) return;
+      const user = parsed.user;
+      const token = parsed.token || null;
+      if (user && String(user.role).toLowerCase().includes("admin")) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        queryClient.prefetchQuery(["allUsers", token], async () => {
+          const r = await fetch("/api/admin/users/search", { headers });
+          if (!r.ok) throw new Error("Failed to fetch users");
+          return r.json();
+        }, { staleTime: 1000 * 60 * 5 });
+
+        queryClient.prefetchQuery(["courses", token], async () => {
+          const r = await fetch("/api/courses", { headers });
+          if (!r.ok) throw new Error("Failed to fetch courses");
+          return r.json();
+        }, { staleTime: 1000 * 60 * 5 });
+
+        queryClient.prefetchQuery(["cohorts", token], async () => {
+          const r = await fetch("/api/cohorts", { headers });
+          if (!r.ok) throw new Error("Failed to fetch cohorts");
+          return r.json();
+        }, { staleTime: 1000 * 60 * 5 });
+
+        queryClient.prefetchQuery(["coordinatorsWithCohorts", token], async () => {
+          const r = await fetch("/api/admin/coordinators-with-cohorts", { headers });
+          if (!r.ok) throw new Error("Failed to fetch coordinators");
+          return r.json();
+        }, { staleTime: 1000 * 60 * 5 });
+
+        queryClient.prefetchQuery(["assignments", token], async () => {
+          const r = await fetch("/api/admin/assignments", { headers });
+          if (!r.ok) throw new Error("Failed to fetch assignments");
+          return r.json();
+        }, { staleTime: 1000 * 60 * 5 });
+      }
+    } catch {
+      // ignore prefetch errors
+    }
+  }, [queryClient]);
 
   return (
     <div className="app-shell">
@@ -92,6 +175,18 @@ function App() {
             ) : (
               <Navigate to="/" replace />
             )
+          }
+        />
+        <Route
+          path="/admin/assign-coordinators"
+          element={
+            isLoggedIn ? <AdminCoordinatorAssignment /> : <Navigate to="/" replace />
+          }
+        />
+        <Route
+          path="/admin/coordinators"
+          element={
+            isLoggedIn ? <AdminCoordinators /> : <Navigate to="/" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
