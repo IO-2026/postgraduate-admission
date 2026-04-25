@@ -392,8 +392,7 @@ function AdmissionPage() {
         {missingSession ? (
           <div className="admission-session">
             <p className="form-error" role="alert">
-              Brakuje danych sesji (token).
-              Zaloguj się ponownie.
+              Brakuje danych sesji (token). Zaloguj się ponownie.
             </p>
             <div className="admission-actions">
               <Link className="primary-btn" to="/auth">
