@@ -1,11 +1,14 @@
 package com.example.backend;
 
+import com.example.backend.model.application.storage.InvalidDiplomaFileException;
+import com.example.backend.model.application.storage.StorageOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,6 +62,24 @@ public class BackendExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Application submission failed: email delivery failed."));
+    }
+
+    @ExceptionHandler(InvalidDiplomaFileException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidDiplomaFile(InvalidDiplomaFileException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("message", "Plik dyplomu jest za duży (maks. 10MB)."));
+    }
+
+    @ExceptionHandler(StorageOperationException.class)
+    public ResponseEntity<Map<String, String>> handleStorageException(StorageOperationException ex) {
+        logger.error("Storage operation failed", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", ex.getMessage()));
     }
 
     private static Throwable rootCause(Throwable throwable) {

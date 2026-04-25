@@ -1,6 +1,5 @@
 package com.example.backend.model.application.dto;
 
-import com.example.backend.validation.ValidUrl;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,10 +17,6 @@ public class AdmissionDetailsDto {
     @NotBlank(message = "Uczelnia jest wymagana.")
     @Size(min = 2, max = 200, message = "Nazwa uczelni musi mieć od 2 do 200 znaków.")
     private String university;
-
-    @NotBlank(message = "Link do dyplomu jest wymagany.")
-    @ValidUrl(message = "Podaj poprawny link do dyplomu (http/https).")
-    private String diplomaUrl;
 
     @Size(max = 2000, message = "Uwagi są zbyt długie.")
     private String notes;

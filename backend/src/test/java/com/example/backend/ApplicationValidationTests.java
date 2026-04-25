@@ -4,11 +4,13 @@ import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApplicationValidationTests {
 
   private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null);
+    ApplicationService applicationService = new ApplicationService(null, null, null, null);
     ApplicationController controller = new ApplicationController(applicationService);
 
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
@@ -30,9 +32,22 @@ public class ApplicationValidationTests {
 
     @Test
     void submitApplication_ShouldFail_WhenMissingTopLevelFields() throws Exception {
-      buildMockMvc().perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
+          MockMultipartFile payload = new MockMultipartFile(
+            "payload",
+            "payload.json",
+            MediaType.APPLICATION_JSON_VALUE,
+            "{}".getBytes()
+          );
+          MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "diploma.pdf",
+            MediaType.APPLICATION_PDF_VALUE,
+            "%PDF-1.4 test".getBytes()
+          );
+
+          buildMockMvc().perform(multipart("/api/applications/submit")
+          .file(payload)
+          .file(file))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("wymag")));
     }
@@ -58,7 +73,6 @@ public class ApplicationValidationTests {
                   "details": {
                     "courseId": 1,
                     "university": "",
-                    "diplomaUrl": "not-a-url",
                     "notes": null,
                     "truthfulnessConsent": false,
                     "gdprConsent": false
@@ -66,9 +80,22 @@ public class ApplicationValidationTests {
                 }
                 """;
 
-        buildMockMvc().perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
+                MockMultipartFile payloadPart = new MockMultipartFile(
+                  "payload",
+                  "payload.json",
+                  MediaType.APPLICATION_JSON_VALUE,
+                  payload.getBytes()
+                );
+                MockMultipartFile file = new MockMultipartFile(
+                  "file",
+                  "diploma.pdf",
+                  MediaType.APPLICATION_PDF_VALUE,
+                  "%PDF-1.4 test".getBytes()
+                );
+
+                buildMockMvc().perform(multipart("/api/applications/submit")
+                    .file(payloadPart)
+                    .file(file))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("applicant")));
     }
@@ -101,11 +128,24 @@ public class ApplicationValidationTests {
                   }
                 }
                 """;
+                MockMultipartFile payloadPart = new MockMultipartFile(
+                  "payload",
+                  "payload.json",
+                  MediaType.APPLICATION_JSON_VALUE,
+                  payload.getBytes()
+                );
+                MockMultipartFile file = new MockMultipartFile(
+                  "file",
+                  "diploma.pdf",
+                  MediaType.APPLICATION_PDF_VALUE,
+                  "%PDF-1.4 test".getBytes()
+                );
 
-        buildMockMvc().perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
+buildMockMvc().perform(multipart("/api/applications/submit")
+                    .file(payloadPart)
+                    .file(file))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("education")));
+        .andExpect(jsonPath("$.message", containsString("education")));
+
     }
 }

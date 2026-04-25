@@ -10,6 +10,7 @@ import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.application.ApplicationStatus;
+import com.example.backend.model.application.storage.StorageService;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -19,7 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
-
+import org.springframework.mock.web.MockMultipartFile;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +42,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private EmailService emailService;
+
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -68,7 +72,6 @@ public class ApplicationServiceTest {
         AdmissionDetailsDto details = new AdmissionDetailsDto();
         details.setUniversity("Test University");
         details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
         details.setTruthfulnessConsent(true);
         details.setGdprConsent(true);
 
@@ -84,9 +87,18 @@ public class ApplicationServiceTest {
         mockUser.setTelNumber("123456789");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(storageService.uploadDiploma(any(byte[].class), eq("application/pdf"), any(String.class)))
+            .thenReturn("diplomas/1/1/test.pdf");
+
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "diploma.pdf",
+            "application/pdf",
+            "%PDF-1.4 test".getBytes()
+        );
 
         // WHEN
-        Application result = applicationService.saveApplication(request, 1L);
+        Application result = applicationService.saveApplication(request, 1L, file);
 
         // THEN:
         assertNotNull(result);
@@ -94,9 +106,11 @@ public class ApplicationServiceTest {
         assertEquals(100L, result.getCourseId());
         assertEquals(mockUser, result.getUser());
         assertEquals(ApplicationStatus.SUBMITTED, result.getStatus());
+        assertEquals("diplomas/1/1/test.pdf", result.getDiplomaKey());
 
         verify(userRepository, times(1)).findById(1L);
-        verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
+        verify(applicationRepository, times(2)).saveAndFlush(any(Application.class));
+        verify(storageService, times(1)).uploadDiploma(any(byte[].class), eq("application/pdf"), any(String.class));
     }
 
     @Test
@@ -121,7 +135,6 @@ public class ApplicationServiceTest {
         AdmissionDetailsDto details = new AdmissionDetailsDto();
         details.setUniversity("Test University");
         details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
         details.setTruthfulnessConsent(true);
         details.setGdprConsent(true);
 
@@ -137,8 +150,17 @@ public class ApplicationServiceTest {
         mockUser.setTelNumber("123456789");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(storageService.uploadDiploma(any(byte[].class), eq("application/pdf"), any(String.class)))
+            .thenReturn("diplomas/1/1/test.pdf");
 
-        applicationService.saveApplication(request, 1L);
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "diploma.pdf",
+            "application/pdf",
+            "%PDF-1.4 test".getBytes()
+        );
+
+        applicationService.saveApplication(request, 1L, file);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
@@ -167,7 +189,6 @@ public class ApplicationServiceTest {
         AdmissionDetailsDto details = new AdmissionDetailsDto();
         details.setUniversity("Test University");
         details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
         details.setTruthfulnessConsent(true);
         details.setGdprConsent(true);
 
@@ -184,13 +205,23 @@ public class ApplicationServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(storageService.uploadDiploma(any(byte[].class), eq("application/pdf"), any(String.class)))
+            .thenReturn("diplomas/1/1/test.pdf");
         org.mockito.Mockito.doThrow(new MailSendException("smtp unavailable"))
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
-        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, 1L));
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "diploma.pdf",
+            "application/pdf",
+            "%PDF-1.4 test".getBytes()
+        );
 
-        verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
+        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, 1L, file));
+
+        verify(applicationRepository, times(2)).saveAndFlush(any(Application.class));
+        verify(storageService, times(1)).uploadDiploma(any(byte[].class), eq("application/pdf"), any(String.class));
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
     }
 
@@ -212,7 +243,6 @@ public class ApplicationServiceTest {
         AdmissionDetailsDto details = new AdmissionDetailsDto();
         details.setUniversity("Test University");
         details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
         details.setTruthfulnessConsent(true);
         details.setGdprConsent(true);
 
@@ -229,7 +259,14 @@ public class ApplicationServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(incompleteUser));
 
-        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, 1L));
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "diploma.pdf",
+            "application/pdf",
+            "%PDF-1.4 test".getBytes()
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, 1L, file));
     }
 
     @Test
