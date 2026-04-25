@@ -27,14 +27,20 @@ async function parsePayload(response) {
   return response.text();
 }
 
-export async function submitApplication(payload, token) {
+export async function submitApplication(payload, file, token) {
+  const formData = new FormData();
+  const payloadBlob = new Blob([JSON.stringify(payload)], {
+    type: "application/json",
+  });
+  formData.append("payload", payloadBlob, "payload.json");
+  formData.append("file", file);
+
   const response = await fetch(`${APPLICATIONS_BASE_PATH}/submit`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(payload),
+    body: formData,
   });
 
   const responsePayload = await parsePayload(response);

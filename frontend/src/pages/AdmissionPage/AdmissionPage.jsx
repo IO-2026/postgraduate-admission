@@ -87,7 +87,6 @@ function validateDraft({ account, draft }) {
     ["postalCode", draft.postalCode],
     ["city", draft.city],
     ["university", draft.university],
-    ["diplomaUrl", draft.diplomaUrl],
   ];
 
   for (const [key, value] of requiredFields) {
@@ -132,7 +131,6 @@ function getDraftDefaults(existingDraft) {
     previousDegree: safeDraft.previousDegree || "",
     fieldOfStudy: safeDraft.fieldOfStudy || "",
     graduationYear: safeDraft.graduationYear || "",
-    diplomaUrl: safeDraft.diplomaUrl || "",
     notes: safeDraft.notes || "",
     truthfulnessConsent: Boolean(safeDraft.truthfulnessConsent),
     gdprConsent: Boolean(safeDraft.gdprConsent),
@@ -154,6 +152,7 @@ function AdmissionPage() {
   const [submitError, setSubmitError] = useState("");
   const [submitInfo, setSubmitInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [diplomaFile, setDiplomaFile] = useState(null);
 
   useEffect(() => {
     setAccount(getAccountDefaults(user));
@@ -186,12 +185,25 @@ function AdmissionPage() {
     setDraft((prev) => ({ ...prev, [name]: checked }));
   };
 
+  const onDiplomaFileInput = (event) => {
+    const selectedFile = event.target.files?.[0] ?? null;
+    setDiplomaFile(selectedFile);
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     setSubmitError("");
     setSubmitInfo("");
 
     const validationErrors = validateDraft({ account, draft });
+    if (!diplomaFile) {
+      validationErrors.diplomaFile = "Plik dyplomu jest wymagany.";
+    } else if (diplomaFile.type !== "application/pdf") {
+      validationErrors.diplomaFile = "Dozwolony jest tylko plik PDF.";
+    } else if (diplomaFile.size > 10 * 1024 * 1024) {
+      validationErrors.diplomaFile = "Plik dyplomu jest za duży (maks. 10MB).";
+    }
+
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -241,17 +253,18 @@ function AdmissionPage() {
           details: {
             courseId,
             university: String(draft.university).trim(),
-            diplomaUrl: String(draft.diplomaUrl).trim(),
             notes: notes || null,
             truthfulnessConsent: Boolean(draft.truthfulnessConsent),
             gdprConsent: Boolean(draft.gdprConsent),
           },
         },
+        diplomaFile,
         token,
       );
 
       clearDraft(courseId);
       setDraft(getDraftDefaults(null));
+      setDiplomaFile(null);
       setErrors({});
       setSubmitInfo("Wniosek został wysłany.");
     } catch (requestError) {
@@ -457,19 +470,17 @@ function AdmissionPage() {
               <h2>Dokumenty</h2>
 
               <label>
-                Link do dyplomu (PDF)
+                Skan dyplomu (PDF)
                 <input
-                  type="url"
-                  name="diplomaUrl"
-                  value={draft.diplomaUrl}
-                  onChange={onDraftInput}
+                  type="file"
+                  accept="application/pdf"
+                  onChange={onDiplomaFileInput}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.diplomaUrl)}
+                  aria-invalid={Boolean(errors.diplomaFile)}
                 />
               </label>
               <p className="admission-hint">
-                Na tym etapie wystarczy link. Przesyłanie plików zostanie dodane
-                później.
+                Dozwolony format: PDF. Maksymalny rozmiar pliku: 10MB.
               </p>
             </section>
 

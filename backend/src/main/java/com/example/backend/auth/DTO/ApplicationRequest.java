@@ -10,6 +10,6 @@ import lombok.Setter;
 public class ApplicationRequest {
     private Long userId;
     private String university;
-    private String diplomaUrl;
+    private String diplomaKey;
     private Long courseId;
 }
