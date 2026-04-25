@@ -51,9 +51,9 @@ public class ApplicationValidationTests {
                     }
                   },
                   "education": {
-                    "previousDegree": null,
-                    "fieldOfStudy": null,
-                    "graduationYear": null
+                    "previousDegree": "Inżynier",
+                    "fieldOfStudy": "Informatyka",
+                    "graduationYear": 2015
                   },
                   "details": {
                     "courseId": 1,
@@ -71,5 +71,41 @@ public class ApplicationValidationTests {
                         .content(payload))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("applicant")));
+    }
+
+    @Test
+    void submitApplication_ShouldFail_WhenEducationFieldsAreMissing() throws Exception {
+        String payload = """
+                {
+                  "applicant": {
+                    "dateOfBirth": "2000-01-01",
+                    "pesel": "44051401458",
+                    "address": {
+                      "street": "Testowa 1",
+                      "postalCode": "30-059",
+                      "city": "Kraków"
+                    }
+                  },
+                  "education": {
+                    "previousDegree": "",
+                    "fieldOfStudy": "",
+                    "graduationYear": null
+                  },
+                  "details": {
+                    "courseId": 1,
+                    "university": "AGH",
+                    "diplomaUrl": "https://example.com/diploma.pdf",
+                    "notes": null,
+                    "truthfulnessConsent": true,
+                    "gdprConsent": true
+                  }
+                }
+                """;
+
+        buildMockMvc().perform(post("/api/applications/submit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("education")));
     }
 }
