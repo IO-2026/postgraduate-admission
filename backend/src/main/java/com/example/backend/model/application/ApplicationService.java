@@ -21,15 +21,16 @@ public class ApplicationService {
     private final EmailService emailService;
 
     @Transactional
-    public Application saveApplication(AdmissionSubmitRequest admissionRequest) {
+    public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
 
         AdmissionApplicantDto applicant = admissionRequest.getApplicant();
         AdmissionAddressDto address = applicant.getAddress();
         AdmissionEducationDto education = admissionRequest.getEducation();
         AdmissionDetailsDto details = admissionRequest.getDetails();
 
-        User user = userRepository.findById(admissionRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(authenticatedUserId)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+        validateProfileCompleteness(user);
 
         Application application = new Application();
         application.setUser(user);
@@ -38,9 +39,6 @@ public class ApplicationService {
         application.setCourseId(details.getCourseId());
         application.setDiplomaUrl(details.getDiplomaUrl());
 
-        application.setApplicantName(applicant.getName());
-        application.setApplicantSurname(applicant.getSurname());
-        application.setApplicantTelNumber(applicant.getTelNumber());
         application.setApplicantDateOfBirth(applicant.getDateOfBirth());
         application.setApplicantPesel(applicant.getPesel());
 
@@ -66,6 +64,16 @@ public class ApplicationService {
         emailService.sendApplicationStatusChange(user, savedApplication);
 
         return savedApplication;
+    }
+
+    private void validateProfileCompleteness(User user) {
+        if (isBlank(user.getName()) || isBlank(user.getSurname()) || isBlank(user.getEmail()) || isBlank(user.getTelNumber())) {
+            throw new IllegalArgumentException("Profil użytkownika jest niekompletny. Uzupełnij imię, nazwisko, e-mail i numer telefonu.");
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     @Transactional

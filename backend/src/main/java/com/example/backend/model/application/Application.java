@@ -47,15 +47,6 @@ public class Application {
     @Column(name = "is_paid")
     private Boolean isPaid = false;
 
-    @Column(name = "applicant_name")
-    private String applicantName;
-
-    @Column(name = "applicant_surname")
-    private String applicantSurname;
-
-    @Column(name = "applicant_tel_number")
-    private String applicantTelNumber;
-
     @Column(name = "applicant_date_of_birth")
     private LocalDate applicantDateOfBirth;
 

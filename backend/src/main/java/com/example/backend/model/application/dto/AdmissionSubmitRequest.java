@@ -7,9 +7,6 @@ import lombok.Data;
 @Data
 public class AdmissionSubmitRequest {
 
-    @NotNull(message = "Identyfikator użytkownika jest wymagany.")
-    private Long userId;
-
     @NotNull(message = "Dane kandydata są wymagane.")
     @Valid
     private AdmissionApplicantDto applicant;

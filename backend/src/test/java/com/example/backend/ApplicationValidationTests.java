@@ -41,11 +41,7 @@ public class ApplicationValidationTests {
     void submitApplication_ShouldFail_WhenMissingNestedApplicantFields() throws Exception {
         String payload = """
                 {
-                  "userId": 1,
                   "applicant": {
-                    "name": "",
-                    "surname": "Kowalski",
-                    "telNumber": "123456789",
                     "dateOfBirth": "2000-01-01",
                     "pesel": "123",
                     "address": {

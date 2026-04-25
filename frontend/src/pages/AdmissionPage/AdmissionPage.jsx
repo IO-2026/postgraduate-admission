@@ -28,28 +28,6 @@ function loadAuthState() {
   return parsed;
 }
 
-function updateAuthUser(patch) {
-  const current = loadAuthState();
-  if (!current) {
-    return;
-  }
-
-  const currentUser =
-    current.user && typeof current.user === "object" ? current.user : {};
-  const nextUser = {
-    ...currentUser,
-    ...patch,
-  };
-
-  localStorage.setItem(
-    AUTH_STORAGE_KEY,
-    JSON.stringify({
-      ...current,
-      user: nextUser,
-    }),
-  );
-}
-
 function getDraftStorageKey(courseId) {
   return `pg-admission-draft:${courseId}`;
 }
@@ -78,9 +56,6 @@ function validateDraft({ account, draft }) {
   const errors = {};
 
   const requiredFields = [
-    ["name", account.name],
-    ["surname", account.surname],
-    ["telNumber", account.telNumber],
     ["dateOfBirth", account.dateOfBirth],
     ["pesel", account.pesel],
     ["street", draft.street],
@@ -144,7 +119,6 @@ function AdmissionPage() {
   const authState = useMemo(loadAuthState, []);
   const token = authState?.token || null;
   const user = authState?.user || null;
-  const userId = user?.id ?? null;
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
@@ -165,15 +139,10 @@ function AdmissionPage() {
 
   const onAccountInput = (event) => {
     const { name, value } = event.target;
-    setAccount((prev) => {
-      const next = {
-        ...prev,
-        [name]: value,
-      };
-      return next;
-    });
-
-    updateAuthUser({ [name]: value });
+    setAccount((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const onDraftInput = (event) => {
@@ -199,7 +168,7 @@ function AdmissionPage() {
       return;
     }
 
-    if (!token || !userId) {
+    if (!token) {
       setSubmitError("Sesja wygasła. Zaloguj się ponownie.");
       return;
     }
@@ -217,11 +186,7 @@ function AdmissionPage() {
 
       await submitApplication(
         {
-          userId,
           applicant: {
-            name: String(account.name).trim(),
-            surname: String(account.surname).trim(),
-            telNumber: String(account.telNumber).trim(),
             dateOfBirth: String(account.dateOfBirth).trim(),
             pesel: String(account.pesel).trim(),
             address: {
@@ -261,7 +226,7 @@ function AdmissionPage() {
     }
   };
 
-  const missingSession = !token || !userId;
+  const missingSession = !token;
 
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
@@ -277,7 +242,7 @@ function AdmissionPage() {
         {missingSession ? (
           <div className="admission-session">
             <p className="form-error" role="alert">
-              Brakuje danych sesji (token lub identyfikator użytkownika).
+              Brakuje danych sesji (token).
               Zaloguj się ponownie.
             </p>
             <div className="admission-actions">
@@ -296,60 +261,20 @@ function AdmissionPage() {
 
               <label>
                 E-mail
-                <input type="email" value={account.email} disabled readOnly />
+                <input type="email" value={account.email} readOnly />
               </label>
 
-              <div className="admission-grid">
-                <label>
-                  Imię
-                  <input
-                    type="text"
-                    name="name"
-                    value={account.name}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.name)}
-                  />
-                </label>
-
-                <label>
-                  Nazwisko
-                  <input
-                    type="text"
-                    name="surname"
-                    value={account.surname}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.surname)}
-                  />
-                </label>
-              </div>
-
-              <div className="admission-grid">
-                <label>
-                  Numer telefonu
-                  <input
-                    type="tel"
-                    name="telNumber"
-                    value={account.telNumber}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.telNumber)}
-                  />
-                </label>
-
-                <label>
-                  Data urodzenia
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={account.dateOfBirth}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.dateOfBirth)}
-                  />
-                </label>
-              </div>
+              <label>
+                Data urodzenia
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={account.dateOfBirth}
+                  onChange={onAccountInput}
+                  disabled={isSubmitting}
+                  aria-invalid={Boolean(errors.dateOfBirth)}
+                />
+              </label>
 
               <label>
                 PESEL

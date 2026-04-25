@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -47,7 +48,6 @@ public class ApplicationServiceTest {
     void shouldSuccessfullySaveApplication() {
         // GIVEN: Przygotowujemy dane wejściowe
         AdmissionSubmitRequest request = new AdmissionSubmitRequest();
-        request.setUserId(1L);
 
         AdmissionAddressDto address = new AdmissionAddressDto();
         address.setStreet("Testowa 1");
@@ -55,9 +55,6 @@ public class ApplicationServiceTest {
         address.setCity("Kraków");
 
         AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setName("Jan");
-        applicant.setSurname("Kowalski");
-        applicant.setTelNumber("123456789");
         applicant.setPesel("44051401458");
         applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
         applicant.setAddress(address);
@@ -80,11 +77,15 @@ public class ApplicationServiceTest {
 
         User mockUser = new User();
         mockUser.setId(1L);
+        mockUser.setName("Jan");
+        mockUser.setSurname("Kowalski");
+        mockUser.setEmail("jan@example.com");
+        mockUser.setTelNumber("123456789");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
-        Application result = applicationService.saveApplication(request);
+        Application result = applicationService.saveApplication(request, 1L);
 
         // THEN:
         assertNotNull(result);
@@ -100,7 +101,6 @@ public class ApplicationServiceTest {
     @Test
     void shouldSendEmailAfterSavingApplication() {
         AdmissionSubmitRequest request = new AdmissionSubmitRequest();
-        request.setUserId(1L);
 
         AdmissionAddressDto address = new AdmissionAddressDto();
         address.setStreet("Testowa 1");
@@ -108,9 +108,6 @@ public class ApplicationServiceTest {
         address.setCity("Kraków");
 
         AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setName("Jan");
-        applicant.setSurname("Kowalski");
-        applicant.setTelNumber("123456789");
         applicant.setPesel("44051401458");
         applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
         applicant.setAddress(address);
@@ -133,14 +130,56 @@ public class ApplicationServiceTest {
 
         User mockUser = new User();
         mockUser.setId(1L);
+        mockUser.setName("Jan");
+        mockUser.setSurname("Kowalski");
+        mockUser.setEmail("jan@example.com");
+        mockUser.setTelNumber("123456789");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        applicationService.saveApplication(request);
+        applicationService.saveApplication(request, 1L);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
 
+    }
+
+    @Test
+    void shouldFailWhenUserProfileIsIncomplete() {
+        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
+
+        AdmissionAddressDto address = new AdmissionAddressDto();
+        address.setStreet("Testowa 1");
+        address.setPostalCode("30-059");
+        address.setCity("Kraków");
+
+        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
+        applicant.setPesel("44051401458");
+        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
+        applicant.setAddress(address);
+
+        AdmissionEducationDto education = new AdmissionEducationDto();
+        AdmissionDetailsDto details = new AdmissionDetailsDto();
+        details.setUniversity("Test University");
+        details.setCourseId(100L);
+        details.setDiplomaUrl("https://example.com/diploma.pdf");
+        details.setTruthfulnessConsent(true);
+        details.setGdprConsent(true);
+
+        request.setApplicant(applicant);
+        request.setEducation(education);
+        request.setDetails(details);
+
+        User incompleteUser = new User();
+        incompleteUser.setId(1L);
+        incompleteUser.setName("Jan");
+        incompleteUser.setSurname("Kowalski");
+        incompleteUser.setEmail("jan@example.com");
+        incompleteUser.setTelNumber(" ");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(incompleteUser));
+
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, 1L));
     }
 
     @Test
