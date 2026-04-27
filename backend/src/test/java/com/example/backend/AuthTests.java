@@ -58,7 +58,7 @@ public class AuthTests {
 
     @MockitoBean
     private EmailService emailService;
-  
+
     @Configuration
     static class TestMailConfig {
         @Bean
@@ -87,7 +87,7 @@ public class AuthTests {
         userRepository.save(testUser);
     }
 
-    //Registration tests
+    // Registration tests
 
     @Test
     void registerUser_ShouldSucceed_WhenValidPayload() throws Exception {
@@ -97,11 +97,10 @@ public class AuthTests {
         registerRequest.put("email", "john.smith@example.com");
         registerRequest.put("password", "MyPassword!1");
         registerRequest.put("telNumber", "123456789");
-        registerRequest.put("roleId", testRole.getId());
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
         assertTrue(userRepository.findByEmail("john.smith@example.com").isPresent());
@@ -114,17 +113,15 @@ public class AuthTests {
         registerRequest.put("name", "Duplicate");
         registerRequest.put("surname", "User");
         registerRequest.put("password", "Pass123!");
-        registerRequest.put("roleId", testRole.getId());
+        registerRequest.put("telNumber", "123456789");
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().is4xxClientError());
     }
 
-
-
-    //Login tests
+    // Login tests
 
     @Test
     void loginUser_ShouldSucceed_WhenCredentialsAreValid() throws Exception {
@@ -133,8 +130,8 @@ public class AuthTests {
         loginRequest.put("password", "SecurePass123!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk());
     }
 
@@ -145,8 +142,8 @@ public class AuthTests {
         loginRequest.put("password", "SomePassword123!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -157,8 +154,8 @@ public class AuthTests {
         loginRequest.put("password", "WrongPassword!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
