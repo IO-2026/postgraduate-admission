@@ -89,6 +89,11 @@
   opacity: 0.8;
 }
 
+.admission-form input[aria-invalid="true"] {
+  border-color: var(--error);
+  outline: 3px solid rgba(186, 72, 72, 0.16);
+}
+
 .admission-grid {
   display: grid;
   gap: 12px;
@@ -123,6 +128,19 @@
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.admission-disabled-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .form-error {

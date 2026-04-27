@@ -16,10 +16,6 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender mailSender;
 
-    private static final Object RATE_LIMIT_LOCK = new Object();
-    private static long lastSendAtMillis = 0L;
-    private static final long MIN_INTERVAL_BETWEEN_EMAILS_MS = 5000L;
-
     @Retryable(
             retryFor = {MailException.class},
             maxAttempts = 5,
