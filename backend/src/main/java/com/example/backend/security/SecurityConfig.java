@@ -63,6 +63,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("ADMIN", "COORDINATOR")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("ADMIN", "COORDINATOR")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("ADMIN", "COORDINATOR")
+                        .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("CANDIDATE")
+                        .requestMatchers("/api/applications/*/status").hasAnyRole("ADMIN", "COORDINATOR")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

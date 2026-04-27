@@ -22,12 +22,19 @@ public class Setup {
 
     @PostConstruct
     public void setup() {
-        System.out.println("Setup");
-        List<Role> roles = roleRepository.findAll();
-        System.out.println(roles);
+        System.out.println("Setup roles initialization...");
+        
+        List<String> requiredRoles = List.of("ADMIN", "COORDINATOR", "CANDIDATE");
+        for (String roleName : requiredRoles) {
+            if (roleRepository.findByName(roleName).isEmpty()) {
+                int nextId = roleRepository.findAll().stream().mapToInt(Role::getId).max().orElse(0) + 1;
+                roleRepository.save(new Role(nextId, roleName));
+                System.out.println("Created role: " + roleName + " with ID: " + nextId);
+            }
+        }
 
-        List<User> users = userRepository.findAll();
-        System.out.println(users);
+        List<Role> roles = roleRepository.findAll();
+        System.out.println("Current roles: " + roles);
 
     }
 

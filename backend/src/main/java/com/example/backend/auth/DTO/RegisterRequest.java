@@ -36,7 +36,4 @@ public class RegisterRequest {
             message = "Podaj poprawny numer telefonu."
     )
     private String telNumber;
-
-    @NotNull(message = "Role ID jest wymagane.")
-    private Integer roleId;
 }
