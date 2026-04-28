@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import AdmissionPage from "./pages/AdmissionPage/AdmissionPage";
+import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
 import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";

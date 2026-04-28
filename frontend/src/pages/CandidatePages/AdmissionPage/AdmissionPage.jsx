@@ -1,7 +1,7 @@
 import "./AdmissionPage.css";
 import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { submitApplication } from "../../services/admissionApi";
+import { submitApplication } from "./admissionApi";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 const DEFAULT_COURSE_ID = 1;
