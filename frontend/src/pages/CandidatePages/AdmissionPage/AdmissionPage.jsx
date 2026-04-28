@@ -1,7 +1,9 @@
 import "./AdmissionPage.css";
+import "../../CoursesPage/CoursesPage.css";
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
+import { fetchCourses } from "../../../services/courseApi";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 const REQUIRED_ERROR = "To pole jest wymagane.";
@@ -236,6 +238,23 @@ function getDraftDefaults(existingDraft) {
   };
 }
 
+function isValidDate(value) {
+  return !Number.isNaN(new Date(value).getTime());
+}
+
+function isRecruitmentOpen(start, end) {
+  if (!isValidDate(start) || !isValidDate(end)) {
+    return false;
+  }
+
+  const now = new Date();
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  endDate.setHours(23, 59, 59, 999);
+
+  return now >= startDate && now <= endDate;
+}
+
 function AdmissionPage() {
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
@@ -244,6 +263,7 @@ function AdmissionPage() {
   const authState = useMemo(loadAuthState, []);
   const token = authState?.token || null;
   const user = authState?.user || null;
+  const isLoggedIn = Boolean(authState?.isLoggedIn);
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
@@ -255,6 +275,9 @@ function AdmissionPage() {
   const [submitError, setSubmitError] = useState("");
   const [submitInfo, setSubmitInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
+  const [coursesError, setCoursesError] = useState("");
 
   useEffect(() => {
     setAccount(getAccountDefaults(user));
@@ -264,6 +287,44 @@ function AdmissionPage() {
     if (courseId) {
       setDraft(getDraftDefaults(loadDraft(courseId)));
     }
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId) {
+      return undefined;
+    }
+
+    let isActive = true;
+
+    const loadCourses = async () => {
+      setCoursesLoading(true);
+      setCoursesError("");
+
+      try {
+        const data = await fetchCourses();
+        if (!isActive) {
+          return;
+        }
+        setCourses(Array.isArray(data) ? data : []);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+        setCoursesError(
+          error?.message || "Nie udało się pobrać kierunków studiów.",
+        );
+      } finally {
+        if (isActive) {
+          setCoursesLoading(false);
+        }
+      }
+    };
+
+    loadCourses();
+
+    return () => {
+      isActive = false;
+    };
   }, [courseId]);
 
   useEffect(() => {
@@ -398,6 +459,25 @@ function AdmissionPage() {
 
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
+      <div className="admission-top-actions">
+        <Link className="ghost-link admission-back-link" to="/">
+          <svg
+            className="admission-back-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18l-6-6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć do strony głównej
+        </Link>
+      </div>
       <header className="admission-header">
         <p className="admission-tag">Studia podyplomowe AGH</p>
         <h1>Wniosek rekrutacyjny</h1>
@@ -412,40 +492,94 @@ function AdmissionPage() {
         )}
       </header>
 
-      <div className="admission-card">
-        {!courseId ? (
-          <div className="admission-session">
-            <p
-              className="form-info"
-              role="alert"
-              style={{ textAlign: "center", marginBottom: "2rem" }}
-            >
-              Musisz wybrać kierunek, na który chcesz aplikować.
-            </p>
-            <div className="admission-actions">
-              <Link className="primary-btn" to="/courses">
-                Przejdź do listy kierunków
-              </Link>
+      {!courseId ? (
+        <div className="admission-course-picker">
+          {coursesLoading ? (
+            <div className="loading-state">Ładowanie kierunków...</div>
+          ) : coursesError ? (
+            <div className="error-state">{coursesError}</div>
+          ) : courses.length === 0 ? (
+            <div className="empty-state">
+              Brak dostępnych kierunków studiów.
             </div>
-          </div>
-        ) : missingSession ? (
-          <div className="admission-session">
-            <p className="form-error" role="alert">
-              Brakuje danych sesji (token). Zaloguj się ponownie.
-            </p>
-            <div className="admission-actions">
-              <Link className="primary-btn" to="/auth">
-                Przejdź do logowania
-              </Link>
-              <Link className="ghost-link" to="/">
-                Wróć do strony głównej
-              </Link>
+          ) : (
+            <div className="courses-grid">
+              {courses.map((course) => {
+                const hasRecruitmentRange =
+                  course.recruitmentStart && course.recruitmentEnd;
+                const recruitmentOpen =
+                  hasRecruitmentRange &&
+                  isRecruitmentOpen(
+                    course.recruitmentStart,
+                    course.recruitmentEnd,
+                  );
+
+                return (
+                <div key={course.id} className="course-card">
+                  <div className="course-card-header">
+                    <div className="course-title">
+                      <h3>{course.name}</h3>
+                      <p className="course-description">
+                        {course.description || "Brak opisu dla tego programu."}
+                      </p>
+                    </div>
+                    <span className="course-price">{course.price} PLN</span>
+                  </div>
+                  <div className="course-meta">
+                    {hasRecruitmentRange && (
+                      <span className="meta-tag meta-tag--dates">
+                        <span className="meta-label">
+                          {recruitmentOpen
+                            ? "Rekrutacja otwarta"
+                            : "Rekrutacja"}
+                        </span>
+                        <span className="meta-dates">
+                          {course.recruitmentStart} - {course.recruitmentEnd}
+                        </span>
+                      </span>
+                    )}
+                    {course.coordinatorId && (
+                      <span className="meta-tag">
+                        Koordynator ID: {course.coordinatorId}
+                      </span>
+                    )}
+                  </div>
+                  {isLoggedIn ? (
+                    <div className="course-card-actions">
+                      <Link
+                        to={`/admission?courseId=${course.id}`}
+                        className="primary-btn"
+                      >
+                        Aplikuj
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
+                );
+              })}
             </div>
-          </div>
-        ) : (
-          <form className="admission-form" onSubmit={onSubmit} noValidate>
-            <section className="admission-section" aria-label="Dane konta">
-              <h2>Dane konta</h2>
+          )}
+        </div>
+      ) : (
+        <div className="admission-card">
+          {missingSession ? (
+            <div className="admission-session">
+              <p className="form-error" role="alert">
+                Brakuje danych sesji (token). Zaloguj się ponownie.
+              </p>
+              <div className="admission-actions">
+                <Link className="primary-btn" to="/auth">
+                  Przejdź do logowania
+                </Link>
+                <Link className="ghost-link" to="/">
+                  Wróć do strony głównej
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <form className="admission-form" onSubmit={onSubmit} noValidate>
+              <section className="admission-section" aria-label="Dane konta">
+                <h2>Dane konta</h2>
 
               <label>
                 E-mail
@@ -669,9 +803,10 @@ function AdmissionPage() {
                 Uzupełnij błędy powyżej, aby wysłać wniosek.
               </p>
             ) : null}
-          </form>
-        )}
-      </div>
+            </form>
+          )}
+        </div>
+      )}
     </section>
   );
 }

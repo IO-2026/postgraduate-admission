@@ -37,28 +37,10 @@ function getInitialAuthState() {
   }
 }
 
-function getStoredUserRole() {
-  try {
-    const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!savedAuth) {
-      return null;
-    }
-
-    const parsedAuth = JSON.parse(savedAuth);
-    if (!parsedAuth || typeof parsedAuth !== "object") {
-      return null;
-    }
-
-    return parsedAuth?.user?.role ?? null;
-  } catch {
-    return null;
-  }
-}
-
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(getInitialAuthState);
-  const userRole = getStoredUserRole();
-  const isCoordinator = isLoggedIn && userRole === "Coordinator";
+  const [authState, setAuthState] = useState(getInitialAuthState);
+  const { isLoggedIn, user } = authState;
+  const isCoordinator = isLoggedIn && user?.role === "Coordinator";
 
   const handleAuthSuccess = useCallback((userData, authPayload) => {
     const token =

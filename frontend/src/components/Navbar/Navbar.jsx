@@ -11,32 +11,6 @@ function Navbar({ isLoggedIn, user }) {
       <div className="navbar-logo">
         <Link to="/">AGH Rekrutacja</Link>
       </div>
-      <div className="navbar-links">
-        <Link to="/" className={location.pathname === "/" ? "active" : ""}>
-          Start
-        </Link>
-        <Link
-          to="/courses"
-          className={location.pathname === "/courses" ? "active" : ""}
-        >
-          Kierunki
-        </Link>
-        <Link
-          to="/admission"
-          className={location.pathname === "/admission" ? "active" : ""}
-        >
-          Wiadomości
-        </Link>
-
-        {user?.role === "Admin" && (
-          <div className="admin-menu">
-            <span className="admin-menu-label">Panel Admina</span>
-            <div className="admin-dropdown">
-              <Link to="/users">Zarządzanie użytkownikami</Link>
-            </div>
-          </div>
-        )}
-      </div>
       <div className="navbar-profile">
         <Link to="/profile" className="profile-link">
           <span>{user?.name || "Profil"}</span>

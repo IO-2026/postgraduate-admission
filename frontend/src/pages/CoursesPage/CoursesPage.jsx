@@ -132,10 +132,27 @@ function CoursesPage({ isLoggedIn, user }) {
 
   return (
     <section className="courses-view">
-      <header className="courses-header">
-        <Link className="back-link" to="/">
-          &larr; Wróć do strony głównej
+      <div className="courses-top-actions">
+        <Link className="ghost-link courses-back-link" to="/">
+          <svg
+            className="courses-back-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18l-6-6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć do strony głównej
         </Link>
+      </div>
+      <header className="courses-header">
+        <p className="courses-tag">Studia podyplomowe AGH</p>
         <h1>Kierunki studiów</h1>
         <p className="courses-subtitle">
           Zapoznaj się z naszą autorską ofertą studiów podyplomowych. Wybieraj
@@ -257,25 +274,27 @@ function CoursesPage({ isLoggedIn, user }) {
         <div className="courses-grid">
           {courses.map((course) => (
             <div key={course.id} className="course-card">
-              <div className="course-card-header">
-                <h3>{course.name}</h3>
-                <span className="course-price">{course.price} PLN</span>
-              </div>
-              <p className="course-description">
-                {course.description || "Brak opisu dla tego programu."}
-              </p>
-              <div className="course-meta">
-                {course.recruitmentStart && course.recruitmentEnd && (
-                  <span className="meta-tag">
-                    Rekrutacja: {course.recruitmentStart} -{" "}
-                    {course.recruitmentEnd}
-                  </span>
-                )}
-                {course.coordinatorId && (
-                  <span className="meta-tag">
-                    Koordynator ID: {course.coordinatorId}
-                  </span>
-                )}
+              <div className="course-card-body">
+                <div className="course-card-header">
+                  <h3>{course.name}</h3>
+                  <span className="course-price">{course.price} PLN</span>
+                </div>
+                <p className="course-description">
+                  {course.description || "Brak opisu dla tego programu."}
+                </p>
+                <div className="course-meta">
+                  {course.recruitmentStart && course.recruitmentEnd && (
+                    <span className="meta-tag">
+                      Rekrutacja: {course.recruitmentStart} -{" "}
+                      {course.recruitmentEnd}
+                    </span>
+                  )}
+                  {course.coordinatorId && (
+                    <span className="meta-tag">
+                      Koordynator ID: {course.coordinatorId}
+                    </span>
+                  )}
+                </div>
               </div>
               {isLoggedIn &&
               (user?.role === "Admin" || user?.role === "Coordinator") ? (
@@ -292,15 +311,6 @@ function CoursesPage({ isLoggedIn, user }) {
                   >
                     Usuń
                   </button>
-                </div>
-              ) : isLoggedIn && user?.role === "Candidate" ? (
-                <div className="course-card-actions">
-                  <Link
-                    to={`/admission?courseId=${course.id}`}
-                    className="primary-btn"
-                  >
-                    Aplikuj
-                  </Link>
                 </div>
               ) : null}
             </div>

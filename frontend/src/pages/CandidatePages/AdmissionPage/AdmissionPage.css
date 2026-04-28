@@ -14,6 +14,25 @@
   padding: 36px;
 }
 
+.admission-top-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 48px;
+  margin: 8px 0 16px;
+}
+
+.admission-back-link {
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.admission-back-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .admission-tag {
   margin-bottom: 6px;
   font-family: var(--font-display);
@@ -45,6 +64,155 @@
   background: var(--panel-bg);
   box-shadow: var(--shadow-soft);
   padding: 28px;
+}
+
+.admission-course-picker {
+  display: grid;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.admission-course-picker .courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.admission-course-picker .course-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(240, 248, 246, 0.85)
+  );
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+  transition: box-shadow 0.2s ease;
+}
+
+.admission-course-picker .course-card:hover {
+  transform: none;
+  box-shadow: 0 16px 32px rgba(15, 127, 115, 0.12);
+}
+
+.admission-course-picker .course-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  padding-right: 88px;
+}
+
+.admission-course-picker .course-title {
+  display: grid;
+  gap: 8px;
+}
+
+.admission-course-picker .course-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1.25;
+  color: var(--text-strong);
+}
+
+.admission-course-picker .course-description {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admission-course-picker .course-card::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  right: -110px;
+  top: -110px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(15, 127, 115, 0.07),
+    rgba(15, 127, 115, 0)
+  );
+  pointer-events: none;
+}
+
+.admission-course-picker .course-price {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: var(--primary);
+  color: #ffffff;
+  border: 1px solid var(--primary-hover);
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 10px rgba(15, 127, 115, 0.25);
+  margin-bottom: 0;
+  order: 0;
+}
+
+.admission-course-picker .meta-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  color: var(--text-strong);
+  font-size: 0.9rem;
+  padding: 0;
+  border-radius: 0;
+}
+
+.admission-course-picker .course-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.admission-course-picker .meta-tag--dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admission-course-picker .meta-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.admission-course-picker .course-card-actions {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: none;
+  display: flex;
+  justify-content: flex-start;
+  align-self: flex-start;
+  min-width: 0;
+}
+
+.admission-course-picker .course-card-actions .primary-btn {
+  width: auto;
+  justify-content: center;
 }
 
 .admission-form {
@@ -158,6 +326,16 @@
 @media (max-width: 720px) {
   .admission-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admission-course-picker .courses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .admission-course-picker .courses-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
