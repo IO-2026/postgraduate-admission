@@ -1,5 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import "../UsersPage/UsersPage.css";
 import "./AdminCoordinatorAssignment.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -72,6 +74,13 @@ function AdminCoordinators() {
     },
     { staleTime: 1000 * 60 * 5, enabled: true },
   );
+
+  useEffect(() => {
+    if (!isAdmin || !token) return;
+    // Refresh cached admin lists in the background when the page is opened
+    queryClient.invalidateQueries(["coordinatorsWithCourses", token]);
+    queryClient.invalidateQueries(["allUsers", token]);
+  }, [queryClient, token, isAdmin]);
 
   // derive loading & fetch errors from queries
   const usersEmpty = !users || users.length === 0;
@@ -262,24 +271,35 @@ function AdminCoordinators() {
 
   if (!isAdmin) {
     return (
-      <section className="admin-view" aria-label="Panel administracyjny">
-        <div className="admin-card">
+      <div className="users-page">
+        <header className="users-header">
+          <div className="header-top">
+            <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+          </div>
           <h1>Brak uprawnień</h1>
-          <p>Ta strona jest dostępna tylko dla administratorów.</p>
-        </div>
-      </section>
+          <p className="users-subtitle">Ta strona jest dostępna tylko dla administratorów.</p>
+        </header>
+
+        <section className="admin-view" aria-label="Panel administracyjny">
+          <div className="admin-card">
+            <p>Ta strona jest dostępna tylko dla administratorów.</p>
+          </div>
+        </section>
+      </div>
     );
   }
 
   return (
-    <section className="admin-view" aria-label="Koordynatorzy">
-      <header className="admin-header">
+    <div className="users-page">
+      <header className="users-header">
+        <div className="header-top">
+          <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+        </div>
         <h1>Koordynatorzy</h1>
-        <p>
-          Lista koordynatorów oraz przypisane do nich kierunki. Możesz też
-          promować użytkowników.
-        </p>
+        <p className="users-subtitle">Lista koordynatorów oraz przypisane do nich kierunki. Możesz też promować użytkowników.</p>
       </header>
+
+      <section className="admin-view" aria-label="Koordynatorzy">
 
       <div className="admin-grid">
         <div className="admin-card">
@@ -399,6 +419,7 @@ function AdminCoordinators() {
         </div>
       </div>
     </section>
+  </div>
   );
 }
 

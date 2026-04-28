@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import "../UsersPage/UsersPage.css";
 import "./AdminCoordinatorAssignment.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -65,6 +67,13 @@ function AdminCoordinatorAssignment() {
       initialData: queryClient.getQueryData(["courses", token]),
     },
   );
+
+  useEffect(() => {
+    if (!isAdmin || !token) return;
+    // Refresh cached admin lists in the background when the page is opened
+    queryClient.invalidateQueries(["coordinatorsWithCourses", token]);
+    queryClient.invalidateQueries(["courses", token]);
+  }, [queryClient, token, isAdmin]);
 
   const loading = coordsLoading || coursesLoading;
 
@@ -228,12 +237,21 @@ function AdminCoordinatorAssignment() {
 
   if (!isAdmin) {
     return (
-      <section className="admin-view" aria-label="Panel administracyjny">
-        <div className="admin-card">
+      <div className="users-page">
+        <header className="users-header">
+          <div className="header-top">
+            <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+          </div>
           <h1>Brak uprawnień</h1>
-          <p>Ta strona jest dostępna tylko dla administratorów.</p>
-        </div>
-      </section>
+          <p className="users-subtitle">Ta strona jest dostępna tylko dla administratorów.</p>
+        </header>
+
+        <section className="admin-view" aria-label="Panel administracyjny">
+          <div className="admin-card">
+            <p>Ta strona jest dostępna tylko dla administratorów.</p>
+          </div>
+        </section>
+      </div>
     );
   }
 
@@ -244,11 +262,16 @@ function AdminCoordinatorAssignment() {
   };
 
   return (
-    <section className="admin-view" aria-label="Przydzielanie koordynatorów">
-      <header className="admin-header">
+    <div className="users-page">
+      <header className="users-header">
+        <div className="header-top">
+          <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+        </div>
         <h1>Przydziel koordynatora</h1>
-        <p>Przypisz koordynatora do kierunku.</p>
+        <p className="users-subtitle">Przypisz koordynatora do kierunku.</p>
       </header>
+
+      <section className="admin-view" aria-label="Przydzielanie koordynatorów">
 
       <div className="admin-card admin-form">
         {loading ? (
@@ -296,6 +319,7 @@ function AdminCoordinatorAssignment() {
         )}
       </div>
     </section>
+  </div>
   );
 }
 

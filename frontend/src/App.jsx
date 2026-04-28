@@ -261,7 +261,7 @@ function App() {
           }
         />
         <Route
-          path="/admin/assign-coordinators"
+          path="/assign-coordinators"
           element={
             isLoggedIn ? (
               <AdminCoordinatorAssignment />
@@ -271,7 +271,7 @@ function App() {
           }
         />
         <Route
-          path="/admin/coordinators"
+          path="/coordinators"
           element={
             isLoggedIn ? <AdminCoordinators /> : <Navigate to="/" replace />
           }

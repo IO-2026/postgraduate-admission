@@ -4,6 +4,14 @@ import "./Navbar.css";
 function Navbar({ isLoggedIn, user }) {
   const location = useLocation();
 
+  const roleId =
+    user?.roleId ??
+    (typeof user?.role === "number" ? user.role : (user?.role?.id ?? null));
+  const isAdmin =
+    roleId === 2 ||
+    (typeof user?.role === "string" &&
+      user.role.toLowerCase().includes("admin"));
+
   if (!isLoggedIn) return null;
 
   return (
@@ -28,11 +36,13 @@ function Navbar({ isLoggedIn, user }) {
           Wiadomości
         </Link>
 
-        {user?.role === "Admin" && (
+        {isAdmin && (
           <div className="admin-menu">
             <span className="admin-menu-label">Panel Admina</span>
             <div className="admin-dropdown">
               <Link to="/users">Zarządzanie użytkownikami</Link>
+              <Link to="/coordinators">Koordynatorzy</Link>
+              <Link to="/assign-coordinators">Przydziel koordynatorów</Link>
             </div>
           </div>
         )}
