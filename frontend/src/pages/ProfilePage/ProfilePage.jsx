@@ -2,11 +2,20 @@ import { Link } from "react-router-dom";
 import "./ProfilePage.css";
 
 function ProfilePage({ user, onLogout }) {
+  const initials = [user?.name, user?.surname]
+    .filter(Boolean)
+    .map((part) => String(part).trim()[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const avatarLabel = initials || "U";
+
   return (
     <section className="profile-view">
       <div className="profile-card">
         <header className="profile-header">
-          <div className="profile-avatar">{user?.name?.charAt(0) || "U"}</div>
+          <div className="profile-avatar">{avatarLabel}</div>
           <div className="profile-title">
             <h1>
               {user?.name} {user?.surname}
