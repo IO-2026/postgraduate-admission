@@ -38,9 +38,25 @@ function HomePage({ isLoggedIn }) {
             i otrzymywać najważniejsze komunikaty.
           </p>
 
-          <Link className="primary-btn" to="/auth">
-            Zaloguj się
-          </Link>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <Link className="primary-btn" to="/auth">
+              Zaloguj się
+            </Link>
+            <Link
+              className="secondary-btn"
+              to="/courses"
+              style={{
+                padding: "0.8rem 1.5rem",
+                borderRadius: "8px",
+                textDecoration: "none",
+                color: "var(--text-dark)",
+                border: "1px solid var(--border)",
+                background: "white",
+              }}
+            >
+              Oferta studiów
+            </Link>
+          </div>
         </div>
       </section>
     );
@@ -49,27 +65,6 @@ function HomePage({ isLoggedIn }) {
   return (
     <section className="home-view">
       <header className="home-header">
-        <Link
-          className="profile-corner-btn"
-          to="/profile"
-          aria-label="Otwórz profil"
-        >
-          <svg
-            className="profile-corner-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            role="presentation"
-            aria-hidden="true"
-          >
-            <path
-              d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.2 0-7 2.1-7 5v1h14v-1c0-2.9-2.8-5-7-5Z"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
         <p className="home-tag">Studia podyplomowe AGH</p>
         <h1>Strona główna</h1>
         <p className="home-subtitle">
@@ -79,6 +74,9 @@ function HomePage({ isLoggedIn }) {
         <div className="home-actions">
           <Link className="primary-btn" to="/admission">
             Otwórz stronę rekrutacji
+          </Link>
+          <Link className="ghost-link" to="/courses">
+            Kierunki studiów
           </Link>
           <Link className="ghost-link" to="/messages">
             Wiadomości

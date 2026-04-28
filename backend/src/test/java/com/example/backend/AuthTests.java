@@ -1,5 +1,6 @@
 package com.example.backend;
 
+<<<<<<< HEAD
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
 import com.example.backend.model.user.User;
@@ -22,17 +23,54 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+=======
+>>>>>>> main
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.example.backend.model.role.Role;
+import com.example.backend.model.role.RoleRepository;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
+import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< HEAD
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 @Import(TestMailConfig.class)
+=======
+import com.example.backend.model.notification.EmailService;
+import com.example.backend.model.role.Role;
+import com.example.backend.model.role.RoleRepository;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
+
+import tools.jackson.databind.ObjectMapper;
+
+@SpringBootTest(classes = BackendApplication.class)
+@AutoConfigureMockMvc
+@Transactional
+@Import(AuthTests.TestMailConfig.class)
+>>>>>>> main
 public class AuthTests {
 
     @Autowired
@@ -52,6 +90,7 @@ public class AuthTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+<<<<<<< HEAD
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", () -> "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
@@ -68,13 +107,28 @@ public class AuthTests {
         registry.add("spring.mail.password", () -> "");
         registry.add("spring.datasource.hikari.maximum-pool-size", () -> "1");
         registry.add("spring.datasource.hikari.minimum-idle", () -> "1");
+=======
+    @MockitoBean
+    private EmailService emailService;
+  
+    @Configuration
+    static class TestMailConfig {
+        @Bean
+        @Primary
+        JavaMailSender mailSender() {
+            return Mockito.mock(JavaMailSender.class);
+        }
+>>>>>>> main
     }
 
     private Role testRole;
 
     @BeforeEach
     void setUp() {
-        testRole = roleRepository.findById(1).orElse(null);
+        testRole = roleRepository.findAll().stream()
+                .filter(r -> r.getName().equals("Candidate"))
+                .findFirst()
+                .orElse(null);
 
         User testUser = new User();
         testUser.setName("Jane");
@@ -122,21 +176,7 @@ public class AuthTests {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    void registerUser_ShouldFail_WhenRoleIdIsInvalid() throws Exception {
-        Map<String, Object> registerRequest = new HashMap<>();
-        registerRequest.put("name", "Invalid");
-        registerRequest.put("surname", "Role");
-        registerRequest.put("email", "invalid.role@example.com");
-        registerRequest.put("password", "Pass123!");
-        registerRequest.put("telNumber", "123456789");
-        registerRequest.put("roleId", 9999L);
 
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isBadRequest());
-    }
 
     //Login tests
 

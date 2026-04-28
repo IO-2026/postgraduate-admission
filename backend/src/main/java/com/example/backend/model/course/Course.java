@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "courses")
@@ -30,8 +31,20 @@ public class Course {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 1000)
+    private String description;
+
+    @Column(nullable = false)
+    private Double price;
+
+    @Column(name = "recruitment_start", nullable = false)
+    private LocalDate recruitmentStart = LocalDate.now();
+
+    @Column(name = "recruitment_end", nullable = false)
+    private LocalDate recruitmentEnd = LocalDate.now().plusMonths(3);
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coordinator_id", nullable = true)
+    @JoinColumn(name = "coordinator_id", nullable = false)
     private User coordinator;
 
     public Course(Long id, String name) {

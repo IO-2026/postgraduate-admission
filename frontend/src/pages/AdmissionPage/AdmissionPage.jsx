@@ -1,10 +1,13 @@
 import "./AdmissionPage.css";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "../../services/admissionApi";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
+<<<<<<< HEAD
 const DEFAULT_COURSE_ID = 1;
+=======
+>>>>>>> main
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const CONSENT_ERROR_MESSAGES = {
   truthfulnessConsent: "Wymagana zgoda na prawdziwość danych.",
@@ -38,6 +41,7 @@ function getDraftStorageKey(courseId) {
 }
 
 function loadDraft(courseId) {
+  if (!courseId) return null;
   const raw = localStorage.getItem(getDraftStorageKey(courseId));
   if (!raw) {
     return null;
@@ -50,10 +54,12 @@ function loadDraft(courseId) {
 }
 
 function saveDraft(courseId, draft) {
+  if (!courseId) return;
   localStorage.setItem(getDraftStorageKey(courseId), JSON.stringify(draft));
 }
 
 function clearDraft(courseId) {
+  if (!courseId) return;
   localStorage.removeItem(getDraftStorageKey(courseId));
 }
 
@@ -235,7 +241,10 @@ function getDraftDefaults(existingDraft) {
 }
 
 function AdmissionPage() {
-  const courseId = DEFAULT_COURSE_ID;
+  const [searchParams] = useSearchParams();
+  const courseIdParam = searchParams.get("courseId");
+  const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
+
   const authState = useMemo(loadAuthState, []);
   const token = authState?.token || null;
   const user = authState?.user || null;
@@ -256,7 +265,15 @@ function AdmissionPage() {
   }, [user]);
 
   useEffect(() => {
-    saveDraft(courseId, draft);
+    if (courseId) {
+      setDraft(getDraftDefaults(loadDraft(courseId)));
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId) {
+      saveDraft(courseId, draft);
+    }
   }, [courseId, draft]);
 
   useEffect(() => {
@@ -294,6 +311,11 @@ function AdmissionPage() {
     setSubmitAttempted(true);
     setSubmitError("");
     setSubmitInfo("");
+
+    if (!courseId) {
+      setSubmitError("Wybierz kierunek przed złożeniem wniosku.");
+      return;
+    }
 
     const validationErrors = validateDraft({ account, draft });
     setErrors(validationErrors);
@@ -383,13 +405,34 @@ function AdmissionPage() {
       <header className="admission-header">
         <p className="admission-tag">Studia podyplomowe AGH</p>
         <h1>Wniosek rekrutacyjny</h1>
-        <p className="admission-subtitle">
-          Wybrany kierunek: <strong>ID {courseId}</strong>
-        </p>
+        {courseId ? (
+          <p className="admission-subtitle">
+            Wybrany kierunek: <strong>ID {courseId}</strong>
+          </p>
+        ) : (
+          <p className="admission-subtitle">
+            Wybierz kierunek, aby złożyć wniosek
+          </p>
+        )}
       </header>
 
       <div className="admission-card">
-        {missingSession ? (
+        {!courseId ? (
+          <div className="admission-session">
+            <p
+              className="form-info"
+              role="alert"
+              style={{ textAlign: "center", marginBottom: "2rem" }}
+            >
+              Musisz wybrać kierunek, na który chcesz aplikować.
+            </p>
+            <div className="admission-actions">
+              <Link className="primary-btn" to="/courses">
+                Przejdź do listy kierunków
+              </Link>
+            </div>
+          </div>
+        ) : missingSession ? (
           <div className="admission-session">
             <p className="form-error" role="alert">
               Brakuje danych sesji (token). Zaloguj się ponownie.

@@ -42,7 +42,16 @@ public class AuthService {
         String jwt = jwtUtil.generateToken(userDetails);
 
         User user = userRepository.findByEmail(email).orElseThrow();
-        return new JwtResponse(jwt, "Bearer", user.getId(), user.getEmail(), user.getRole().getName());
+        return new JwtResponse(
+                jwt,
+                "Bearer",
+                user.getId(),
+                user.getEmail(),
+                user.getRole().getName(),
+                user.getName(),
+                user.getSurname(),
+                user.getTelNumber()
+        );
     }
 
     private String normalizeEmail(String email) {
