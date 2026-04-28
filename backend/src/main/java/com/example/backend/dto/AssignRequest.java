@@ -11,6 +11,4 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AssignRequest {
     private Long coordinatorId;
-    private Long courseId;
-    private Long cohortId;
 }

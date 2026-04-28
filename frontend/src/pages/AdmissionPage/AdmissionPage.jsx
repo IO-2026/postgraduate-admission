@@ -5,6 +5,11 @@ import { submitApplication } from "../../services/admissionApi";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 const DEFAULT_COURSE_ID = 1;
+const REQUIRED_ERROR = "To pole jest wymagane.";
+const CONSENT_ERROR_MESSAGES = {
+  truthfulnessConsent: "Wymagana zgoda na prawdziwość danych.",
+  gdprConsent: "Wymagana zgoda RODO.",
+};
 
 function safeJsonParse(value) {
   try {
@@ -26,28 +31,6 @@ function loadAuthState() {
   }
 
   return parsed;
-}
-
-function updateAuthUser(patch) {
-  const current = loadAuthState();
-  if (!current) {
-    return;
-  }
-
-  const currentUser =
-    current.user && typeof current.user === "object" ? current.user : {};
-  const nextUser = {
-    ...currentUser,
-    ...patch,
-  };
-
-  localStorage.setItem(
-    AUTH_STORAGE_KEY,
-    JSON.stringify({
-      ...current,
-      user: nextUser,
-    }),
-  );
 }
 
 function getDraftStorageKey(courseId) {
@@ -74,34 +57,146 @@ function clearDraft(courseId) {
   localStorage.removeItem(getDraftStorageKey(courseId));
 }
 
+function isBlank(value) {
+  return String(value ?? "").trim() === "";
+}
+
+function isValidPesel(value) {
+  const pesel = String(value || "").trim();
+  if (!/^\d{11}$/.test(pesel)) {
+    return false;
+  }
+
+  const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+  const sum = weights.reduce(
+    (acc, weight, index) => acc + Number.parseInt(pesel[index], 10) * weight,
+    0,
+  );
+  const checksum = (10 - (sum % 10)) % 10;
+  return checksum === Number.parseInt(pesel[10], 10);
+}
+
+function isPastDate(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return false;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parsed < today;
+}
+
+function isValidHttpUrl(value) {
+  try {
+    const url = new URL(String(value || "").trim());
+    if (!url.hostname) {
+      return false;
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validateYear(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return REQUIRED_ERROR;
+  }
+
+  if (!/^\d+$/.test(raw)) {
+    return "Rok ukończenia jest nieprawidłowy.";
+  }
+
+  const year = Number.parseInt(raw, 10);
+  if (year < 1900 || year > 2100) {
+    return "Rok ukończenia jest nieprawidłowy.";
+  }
+
+  return "";
+}
+
 function validateDraft({ account, draft }) {
   const errors = {};
 
-  const requiredFields = [
-    ["name", account.name],
-    ["surname", account.surname],
-    ["telNumber", account.telNumber],
-    ["dateOfBirth", account.dateOfBirth],
-    ["pesel", account.pesel],
-    ["street", draft.street],
-    ["postalCode", draft.postalCode],
-    ["city", draft.city],
-    ["university", draft.university],
-    ["diplomaUrl", draft.diplomaUrl],
-  ];
+  if (isBlank(account.dateOfBirth)) {
+    errors.dateOfBirth = REQUIRED_ERROR;
+  } else if (!isPastDate(account.dateOfBirth)) {
+    errors.dateOfBirth = "Data urodzenia musi być w przeszłości.";
+  }
 
-  for (const [key, value] of requiredFields) {
-    if (!String(value || "").trim()) {
-      errors[key] = "To pole jest wymagane.";
-    }
+  if (isBlank(account.pesel)) {
+    errors.pesel = "PESEL jest wymagany.";
+  } else if (!isValidPesel(account.pesel)) {
+    errors.pesel = "Podaj poprawny numer PESEL.";
+  }
+
+  const street = String(draft.street || "").trim();
+  if (!street) {
+    errors.street = REQUIRED_ERROR;
+  } else if (street.length < 2 || street.length > 120) {
+    errors.street = "Ulica musi mieć od 2 do 120 znaków.";
+  }
+
+  const postalCode = String(draft.postalCode || "").trim();
+  if (!postalCode) {
+    errors.postalCode = REQUIRED_ERROR;
+  } else if (!/^\d{2}-\d{3}$/.test(postalCode)) {
+    errors.postalCode = "Podaj poprawny kod pocztowy (np. 30-059).";
+  }
+
+  const city = String(draft.city || "").trim();
+  if (!city) {
+    errors.city = REQUIRED_ERROR;
+  } else if (city.length < 2 || city.length > 80) {
+    errors.city = "Miasto musi mieć od 2 do 80 znaków.";
+  }
+
+  const previousDegree = String(draft.previousDegree || "").trim();
+  if (!previousDegree) {
+    errors.previousDegree = REQUIRED_ERROR;
+  } else if (previousDegree.length > 120) {
+    errors.previousDegree = "Nazwa ukończonych studiów jest za długa.";
+  }
+
+  const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
+  if (!fieldOfStudy) {
+    errors.fieldOfStudy = REQUIRED_ERROR;
+  } else if (fieldOfStudy.length > 120) {
+    errors.fieldOfStudy = "Nazwa kierunku jest za długa.";
+  }
+
+  const yearError = validateYear(draft.graduationYear);
+  if (yearError) {
+    errors.graduationYear = yearError;
+  }
+
+  const university = String(draft.university || "").trim();
+  if (!university) {
+    errors.university = REQUIRED_ERROR;
+  } else if (university.length < 2 || university.length > 200) {
+    errors.university = "Nazwa uczelni musi mieć od 2 do 200 znaków.";
+  }
+
+  const diplomaUrl = String(draft.diplomaUrl || "").trim();
+  if (!diplomaUrl) {
+    errors.diplomaUrl = REQUIRED_ERROR;
+  } else if (!isValidHttpUrl(diplomaUrl)) {
+    errors.diplomaUrl = "Podaj poprawny link do dyplomu (http/https).";
   }
 
   if (!draft.truthfulnessConsent) {
-    errors.truthfulnessConsent = "Wymagana zgoda.";
+    errors.truthfulnessConsent = CONSENT_ERROR_MESSAGES.truthfulnessConsent;
   }
 
   if (!draft.gdprConsent) {
-    errors.gdprConsent = "Wymagana zgoda.";
+    errors.gdprConsent = CONSENT_ERROR_MESSAGES.gdprConsent;
   }
 
   return errors;
@@ -144,13 +239,14 @@ function AdmissionPage() {
   const authState = useMemo(loadAuthState, []);
   const token = authState?.token || null;
   const user = authState?.user || null;
-  const userId = user?.id ?? null;
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
     getDraftDefaults(loadDraft(courseId)),
   );
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitInfo, setSubmitInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -163,17 +259,24 @@ function AdmissionPage() {
     saveDraft(courseId, draft);
   }, [courseId, draft]);
 
+  useEffect(() => {
+    setErrors(validateDraft({ account, draft }));
+  }, [account, draft]);
+
+  const onFieldBlur = (event) => {
+    const { name } = event.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+  };
+
   const onAccountInput = (event) => {
     const { name, value } = event.target;
-    setAccount((prev) => {
-      const next = {
-        ...prev,
-        [name]: value,
-      };
-      return next;
-    });
-
-    updateAuthUser({ [name]: value });
+    setAccount((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const onDraftInput = (event) => {
@@ -188,6 +291,7 @@ function AdmissionPage() {
 
   const onSubmit = async (event) => {
     event.preventDefault();
+    setSubmitAttempted(true);
     setSubmitError("");
     setSubmitInfo("");
 
@@ -199,7 +303,7 @@ function AdmissionPage() {
       return;
     }
 
-    if (!token || !userId) {
+    if (!token) {
       setSubmitError("Sesja wygasła. Zaloguj się ponownie.");
       return;
     }
@@ -207,12 +311,41 @@ function AdmissionPage() {
     setIsSubmitting(true);
 
     try {
+      const previousDegree = String(draft.previousDegree || "").trim();
+      const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
+      const notes = String(draft.notes || "").trim();
+      const graduationYearRaw = String(draft.graduationYear || "").trim();
+      const graduationYear = graduationYearRaw
+        ? Number.parseInt(graduationYearRaw, 10)
+        : null;
+
       await submitApplication(
         {
-          userId,
-          university: String(draft.university).trim(),
-          diplomaUrl: String(draft.diplomaUrl).trim(),
-          courseId,
+          applicant: {
+            dateOfBirth: String(account.dateOfBirth).trim(),
+            pesel: String(account.pesel).trim(),
+            address: {
+              street: String(draft.street).trim(),
+              postalCode: String(draft.postalCode).trim(),
+              city: String(draft.city).trim(),
+            },
+          },
+          education: {
+            previousDegree: previousDegree || null,
+            fieldOfStudy: fieldOfStudy || null,
+            graduationYear:
+              Number.isFinite(graduationYear) && graduationYear > 0
+                ? graduationYear
+                : null,
+          },
+          details: {
+            courseId,
+            university: String(draft.university).trim(),
+            diplomaUrl: String(draft.diplomaUrl).trim(),
+            notes: notes || null,
+            truthfulnessConsent: Boolean(draft.truthfulnessConsent),
+            gdprConsent: Boolean(draft.gdprConsent),
+          },
         },
         token,
       );
@@ -220,6 +353,8 @@ function AdmissionPage() {
       clearDraft(courseId);
       setDraft(getDraftDefaults(null));
       setErrors({});
+      setTouched({});
+      setSubmitAttempted(false);
       setSubmitInfo("Wniosek został wysłany.");
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
@@ -228,7 +363,20 @@ function AdmissionPage() {
     }
   };
 
-  const missingSession = !token || !userId;
+  const missingSession = !token;
+  const hasValidationErrors = Object.keys(errors).length > 0;
+
+  const showFieldError = (name) => {
+    if (!errors[name]) {
+      return false;
+    }
+    return submitAttempted || Boolean(touched[name]);
+  };
+
+  const getInputAriaInvalid = (name) => showFieldError(name);
+
+  const renderFieldError = (name) =>
+    showFieldError(name) ? <p className="field-error">{errors[name]}</p> : null;
 
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
@@ -244,8 +392,7 @@ function AdmissionPage() {
         {missingSession ? (
           <div className="admission-session">
             <p className="form-error" role="alert">
-              Brakuje danych sesji (token lub identyfikator użytkownika).
-              Zaloguj się ponownie.
+              Brakuje danych sesji (token). Zaloguj się ponownie.
             </p>
             <div className="admission-actions">
               <Link className="primary-btn" to="/auth">
@@ -263,60 +410,22 @@ function AdmissionPage() {
 
               <label>
                 E-mail
-                <input type="email" value={account.email} disabled readOnly />
+                <input type="email" value={account.email} readOnly />
               </label>
 
-              <div className="admission-grid">
-                <label>
-                  Imię
-                  <input
-                    type="text"
-                    name="name"
-                    value={account.name}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.name)}
-                  />
-                </label>
-
-                <label>
-                  Nazwisko
-                  <input
-                    type="text"
-                    name="surname"
-                    value={account.surname}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.surname)}
-                  />
-                </label>
-              </div>
-
-              <div className="admission-grid">
-                <label>
-                  Numer telefonu
-                  <input
-                    type="tel"
-                    name="telNumber"
-                    value={account.telNumber}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.telNumber)}
-                  />
-                </label>
-
-                <label>
-                  Data urodzenia
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={account.dateOfBirth}
-                    onChange={onAccountInput}
-                    disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.dateOfBirth)}
-                  />
-                </label>
-              </div>
+              <label>
+                Data urodzenia
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={account.dateOfBirth}
+                  onChange={onAccountInput}
+                  onBlur={onFieldBlur}
+                  disabled={isSubmitting}
+                  aria-invalid={getInputAriaInvalid("dateOfBirth")}
+                />
+                {renderFieldError("dateOfBirth")}
+              </label>
 
               <label>
                 PESEL
@@ -325,9 +434,11 @@ function AdmissionPage() {
                   name="pesel"
                   value={account.pesel}
                   onChange={onAccountInput}
+                  onBlur={onFieldBlur}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.pesel)}
+                  aria-invalid={getInputAriaInvalid("pesel")}
                 />
+                {renderFieldError("pesel")}
               </label>
             </section>
 
@@ -341,9 +452,11 @@ function AdmissionPage() {
                   name="university"
                   value={draft.university}
                   onChange={onDraftInput}
+                  onBlur={onFieldBlur}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.university)}
+                  aria-invalid={getInputAriaInvalid("university")}
                 />
+                {renderFieldError("university")}
               </label>
 
               <div className="admission-grid">
@@ -354,9 +467,11 @@ function AdmissionPage() {
                     name="street"
                     value={draft.street}
                     onChange={onDraftInput}
+                    onBlur={onFieldBlur}
                     disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.street)}
+                    aria-invalid={getInputAriaInvalid("street")}
                   />
+                  {renderFieldError("street")}
                 </label>
 
                 <label>
@@ -366,9 +481,11 @@ function AdmissionPage() {
                     name="postalCode"
                     value={draft.postalCode}
                     onChange={onDraftInput}
+                    onBlur={onFieldBlur}
                     disabled={isSubmitting}
-                    aria-invalid={Boolean(errors.postalCode)}
+                    aria-invalid={getInputAriaInvalid("postalCode")}
                   />
+                  {renderFieldError("postalCode")}
                 </label>
               </div>
 
@@ -379,9 +496,11 @@ function AdmissionPage() {
                   name="city"
                   value={draft.city}
                   onChange={onDraftInput}
+                  onBlur={onFieldBlur}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.city)}
+                  aria-invalid={getInputAriaInvalid("city")}
                 />
+                {renderFieldError("city")}
               </label>
 
               <div className="admission-grid">
@@ -392,8 +511,11 @@ function AdmissionPage() {
                     name="previousDegree"
                     value={draft.previousDegree}
                     onChange={onDraftInput}
+                    onBlur={onFieldBlur}
                     disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("previousDegree")}
                   />
+                  {renderFieldError("previousDegree")}
                 </label>
 
                 <label>
@@ -403,8 +525,11 @@ function AdmissionPage() {
                     name="fieldOfStudy"
                     value={draft.fieldOfStudy}
                     onChange={onDraftInput}
+                    onBlur={onFieldBlur}
                     disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("fieldOfStudy")}
                   />
+                  {renderFieldError("fieldOfStudy")}
                 </label>
               </div>
 
@@ -415,8 +540,11 @@ function AdmissionPage() {
                   name="graduationYear"
                   value={draft.graduationYear}
                   onChange={onDraftInput}
+                  onBlur={onFieldBlur}
                   disabled={isSubmitting}
+                  aria-invalid={getInputAriaInvalid("graduationYear")}
                 />
+                {renderFieldError("graduationYear")}
               </label>
             </section>
 
@@ -430,9 +558,11 @@ function AdmissionPage() {
                   name="diplomaUrl"
                   value={draft.diplomaUrl}
                   onChange={onDraftInput}
+                  onBlur={onFieldBlur}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.diplomaUrl)}
+                  aria-invalid={getInputAriaInvalid("diplomaUrl")}
                 />
+                {renderFieldError("diplomaUrl")}
               </label>
               <p className="admission-hint">
                 Na tym etapie wystarczy link. Przesyłanie plików zostanie dodane
@@ -450,10 +580,11 @@ function AdmissionPage() {
                   checked={draft.truthfulnessConsent}
                   onChange={onDraftCheckbox}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.truthfulnessConsent)}
+                  aria-invalid={getInputAriaInvalid("truthfulnessConsent")}
                 />
                 <span>Oświadczam, że dane są prawdziwe.</span>
               </label>
+              {renderFieldError("truthfulnessConsent")}
 
               <label className="admission-checkbox">
                 <input
@@ -462,13 +593,14 @@ function AdmissionPage() {
                   checked={draft.gdprConsent}
                   onChange={onDraftCheckbox}
                   disabled={isSubmitting}
-                  aria-invalid={Boolean(errors.gdprConsent)}
+                  aria-invalid={getInputAriaInvalid("gdprConsent")}
                 />
                 <span>
                   Wyrażam zgodę na przetwarzanie moich danych osobowych w celu
                   przeprowadzenia rekrutacji (RODO).
                 </span>
               </label>
+              {renderFieldError("gdprConsent")}
             </section>
 
             {submitError ? (
@@ -482,7 +614,7 @@ function AdmissionPage() {
               <button
                 type="submit"
                 className="primary-btn"
-                disabled={isSubmitting}
+                disabled={isSubmitting || hasValidationErrors}
               >
                 {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
               </button>
@@ -493,6 +625,11 @@ function AdmissionPage() {
                 Wiadomości
               </Link>
             </div>
+            {!isSubmitting && hasValidationErrors ? (
+              <p className="admission-disabled-note">
+                Uzupełnij błędy powyżej, aby wysłać wniosek.
+              </p>
+            ) : null}
           </form>
         )}
       </div>

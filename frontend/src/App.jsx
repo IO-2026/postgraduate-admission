@@ -49,10 +49,28 @@ function App() {
           ? authPayload.role
           : null;
 
+      const payloadRoleId = (() => {
+        if (typeof authPayload === "object" && authPayload) {
+          if (typeof authPayload.roleId === "number") return authPayload.roleId;
+          if (typeof authPayload.role === "number") return authPayload.role;
+          if (authPayload.role && typeof authPayload.role.id === "number")
+            return authPayload.role.id;
+        }
+        return null;
+      })();
+
+      const userRoleId = (() => {
+        if (user?.roleId != null) return user.roleId;
+        if (typeof user?.role === "number") return user.role;
+        if (user?.role && typeof user.role.id === "number") return user.role.id;
+        return null;
+      })();
+
       const mergedUser = {
         ...(user || {}),
         id: payloadUserId ?? user?.id ?? null,
         email: user?.email ?? payloadEmail ?? null,
+        roleId: userRoleId ?? payloadRoleId ?? null,
         role: user?.role ?? payloadRole ?? null,
       };
 
@@ -66,17 +84,19 @@ function App() {
       );
 
       // Prefetch admin-related data if user is admin
-      if (
-        mergedUser.role &&
-        String(mergedUser.role).toLowerCase().includes("admin")
-      ) {
+      const isAdmin =
+        mergedUser.roleId === 2 ||
+        (typeof mergedUser.role === "string" &&
+          mergedUser.role.toLowerCase().includes("admin"));
+
+      if (isAdmin) {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        // Prefetch users, courses, cohorts, assignments and coordinators-with-cohorts
+        // Prefetch users and courses and coordinators-with-courses
         queryClient.prefetchQuery(
           ["allUsers", token],
           async () => {
-            const r = await fetch("/api/admin/users/search", { headers });
+            const r = await fetch("/api/users", { headers });
             if (!r.ok) throw new Error("Failed to fetch users");
             return r.json();
           },
@@ -94,19 +114,9 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["cohorts", token],
+          ["coordinatorsWithCourses", token],
           async () => {
-            const r = await fetch("/api/cohorts", { headers });
-            if (!r.ok) throw new Error("Failed to fetch cohorts");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
-        );
-
-        queryClient.prefetchQuery(
-          ["coordinatorsWithCohorts", token],
-          async () => {
-            const r = await fetch("/api/admin/coordinators-with-cohorts", {
+            const r = await fetch("/api/admin/coordinators-with-courses", {
               headers,
             });
             if (!r.ok) throw new Error("Failed to fetch coordinators");
@@ -134,13 +144,20 @@ function App() {
       if (!parsed?.isLoggedIn) return;
       const user = parsed.user;
       const token = parsed.token || null;
-      if (user && String(user.role).toLowerCase().includes("admin")) {
+      const roleId =
+        user?.roleId ??
+        (typeof user?.role === "number" ? user.role : (user?.role?.id ?? null));
+      const isAdmin =
+        roleId === 2 ||
+        (typeof user?.role === "string" &&
+          user.role.toLowerCase().includes("admin"));
+      if (user && isAdmin) {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         queryClient.prefetchQuery(
           ["allUsers", token],
           async () => {
-            const r = await fetch("/api/admin/users/search", { headers });
+            const r = await fetch("/api/users", { headers });
             if (!r.ok) throw new Error("Failed to fetch users");
             return r.json();
           },
@@ -158,32 +175,12 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["cohorts", token],
+          ["coordinatorsWithCourses", token],
           async () => {
-            const r = await fetch("/api/cohorts", { headers });
-            if (!r.ok) throw new Error("Failed to fetch cohorts");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
-        );
-
-        queryClient.prefetchQuery(
-          ["coordinatorsWithCohorts", token],
-          async () => {
-            const r = await fetch("/api/admin/coordinators-with-cohorts", {
+            const r = await fetch("/api/admin/coordinators-with-courses", {
               headers,
             });
             if (!r.ok) throw new Error("Failed to fetch coordinators");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
-        );
-
-        queryClient.prefetchQuery(
-          ["assignments", token],
-          async () => {
-            const r = await fetch("/api/admin/assignments", { headers });
-            if (!r.ok) throw new Error("Failed to fetch assignments");
             return r.json();
           },
           { staleTime: 1000 * 60 * 5 },

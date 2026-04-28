@@ -1,10 +1,8 @@
 package com.example.backend;
 import com.example.backend.dto.AssignRequest;
 
-import com.example.backend.model.Course;
-import com.example.backend.model.Cohort;
-import com.example.backend.model.CourseRepository;
-import com.example.backend.model.CohortRepository;
+import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseRepository;
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
 import com.example.backend.model.user.User;
@@ -52,9 +50,6 @@ public class AdminControllerIntegrationTest {
     @Autowired
     CourseRepository courseRepository;
 
-    @Autowired
-    CohortRepository cohortRepository;
-
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", () -> "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
@@ -93,16 +88,15 @@ public class AdminControllerIntegrationTest {
         user = userRepository.save(user);
 
         Course course = courseRepository.save(new Course(null, "TestCourse"));
-        Cohort cohort = cohortRepository.save(new Cohort(null, "TestCohort", course));
 
-        AssignRequest req = new AssignRequest(user.getId(), course.getId(), cohort.getId());
+        AssignRequest req = new AssignRequest(user.getId());
 
-        mockMvc.perform(post("/api/admin/assign-coordinator")
+        mockMvc.perform(post("/api/admin/courses/" + course.getId() + "/coordinator")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk());
 
-        Optional<Cohort> maybe = cohortRepository.findById(cohort.getId());
+        Optional<Course> maybe = courseRepository.findById(course.getId());
         assertTrue(maybe.isPresent());
         assertEquals(user.getId(), maybe.get().getCoordinator().getId());
     }

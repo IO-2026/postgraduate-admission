@@ -24,8 +24,13 @@ function AdminCoordinators() {
   const auth = loadAuthState();
   const token = auth?.token || null;
   const user = auth?.user || null;
-  const role = user?.role || "";
-  const isAdmin = ["admin", "ADMIN", "Admin"].includes(role);
+  const roleId =
+    user?.roleId ??
+    (typeof user?.role === "number" ? user.role : (user?.role?.id ?? null));
+  const isAdmin =
+    roleId === 2 ||
+    (typeof user?.role === "string" &&
+      user.role.toLowerCase().includes("admin"));
 
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -44,7 +49,7 @@ function AdminCoordinators() {
   } = useQuery(
     ["allUsers", token],
     async () => {
-      const res = await fetch(`/api/admin/users/search`, { headers });
+      const res = await fetch(`/api/users`, { headers });
       if (!res.ok) throw new Error("Nie można pobrać użytkowników");
       return await res.json();
     },
@@ -57,9 +62,9 @@ function AdminCoordinators() {
     isError: coordsIsError,
     error: coordsError,
   } = useQuery(
-    ["coordinatorsWithCohorts", token],
+    ["coordinatorsWithCourses", token],
     async () => {
-      const res = await fetch(`/api/admin/coordinators-with-cohorts`, {
+      const res = await fetch(`/api/admin/coordinators-with-courses`, {
         headers,
       });
       if (!res.ok) throw new Error("Nie można pobrać koordynatorów");
@@ -68,7 +73,7 @@ function AdminCoordinators() {
     { staleTime: 1000 * 60 * 5, enabled: true },
   );
 
-  // derive loading & fetch errors from queries instead of setting state inside effects
+  // derive loading & fetch errors from queries
   const usersEmpty = !users || users.length === 0;
   const coordsEmpty = !coordinators || coordinators.length === 0;
   const loading =
@@ -79,65 +84,6 @@ function AdminCoordinators() {
       ? coordsError?.message
       : "";
   const displayedError = error || fetchError;
-
-  const unassignMutation = useMutation(
-    async (cohortId) => {
-      const res = await fetch(`/api/admin/cohorts/${cohortId}/coordinator`, {
-        method: "DELETE",
-        headers,
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return true;
-    },
-    {
-      onMutate: async (cohortId) => {
-        setError("");
-        setInfo("");
-        setIsBusy(true);
-        await queryClient.cancelQueries(["coordinatorsWithCohorts", token]);
-        await queryClient.cancelQueries(["cohorts", token]);
-        const previousCoordinators = queryClient.getQueryData([
-          "coordinatorsWithCohorts",
-          token,
-        ]);
-        const previousCohorts = queryClient.getQueryData(["cohorts", token]);
-
-        queryClient.setQueryData(
-          ["coordinatorsWithCohorts", token],
-          (old = []) =>
-            (old || []).map((coord) => ({
-              ...coord,
-              cohorts: (coord.cohorts || []).filter((c) => c.id !== cohortId),
-            })),
-        );
-        queryClient.setQueryData(["cohorts", token], (old = []) =>
-          (old || []).map((c) =>
-            c.id === cohortId ? { ...c, coordinator: null } : c,
-          ),
-        );
-
-        return { previousCoordinators, previousCohorts };
-      },
-      onError: (err, cohortId, context) => {
-        if (context?.previousCoordinators)
-          queryClient.setQueryData(
-            ["coordinatorsWithCohorts", token],
-            context.previousCoordinators,
-          );
-        if (context?.previousCohorts)
-          queryClient.setQueryData(["cohorts", token], context.previousCohorts);
-        setError(err?.message || "Błąd");
-      },
-      onSettled: async () => {
-        setIsBusy(false);
-        await Promise.all([
-          queryClient.invalidateQueries(["cohorts", token]),
-          queryClient.invalidateQueries(["coordinatorsWithCohorts", token]),
-        ]);
-        setInfo("Usunięto przypisanie");
-      },
-    },
-  );
 
   const promoteMutation = useMutation(
     async (userId) => {
@@ -153,16 +99,18 @@ function AdminCoordinators() {
         setError("");
         setInfo("");
         setIsBusy(true);
+        // optimistically clear search input immediately and do not revert on failure
+        setSearch("");
         await queryClient.cancelQueries(["allUsers", token]);
-        await queryClient.cancelQueries(["coordinatorsWithCohorts", token]);
+        await queryClient.cancelQueries(["coordinatorsWithCourses", token]);
         const previousUsers = queryClient.getQueryData(["allUsers", token]);
         const previousCoordinators = queryClient.getQueryData([
-          "coordinatorsWithCohorts",
+          "coordinatorsWithCourses",
           token,
         ]);
 
         queryClient.setQueryData(["allUsers", token], (old = []) =>
-          old.map((u) => (u.id === userId ? { ...u, role: 3 } : u)),
+          old.map((u) => (u.id === userId ? { ...u, roleId: 3 } : u)),
         );
         const userObj = previousUsers?.find((u) => u.id === userId);
         if (userObj) {
@@ -170,11 +118,10 @@ function AdminCoordinators() {
             id: userObj.id,
             name: `${userObj.name} ${userObj.surname}`,
             email: userObj.email,
-            cohorts: [],
             courses: [],
           };
           queryClient.setQueryData(
-            ["coordinatorsWithCohorts", token],
+            ["coordinatorsWithCourses", token],
             (old = []) => {
               const exists = old.find((c) => c.id === userId);
               if (exists) return old;
@@ -190,17 +137,18 @@ function AdminCoordinators() {
           queryClient.setQueryData(["allUsers", token], context.previousUsers);
         if (context?.previousCoordinators)
           queryClient.setQueryData(
-            ["coordinatorsWithCohorts", token],
+            ["coordinatorsWithCourses", token],
             context.previousCoordinators,
           );
         setError(err?.message || "Błąd podczas promowania");
       },
-      onSettled: async () => {
+      onSuccess: async () => {
         setIsBusy(false);
         await Promise.all([
           queryClient.invalidateQueries(["allUsers", token]),
-          queryClient.invalidateQueries(["coordinatorsWithCohorts", token]),
+          queryClient.invalidateQueries(["coordinatorsWithCourses", token]),
         ]);
+        setSearch("");
         setInfo("Użytkownik został promotowany na koordynatora");
       },
     },
@@ -221,19 +169,23 @@ function AdminCoordinators() {
         setInfo("");
         setIsBusy(true);
         await queryClient.cancelQueries(["allUsers", token]);
-        await queryClient.cancelQueries(["coordinatorsWithCohorts", token]);
+        await queryClient.cancelQueries(["coordinatorsWithCourses", token]);
         const previousUsers = queryClient.getQueryData(["allUsers", token]);
         const previousCoordinators = queryClient.getQueryData([
-          "coordinatorsWithCohorts",
+          "coordinatorsWithCourses",
           token,
         ]);
 
+        // optimistic update: set role to Candidate and remove from coordinators list
         queryClient.setQueryData(["allUsers", token], (old = []) =>
-          old.map((u) => (u.id === userId ? { ...u, role: 1 } : u)),
+          (old || []).map((u) =>
+            Number(u.id) === Number(userId) ? { ...u, roleId: 1 } : u,
+          ),
         );
         queryClient.setQueryData(
-          ["coordinatorsWithCohorts", token],
-          (old = []) => old.filter((c) => c.id !== userId),
+          ["coordinatorsWithCourses", token],
+          (old = []) =>
+            (old || []).filter((c) => Number(c.id) !== Number(userId)),
         );
 
         return { previousUsers, previousCoordinators };
@@ -243,16 +195,35 @@ function AdminCoordinators() {
           queryClient.setQueryData(["allUsers", token], context.previousUsers);
         if (context?.previousCoordinators)
           queryClient.setQueryData(
-            ["coordinatorsWithCohorts", token],
+            ["coordinatorsWithCourses", token],
             context.previousCoordinators,
           );
-        setError(err?.message || "Błąd podczas degradacji");
-      },
-      onSettled: async () => {
+        const msg = (err && err.message) || String(err || "");
+        let polishMsg = msg;
+        const lower = msg.toLowerCase();
+        if (lower.includes("cannot demote")) {
+          polishMsg =
+            "Nie można zdegradować użytkownika: ma przypisane kursy. Najpierw usuń lub przekaż przypisania kursów.";
+        }
+        setError(polishMsg || "Błąd podczas degradacji");
         setIsBusy(false);
+      },
+      onSuccess: async (data, userId) => {
+        setIsBusy(false);
+        // ensure caches reflect server state
+        queryClient.setQueryData(["allUsers", token], (old = []) =>
+          (old || []).map((u) =>
+            Number(u.id) === Number(userId) ? { ...u, roleId: 1 } : u,
+          ),
+        );
+        queryClient.setQueryData(
+          ["coordinatorsWithCourses", token],
+          (old = []) =>
+            (old || []).filter((c) => Number(c.id) !== Number(userId)),
+        );
         await Promise.all([
           queryClient.invalidateQueries(["allUsers", token]),
-          queryClient.invalidateQueries(["coordinatorsWithCohorts", token]),
+          queryClient.invalidateQueries(["coordinatorsWithCourses", token]),
         ]);
         setInfo("Użytkownik zdegradowany");
       },
@@ -265,7 +236,7 @@ function AdminCoordinators() {
     return (users || [])
       .filter(
         (u) =>
-          Number(u?.role ?? u?.rank ?? u?.roleId ?? 0) === 1 &&
+          Number(u?.roleId ?? u?.role ?? u?.rank ?? 0) === 1 &&
           `${u.name || ""} ${u.surname || ""} ${u.email || ""}`
             .toLowerCase()
             .includes(term),
@@ -305,7 +276,7 @@ function AdminCoordinators() {
       <header className="admin-header">
         <h1>Koordynatorzy</h1>
         <p>
-          Lista koordynatorów oraz przypisane do nich kohorty. Możesz też
+          Lista koordynatorów oraz przypisane do nich kierunki. Możesz też
           promować użytkowników.
         </p>
       </header>
@@ -380,7 +351,6 @@ function AdminCoordinators() {
               <h2>Koordynatorzy</h2>
               {sortedCoordinators.map((c) => {
                 const hasCourses = c.courses && c.courses.length > 0;
-                const hasCohorts = c.cohorts && c.cohorts.length > 0;
                 return (
                   <div key={c.id} className="coordinator-card">
                     <div className="coord-header">
@@ -397,7 +367,6 @@ function AdminCoordinators() {
 
                     {hasCourses && (
                       <>
-                        <h3>Kierunki</h3>
                         <ul>
                           {(c.courses || [])
                             .slice()
@@ -417,42 +386,7 @@ function AdminCoordinators() {
                       </>
                     )}
 
-                    {hasCohorts && (
-                      <>
-                        <h3>Kohorty</h3>
-                        <ul>
-                          {(c.cohorts || [])
-                            .slice()
-                            .sort((a, b) => {
-                              const an = (a.courseName || "").toLowerCase();
-                              const bn = (b.courseName || "").toLowerCase();
-                              if (an < bn) return -1;
-                              if (an > bn) return 1;
-                              const an2 = (a.name || "").toLowerCase();
-                              const bn2 = (b.name || "").toLowerCase();
-                              if (an2 < bn2) return -1;
-                              if (an2 > bn2) return 1;
-                              return (a.id || 0) - (b.id || 0);
-                            })
-                            .map((co) => (
-                              <li key={co.id} className="cohort-item">
-                                <span>
-                                  {co.courseName} — {co.name}
-                                </span>
-                                <button
-                                  className="btn btn-secondary remove-btn"
-                                  onClick={() => unassignMutation.mutate(co.id)}
-                                  disabled={isBusy}
-                                >
-                                  Usuń
-                                </button>
-                              </li>
-                            ))}
-                        </ul>
-                      </>
-                    )}
-
-                    {!hasCourses && !hasCohorts && (
+                    {!hasCourses && (
                       <ul>
                         <li>Brak przypisań.</li>
                       </ul>

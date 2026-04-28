@@ -1,10 +1,12 @@
 package com.example.backend.model.application;
 
-
-import com.example.backend.auth.DTO.ApplicationRequest;
+import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +22,15 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @PostMapping("/submit")
-    public ResponseEntity<Void> submit(@RequestBody ApplicationRequest request) {
-        applicationService.saveApplication(request);
+    public ResponseEntity<Void> submit(
+            @Valid @RequestBody AdmissionSubmitRequest request,
+            @AuthenticationPrincipal User authenticatedUser
+    ) {
+        if (authenticatedUser == null || authenticatedUser.getId() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        applicationService.saveApplication(request, authenticatedUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

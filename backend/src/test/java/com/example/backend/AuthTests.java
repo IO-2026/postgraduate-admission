@@ -6,13 +6,15 @@ import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
+@Import(TestMailConfig.class)
 public class AuthTests {
 
     @Autowired
@@ -61,6 +64,10 @@ public class AuthTests {
         registry.add("jwt.expiration", () -> "86400000");
         registry.add("spring.mail.host", () -> "localhost");
         registry.add("spring.mail.port", () -> "1025");
+        registry.add("spring.mail.username", () -> "");
+        registry.add("spring.mail.password", () -> "");
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> "1");
+        registry.add("spring.datasource.hikari.minimum-idle", () -> "1");
     }
 
     private Role testRole;

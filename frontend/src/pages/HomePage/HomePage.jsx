@@ -17,8 +17,15 @@ function HomePage({ isLoggedIn }) {
       ? localStorage.getItem("pg-admission-auth")
       : null;
   const auth = safeJsonParse(authRaw);
-  const role = auth?.user?.role || null;
-  const isAdmin = !!(role && String(role).toUpperCase().includes("ADMIN"));
+  const roleId =
+    auth?.user?.roleId ??
+    (typeof auth?.user?.role === "number"
+      ? auth.user.role
+      : (auth?.user?.role?.id ?? null));
+  const isAdmin =
+    roleId === 2 ||
+    (typeof auth?.user?.role === "string" &&
+      auth.user.role.toLowerCase().includes("admin"));
 
   if (!isLoggedIn) {
     return (

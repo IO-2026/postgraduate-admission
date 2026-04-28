@@ -5,13 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class CohortBriefDto {
+public class CoordinatorWithCoursesDto {
     private Long id;
     private String name;
-    private Long courseId;
-    private String courseName;
+    private String email;
+    private List<CourseBriefDto> courses;
 }
