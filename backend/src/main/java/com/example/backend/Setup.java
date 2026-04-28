@@ -5,6 +5,7 @@ import com.example.backend.model.role.RoleRepository;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,10 +15,12 @@ public class Setup {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public Setup(RoleRepository roleRepository, UserRepository userRepository) {
+    public Setup(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
@@ -36,6 +39,21 @@ public class Setup {
         List<Role> roles = roleRepository.findAll();
         System.out.println("Current roles: " + roles);
 
+        if (userRepository.findByEmail("admin@example.com").isEmpty()) {
+            Role adminRole = roleRepository.findByName("ADMIN")
+                    .orElseThrow(() -> new IllegalStateException("ADMIN role should have been created!"));
+            
+            User admin = new User();
+            admin.setName("Admin");
+            admin.setSurname("Systemu");
+            admin.setEmail("admin@example.com");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setTelNumber("000000000");
+            admin.setRole(adminRole);
+            
+            userRepository.save(admin);
+            System.out.println("Created default admin user: admin@example.com / admin123");
+        }
     }
 
 }

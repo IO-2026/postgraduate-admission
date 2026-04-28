@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("ADMIN", "COORDINATOR")
                         .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("CANDIDATE")
                         .requestMatchers("/api/applications/*/status").hasAnyRole("ADMIN", "COORDINATOR")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

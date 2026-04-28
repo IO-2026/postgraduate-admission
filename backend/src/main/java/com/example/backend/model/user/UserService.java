@@ -51,6 +51,35 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
     }
 
+    public java.util.List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public UserDTO updateUserRole(Long userId, String roleName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        Role newRole = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " not found!"));
+
+        user.setRole(newRole);
+        User updatedUser = userRepository.save(user);
+        return mapToDTO(updatedUser);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .telNumber(user.getTelNumber())
+                .roleName(user.getRole().getName())
+                .build();
+    }
+
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
