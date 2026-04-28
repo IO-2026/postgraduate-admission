@@ -240,10 +240,14 @@ function AdminCoordinatorAssignment() {
       <div className="users-page">
         <header className="users-header">
           <div className="header-top">
-            <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+            <Link to="/" className="back-link">
+              ← Powrót do strony głównej
+            </Link>
           </div>
           <h1>Brak uprawnień</h1>
-          <p className="users-subtitle">Ta strona jest dostępna tylko dla administratorów.</p>
+          <p className="users-subtitle">
+            Ta strona jest dostępna tylko dla administratorów.
+          </p>
         </header>
 
         <section className="admin-view" aria-label="Panel administracyjny">
@@ -265,61 +269,62 @@ function AdminCoordinatorAssignment() {
     <div className="users-page">
       <header className="users-header">
         <div className="header-top">
-          <Link to="/" className="back-link">← Powrót do strony głównej</Link>
+          <Link to="/" className="back-link">
+            ← Powrót do strony głównej
+          </Link>
         </div>
         <h1>Przydziel koordynatora</h1>
         <p className="users-subtitle">Przypisz koordynatora do kierunku.</p>
       </header>
 
       <section className="admin-view" aria-label="Przydzielanie koordynatorów">
+        <div className="admin-card admin-form">
+          {loading ? (
+            <p>Ładowanie danych…</p>
+          ) : (
+            <>
+              {sortedCourses.map((course) => (
+                <section key={course.id} className="course-panel">
+                  <h2>{course.name}</h2>
+                  <div className="course-coordinator">
+                    <label>Koordynator kierunku:&nbsp;</label>
+                    <select
+                      className="form-input"
+                      value={
+                        course.coordinator
+                          ? course.coordinator.id
+                          : sortedCoordinators && sortedCoordinators.length > 0
+                            ? sortedCoordinators[0].id
+                            : ""
+                      }
+                      onChange={(e) =>
+                        handleCourseCoordinatorChange(course.id, e.target.value)
+                      }
+                      disabled={
+                        !(sortedCoordinators && sortedCoordinators.length > 0)
+                      }
+                    >
+                      {sortedCoordinators.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.email ? `(${c.email})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </section>
+              ))}
 
-      <div className="admin-card admin-form">
-        {loading ? (
-          <p>Ładowanie danych…</p>
-        ) : (
-          <>
-            {sortedCourses.map((course) => (
-              <section key={course.id} className="course-panel">
-                <h2>{course.name}</h2>
-                <div className="course-coordinator">
-                  <label>Koordynator kierunku:&nbsp;</label>
-                  <select
-                    className="form-input"
-                    value={
-                      course.coordinator
-                        ? course.coordinator.id
-                        : sortedCoordinators && sortedCoordinators.length > 0
-                          ? sortedCoordinators[0].id
-                          : ""
-                    }
-                    onChange={(e) =>
-                      handleCourseCoordinatorChange(course.id, e.target.value)
-                    }
-                    disabled={
-                      !(sortedCoordinators && sortedCoordinators.length > 0)
-                    }
-                  >
-                    {sortedCoordinators.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} {c.email ? `(${c.email})` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </section>
-            ))}
-
-            {error ? (
-              <p className="form-error" role="alert">
-                {error}
-              </p>
-            ) : null}
-            {info ? <p className="form-info">{info}</p> : null}
-          </>
-        )}
-      </div>
-    </section>
-  </div>
+              {error ? (
+                <p className="form-error" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              {info ? <p className="form-info">{info}</p> : null}
+            </>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
