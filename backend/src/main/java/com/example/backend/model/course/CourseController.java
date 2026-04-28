@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -24,18 +23,14 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
-        List<CourseDTO> courses = courseService.getAllCourses().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(courses);
+        return ResponseEntity.ok(courseService.getAllCourses());
     }
 
     @PostMapping
     public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
         try {
-            Course course = mapToEntity(courseDTO);
-            Course savedCourse = courseService.saveCourse(course);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(savedCourse));
+            CourseDTO savedCourse = courseService.saveCourse(courseDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage() + (e.getCause() != null ? " Cause: " + e.getCause().getMessage() : ""));
@@ -56,42 +51,11 @@ public class CourseController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseDTO courseDTO) {
         try {
-            Course course = mapToEntity(courseDTO);
-            Course updatedCourse = courseService.updateCourse(id, course);
-            return ResponseEntity.ok(mapToDTO(updatedCourse));
+            CourseDTO updatedCourse = courseService.updateCourse(id, courseDTO);
+            return ResponseEntity.ok(updatedCourse);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
-    }
-
-    private CourseDTO mapToDTO(Course course) {
-        return CourseDTO.builder()
-                .id(course.getId())
-                .name(course.getName())
-                .description(course.getDescription())
-                .price(course.getPrice())
-                .recruitmentStart(course.getRecruitmentStart())
-                .recruitmentEnd(course.getRecruitmentEnd())
-                .coordinatorId(course.getCoordinatorId())
-                .build();
-    }
-
-    private Course mapToEntity(CourseDTO courseDTO) {
-        Course course = new Course();
-        course.setId(courseDTO.getId());
-        course.setName(courseDTO.getName());
-        course.setDescription(courseDTO.getDescription());
-        course.setPrice(courseDTO.getPrice());
-        if (courseDTO.getRecruitmentStart() != null) {
-            course.setRecruitmentStart(courseDTO.getRecruitmentStart());
-        }
-        if (courseDTO.getRecruitmentEnd() != null) {
-            course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
-        }
-        if (courseDTO.getCoordinatorId() != null) {
-            course.setCoordinatorId(courseDTO.getCoordinatorId());
-        }
-        return course;
     }
 }

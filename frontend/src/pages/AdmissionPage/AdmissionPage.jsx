@@ -247,7 +247,7 @@ function AdmissionPage() {
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
-    getDraftDefaults(loadDraft(courseId))
+    getDraftDefaults(loadDraft(courseId)),
   );
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -415,7 +415,11 @@ function AdmissionPage() {
       <div className="admission-card">
         {!courseId ? (
           <div className="admission-session">
-            <p className="form-info" role="alert" style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <p
+              className="form-info"
+              role="alert"
+              style={{ textAlign: "center", marginBottom: "2rem" }}
+            >
               Musisz wybrać kierunek, na który chcesz aplikować.
             </p>
             <div className="admission-actions">

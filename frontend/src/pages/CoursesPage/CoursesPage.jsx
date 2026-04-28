@@ -278,31 +278,31 @@ function CoursesPage({ isLoggedIn, user }) {
                 )}
               </div>
               {isLoggedIn &&
-                (user?.role === "Admin" || user?.role === "Coordinator") ? (
-                  <div className="course-card-actions">
-                    <button
-                      className="secondary-btn edit-btn"
-                      onClick={() => handleEdit(course)}
-                    >
-                      Edytuj
-                    </button>
-                    <button
-                      className="secondary-btn delete-btn"
-                      onClick={() => handleDelete(course.id)}
-                    >
-                      Usuń
-                    </button>
-                  </div>
-                ) : isLoggedIn && user?.role === "Candidate" ? (
-                  <div className="course-card-actions">
-                    <Link
-                      to={`/admission?courseId=${course.id}`}
-                      className="primary-btn"
-                    >
-                      Aplikuj
-                    </Link>
-                  </div>
-                ) : null}
+              (user?.role === "Admin" || user?.role === "Coordinator") ? (
+                <div className="course-card-actions">
+                  <button
+                    className="secondary-btn edit-btn"
+                    onClick={() => handleEdit(course)}
+                  >
+                    Edytuj
+                  </button>
+                  <button
+                    className="secondary-btn delete-btn"
+                    onClick={() => handleDelete(course.id)}
+                  >
+                    Usuń
+                  </button>
+                </div>
+              ) : isLoggedIn && user?.role === "Candidate" ? (
+                <div className="course-card-actions">
+                  <Link
+                    to={`/admission?courseId=${course.id}`}
+                    className="primary-btn"
+                  >
+                    Aplikuj
+                  </Link>
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

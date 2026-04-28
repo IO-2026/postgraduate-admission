@@ -56,9 +56,13 @@ function App() {
     const payloadName =
       typeof authPayload === "object" && authPayload ? authPayload.name : null;
     const payloadSurname =
-      typeof authPayload === "object" && authPayload ? authPayload.surname : null;
+      typeof authPayload === "object" && authPayload
+        ? authPayload.surname
+        : null;
     const payloadTelNumber =
-      typeof authPayload === "object" && authPayload ? authPayload.telNumber : null;
+      typeof authPayload === "object" && authPayload
+        ? authPayload.telNumber
+        : null;
 
     const newUser = {
       id: payloadUserId || null,
