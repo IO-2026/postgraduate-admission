@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./HomePage.css";
 
-function HomePage({ isLoggedIn, user }) {
+function HomePage({ isLoggedIn }) {
   const applications = [];
 
   if (!isLoggedIn) {

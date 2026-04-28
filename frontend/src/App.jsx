@@ -20,7 +20,7 @@ function getInitialAuthState() {
     }
 
     const parsedAuth = JSON.parse(savedAuth);
-    
+
     // Force logout if we have a legacy format without the user object
     if (parsedAuth?.isLoggedIn && !parsedAuth?.user) {
       localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -80,7 +80,10 @@ function App() {
     <div className="app-shell">
       <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={handleLogout} />
       <Routes>
-        <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} user={user} />} />
+        <Route
+          path="/"
+          element={<HomePage isLoggedIn={isLoggedIn} user={user} />}
+        />
         <Route
           path="/auth"
           element={

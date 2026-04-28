@@ -6,11 +6,11 @@ function ProfilePage({ user, onLogout }) {
     <section className="profile-view">
       <div className="profile-card">
         <header className="profile-header">
-          <div className="profile-avatar">
-            {user?.name?.charAt(0) || "U"}
-          </div>
+          <div className="profile-avatar">{user?.name?.charAt(0) || "U"}</div>
           <div className="profile-title">
-            <h1>{user?.name} {user?.surname}</h1>
+            <h1>
+              {user?.name} {user?.surname}
+            </h1>
             <span className="profile-role-tag">{user?.role}</span>
           </div>
         </header>

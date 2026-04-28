@@ -143,14 +143,16 @@ function CoursesPage({ isLoggedIn, user }) {
           pracy.
         </p>
 
-        {isLoggedIn && (user?.role === "ADMIN" || user?.role === "COORDINATOR") && !isFormOpen && (
-          <button
-            className="primary-btn add-course-btn"
-            onClick={() => setIsFormOpen(true)}
-          >
-            + Dodaj nowy kierunek
-          </button>
-        )}
+        {isLoggedIn &&
+          (user?.role === "ADMIN" || user?.role === "COORDINATOR") &&
+          !isFormOpen && (
+            <button
+              className="primary-btn add-course-btn"
+              onClick={() => setIsFormOpen(true)}
+            >
+              + Dodaj nowy kierunek
+            </button>
+          )}
       </header>
 
       {isFormOpen && (
@@ -275,22 +277,23 @@ function CoursesPage({ isLoggedIn, user }) {
                   </span>
                 )}
               </div>
-              {isLoggedIn && (user?.role === "ADMIN" || user?.role === "COORDINATOR") && (
-                <div className="course-card-actions">
-                  <button
-                    className="secondary-btn edit-btn"
-                    onClick={() => handleEdit(course)}
-                  >
-                    Edytuj
-                  </button>
-                  <button
-                    className="secondary-btn delete-btn"
-                    onClick={() => handleDelete(course.id)}
-                  >
-                    Usuń
-                  </button>
-                </div>
-              )}
+              {isLoggedIn &&
+                (user?.role === "ADMIN" || user?.role === "COORDINATOR") && (
+                  <div className="course-card-actions">
+                    <button
+                      className="secondary-btn edit-btn"
+                      onClick={() => handleEdit(course)}
+                    >
+                      Edytuj
+                    </button>
+                    <button
+                      className="secondary-btn delete-btn"
+                      onClick={() => handleDelete(course.id)}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                )}
             </div>
           ))}
         </div>

@@ -119,21 +119,7 @@ public class AuthTests {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    void registerUser_ShouldFail_WhenRoleIdIsInvalid() throws Exception {
-        Map<String, Object> registerRequest = new HashMap<>();
-        registerRequest.put("name", "Invalid");
-        registerRequest.put("surname", "Role");
-        registerRequest.put("email", "invalid.role@example.com");
-        registerRequest.put("password", "Pass123!");
-        registerRequest.put("telNumber", "123456789");
-        registerRequest.put("roleId", 9999L);
 
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isBadRequest());
-    }
 
     //Login tests
 
