@@ -4,12 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.example.backend.model.role.Role;
+import com.example.backend.model.role.RoleRepository;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
+import org.mockito.Mockito;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,9 +35,10 @@ import com.example.backend.model.user.UserRepository;
 
 import tools.jackson.databind.ObjectMapper;
 
-@SpringBootTest
+@SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
 @Transactional
+@Import(AuthTests.TestMailConfig.class)
 public class AuthTests {
 
     @Autowired
@@ -47,6 +58,15 @@ public class AuthTests {
 
     @MockitoBean
     private EmailService emailService;
+  
+    @Configuration
+    static class TestMailConfig {
+        @Bean
+        @Primary
+        JavaMailSender mailSender() {
+            return Mockito.mock(JavaMailSender.class);
+        }
+    }
 
     private Role testRole;
 
