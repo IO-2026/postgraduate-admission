@@ -1,5 +1,9 @@
 package com.example.backend;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
 import com.example.backend.model.user.User;
@@ -17,16 +21,19 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.backend.model.notification.EmailService;
+import com.example.backend.model.role.Role;
+import com.example.backend.model.role.RoleRepository;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
+
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest(classes = BackendApplication.class)
 @AutoConfigureMockMvc
@@ -49,6 +56,9 @@ public class AuthTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private EmailService emailService;
+  
     @Configuration
     static class TestMailConfig {
         @Bean
@@ -62,7 +72,10 @@ public class AuthTests {
 
     @BeforeEach
     void setUp() {
-        testRole = roleRepository.findById(1).orElse(null);
+        testRole = roleRepository.findAll().stream()
+                .filter(r -> r.getName().equals("Candidate"))
+                .findFirst()
+                .orElse(null);
 
         User testUser = new User();
         testUser.setName("Jane");
@@ -109,21 +122,7 @@ public class AuthTests {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    void registerUser_ShouldFail_WhenRoleIdIsInvalid() throws Exception {
-        Map<String, Object> registerRequest = new HashMap<>();
-        registerRequest.put("name", "Invalid");
-        registerRequest.put("surname", "Role");
-        registerRequest.put("email", "invalid.role@example.com");
-        registerRequest.put("password", "Pass123!");
-        registerRequest.put("telNumber", "123456789");
-        registerRequest.put("roleId", 9999L);
 
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isBadRequest());
-    }
 
     //Login tests
 

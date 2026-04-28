@@ -6,6 +6,9 @@ import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage
 import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import CoursesPage from "./pages/CoursesPage/CoursesPage";
+import UsersPage from "./pages/UsersPage/UsersPage";
+import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -14,13 +17,23 @@ function getInitialAuthState() {
   try {
     const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!savedAuth) {
-      return false;
+      return { isLoggedIn: false, user: null };
     }
 
     const parsedAuth = JSON.parse(savedAuth);
-    return Boolean(parsedAuth?.isLoggedIn);
+
+    // Force logout if we have a legacy format without the user object
+    if (parsedAuth?.isLoggedIn && !parsedAuth?.user) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return { isLoggedIn: false, user: null };
+    }
+
+    return {
+      isLoggedIn: Boolean(parsedAuth?.isLoggedIn),
+      user: parsedAuth?.user || null,
+    };
   } catch {
-    return false;
+    return { isLoggedIn: false, user: null };
   }
 }
 
@@ -35,7 +48,7 @@ function getStoredUserRole() {
     if (!parsedAuth || typeof parsedAuth !== "object") {
       return null;
     }
-    
+
     return parsedAuth?.user?.role ?? null;
   } catch {
     return null;
@@ -47,7 +60,7 @@ function App() {
   const userRole = getStoredUserRole();
   const isCoordinator = isLoggedIn && userRole === "Coordinator";
 
-  const handleAuthSuccess = useCallback((user, authPayload) => {
+  const handleAuthSuccess = useCallback((userData, authPayload) => {
     const token =
       typeof authPayload === "string"
         ? authPayload
@@ -60,31 +73,45 @@ function App() {
     const payloadRole =
       typeof authPayload === "object" && authPayload ? authPayload.role : null;
 
-    const mergedUser = {
-      ...(user || {}),
-      id: payloadUserId ?? user?.id ?? null,
-      email: user?.email ?? payloadEmail ?? null,
-      role: user?.role ?? payloadRole ?? null,
+    const payloadName =
+      typeof authPayload === "object" && authPayload ? authPayload.name : null;
+    const payloadSurname =
+      typeof authPayload === "object" && authPayload
+        ? authPayload.surname
+        : null;
+    const payloadTelNumber =
+      typeof authPayload === "object" && authPayload
+        ? authPayload.telNumber
+        : null;
+
+    const newUser = {
+      id: payloadUserId || null,
+      email: payloadEmail || userData?.email || null,
+      role: payloadRole || null,
+      name: payloadName || userData?.name || null,
+      surname: payloadSurname || userData?.surname || null,
+      telNumber: payloadTelNumber || userData?.telNumber || null,
     };
 
     localStorage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
         isLoggedIn: true,
-        user: mergedUser,
+        user: newUser,
         token: token || null,
       }),
     );
-    setIsLoggedIn(true);
+    setAuthState({ isLoggedIn: true, user: newUser });
   }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    setIsLoggedIn(false);
+    window.location.href = "/";
   }, []);
 
   return (
     <div className="app-shell">
+      <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={handleLogout} />
       <Routes>
         <Route
           path="/"
@@ -107,6 +134,20 @@ function App() {
           }
         />
         <Route
+          path="/courses"
+          element={<CoursesPage isLoggedIn={isLoggedIn} user={user} />}
+        />
+        <Route
+          path="/users"
+          element={
+            isLoggedIn && user?.role === "Admin" ? (
+              <UsersPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
           path="/admission"
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
         />
@@ -118,7 +159,7 @@ function App() {
           path="/profile"
           element={
             isLoggedIn ? (
-              <ProfilePage onLogout={handleLogout} />
+              <ProfilePage user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/" replace />
             )

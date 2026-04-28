@@ -9,6 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender mailSender;
 
+    @Async
     @Retryable(
             retryFor = {MailException.class},
             maxAttempts = 5,
@@ -29,6 +31,7 @@ public class EmailService {
         send(user.getEmail(), "Witamy w rekrutacji!", content);
     }
 
+    @Async
     @Retryable(
             retryFor = {MailException.class},
             maxAttempts = 5,
@@ -52,14 +55,18 @@ public class EmailService {
     }
 
     private void send(String to, String subject, String body) {
-        
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("rekrutacja@twojprojekt.pl");
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("rekrutacja@twojprojekt.pl");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(body);
 
-        mailSender.send(message);
+            mailSender.send(message);
+        } catch (MailException e) {
+            // Log the error but don't rethrow to ensure it doesn't affect the caller thread
+            System.err.println("CRITICAL: Failed to send email to " + to + " after retries: " + e.getMessage());
+        }
     }
     
 }

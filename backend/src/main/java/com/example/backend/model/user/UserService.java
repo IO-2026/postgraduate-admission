@@ -30,12 +30,8 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Email is already taken!");
         }
 
-        if (registerRequest.getRoleId() == null) {
-            throw new IllegalArgumentException("Role ID must be provided!");
-        }
-
-        Role userRole = roleRepository.findById(registerRequest.getRoleId())
-                .orElseThrow(() -> new IllegalArgumentException("Role not found!"));
+        Role userRole = roleRepository.findByName("Candidate")
+                .orElseThrow(() -> new IllegalArgumentException("Role Candidate not found!"));
 
         User user = new User();
         user.setName(registerRequest.getName().trim());
@@ -53,6 +49,35 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
+    }
+
+    public java.util.List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public UserDTO updateUserRole(Long userId, String roleName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        Role newRole = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " not found!"));
+
+        user.setRole(newRole);
+        User updatedUser = userRepository.save(user);
+        return mapToDTO(updatedUser);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .telNumber(user.getTelNumber())
+                .roleName(user.getRole().getName())
+                .build();
     }
 
     private String normalizeEmail(String email) {

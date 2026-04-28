@@ -62,6 +62,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("Admin", "Coordinator")
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
+                        .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("Candidate")
+                        .requestMatchers("/api/applications/*/status").hasAnyRole("Admin", "Coordinator")
+                        .requestMatchers("/api/users/**").hasRole("Admin")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
