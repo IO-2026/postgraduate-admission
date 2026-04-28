@@ -53,11 +53,21 @@ function App() {
     const payloadRole =
       typeof authPayload === "object" && authPayload ? authPayload.role : null;
 
+    const payloadName =
+      typeof authPayload === "object" && authPayload ? authPayload.name : null;
+    const payloadSurname =
+      typeof authPayload === "object" && authPayload ? authPayload.surname : null;
+    const payloadTelNumber =
+      typeof authPayload === "object" && authPayload ? authPayload.telNumber : null;
+
     const mergedUser = {
-      ...(userData || {}),
-      id: payloadUserId ?? userData?.id ?? null,
-      email: userData?.email ?? payloadEmail ?? null,
-      role: userData?.role ?? payloadRole ?? null,
+      ...(user || {}),
+      id: payloadUserId ?? user?.id ?? null,
+      email: user?.email ?? payloadEmail ?? null,
+      role: user?.role ?? payloadRole ?? null,
+      name: user?.name ?? payloadName ?? null,
+      surname: user?.surname ?? payloadSurname ?? null,
+      telNumber: user?.telNumber ?? payloadTelNumber ?? null,
     };
 
     localStorage.setItem(
