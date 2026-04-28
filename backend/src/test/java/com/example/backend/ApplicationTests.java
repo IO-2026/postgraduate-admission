@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,6 +47,9 @@ public class ApplicationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @MockitoBean
     private EmailService emailService;
 
@@ -55,19 +58,22 @@ public class ApplicationTests {
 
     @BeforeEach
     void setUp() {
-        Role candidateRole = roleRepository.findByName("CANDIDATE").orElseGet(() -> {
-            Role role = new Role(3, "CANDIDATE");
+        Role candidateRole = roleRepository.findByName("Candidate").orElseGet(() -> {
+            Role role = new Role();
+            role.setName("Candidate");
             return roleRepository.save(role);
         });
-
-        testUser = new User();
-        testUser.setName("John");
-        testUser.setSurname("Doe");
-        testUser.setEmail("candidate@example.com");
-        testUser.setPassword("Pass123!");
-        testUser.setTelNumber("123456789");
-        testUser.setRole(candidateRole);
-        userRepository.save(testUser);
+        String email = "candidate.test@example.com";
+        testUser = userRepository.findByEmail(email).orElseGet(() -> {
+            User user = new User();
+            user.setName("John");
+            user.setSurname("Doe");
+            user.setEmail(email);
+            user.setPassword(passwordEncoder.encode("Pass123!"));
+            user.setTelNumber("123456789");
+            user.setRole(candidateRole);
+            return userRepository.save(user);
+        });
 
         testCourse = new Course();
         testCourse.setName("Test Course");
@@ -83,11 +89,31 @@ public class ApplicationTests {
     void submitApplication_ShouldSucceed_WhenCandidateRole() throws Exception {
         String token = jwtUtil.generateToken(testUser);
 
+        Map<String, Object> applicant = new HashMap<>();
+        applicant.put("dateOfBirth", "2000-01-01");
+        applicant.put("pesel", "44051401458");
+        Map<String, String> address = new HashMap<>();
+        address.put("street", "Testowa 1");
+        address.put("postalCode", "30-059");
+        address.put("city", "Kraków");
+        applicant.put("address", address);
+
+        Map<String, Object> education = new HashMap<>();
+        education.put("previousDegree", "Inżynier");
+        education.put("fieldOfStudy", "Informatyka");
+        education.put("graduationYear", 2020);
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("courseId", testCourse.getId());
+        details.put("university", "Test University");
+        details.put("diplomaUrl", "http://example.com/diploma.pdf");
+        details.put("truthfulnessConsent", true);
+        details.put("gdprConsent", true);
+
         Map<String, Object> request = new HashMap<>();
-        request.put("userId", testUser.getId());
-        request.put("university", "Test University");
-        request.put("courseId", testCourse.getId());
-        request.put("diplomaUrl", "http://example.com/diploma.pdf");
+        request.put("applicant", applicant);
+        request.put("education", education);
+        request.put("details", details);
 
         mockMvc.perform(post("/api/applications/submit")
                         .header("Authorization", "Bearer " + token)
@@ -98,14 +124,16 @@ public class ApplicationTests {
 
     @Test
     void submitApplication_ShouldFail_WhenWrongRole() throws Exception {
-        Role adminRole = roleRepository.findByName("ADMIN").orElseGet(() -> {
-            Role role = new Role(1, "ADMIN");
+        Role adminRole = roleRepository.findByName("Admin").orElseGet(() -> {
+            Role role = new Role();
+            role.setName("Admin");
             return roleRepository.save(role);
         });
         User adminUser = new User();
         adminUser.setName("Admin");
         adminUser.setSurname("User");
-        adminUser.setEmail("admin_unique_test_123@example.com");
+        String uniqueEmail = "admin_" + System.currentTimeMillis() + "@example.com";
+        adminUser.setEmail(uniqueEmail);
         adminUser.setPassword("Pass123!");
         adminUser.setTelNumber("123456789");
         adminUser.setRole(adminRole);
@@ -113,11 +141,31 @@ public class ApplicationTests {
 
         String token = jwtUtil.generateToken(adminUser);
 
+        Map<String, Object> applicant = new HashMap<>();
+        applicant.put("dateOfBirth", "1990-01-01");
+        applicant.put("pesel", "90010101234");
+        Map<String, String> address = new HashMap<>();
+        address.put("street", "Adminowa 1");
+        address.put("postalCode", "00-001");
+        address.put("city", "Warszawa");
+        applicant.put("address", address);
+
+        Map<String, Object> education = new HashMap<>();
+        education.put("previousDegree", "Magister");
+        education.put("fieldOfStudy", "Zarządzanie");
+        education.put("graduationYear", 2015);
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("courseId", testCourse.getId());
+        details.put("university", "Test University");
+        details.put("diplomaUrl", "http://example.com/diploma.pdf");
+        details.put("truthfulnessConsent", true);
+        details.put("gdprConsent", true);
+
         Map<String, Object> request = new HashMap<>();
-        request.put("userId", adminUser.getId());
-        request.put("university", "Test University");
-        request.put("courseId", testCourse.getId());
-        request.put("diplomaUrl", "http://example.com/diploma.pdf");
+        request.put("applicant", applicant);
+        request.put("education", education);
+        request.put("details", details);
 
         mockMvc.perform(post("/api/applications/submit")
                         .header("Authorization", "Bearer " + token)

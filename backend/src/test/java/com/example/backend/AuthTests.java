@@ -72,10 +72,11 @@ public class AuthTests {
 
     @BeforeEach
     void setUp() {
-        testRole = roleRepository.findAll().stream()
-                .filter(r -> r.getName().equals("Candidate"))
-                .findFirst()
-                .orElse(null);
+        testRole = roleRepository.findByName("Candidate").orElseGet(() -> {
+            Role role = new Role();
+            role.setName("Candidate");
+            return roleRepository.save(role);
+        });
 
         User testUser = new User();
         testUser.setName("Jane");
@@ -94,7 +95,8 @@ public class AuthTests {
         Map<String, Object> registerRequest = new HashMap<>();
         registerRequest.put("name", "John");
         registerRequest.put("surname", "Smith");
-        registerRequest.put("email", "john.smith@example.com");
+        String registerEmail = "john.smith." + System.currentTimeMillis() + "@example.com";
+        registerRequest.put("email", registerEmail);
         registerRequest.put("password", "MyPassword!1");
         registerRequest.put("telNumber", "123456789");
 
@@ -103,7 +105,7 @@ public class AuthTests {
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        assertTrue(userRepository.findByEmail("john.smith@example.com").isPresent());
+        assertTrue(userRepository.findByEmail(registerEmail).isPresent());
     }
 
     @Test
