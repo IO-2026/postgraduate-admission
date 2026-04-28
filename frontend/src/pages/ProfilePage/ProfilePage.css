@@ -1,5 +1,4 @@
 .profile-view {
-  min-height: calc(100svh - 64px);
   display: grid;
   justify-items: center;
   align-items: start;

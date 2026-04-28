@@ -1,5 +1,4 @@
 .coordinator-home-view {
-  min-height: calc(100svh - 64px);
   display: grid;
   align-content: start;
 }

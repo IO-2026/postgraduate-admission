@@ -28,6 +28,10 @@ public class CourseService {
         courseRepository.deleteById(id);
     }
 
+    public List<CourseDTO> getCoursesOfCoordinator(Long id) {
+        return courseRepository.findAllByCoordinatorId(id).stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
         return courseRepository.findById(id).map(course -> {
             course.setName(courseDTO.getName());

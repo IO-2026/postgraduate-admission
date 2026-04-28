@@ -1,5 +1,4 @@
 .auth-view {
-  min-height: calc(100svh - 64px);
   display: grid;
   place-items: center;
 }
