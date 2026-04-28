@@ -2,7 +2,8 @@ import { useCallback, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/AdmissionPage/AdmissionPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
-import HomePage from "./pages/HomePage/HomePage";
+import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
+import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import "./styles/layout.css";
@@ -23,8 +24,28 @@ function getInitialAuthState() {
   }
 }
 
+function getStoredUserRole() {
+  try {
+    const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!savedAuth) {
+      return null;
+    }
+
+    const parsedAuth = JSON.parse(savedAuth);
+    if (!parsedAuth || typeof parsedAuth !== "object") {
+      return null;
+    }
+    
+    return parsedAuth?.user?.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(getInitialAuthState);
+  const userRole = getStoredUserRole();
+  const isCoordinator = isLoggedIn && userRole === "Coordinator";
 
   const handleAuthSuccess = useCallback((user, authPayload) => {
     const token =
@@ -65,7 +86,16 @@ function App() {
   return (
     <div className="app-shell">
       <Routes>
-        <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
+        <Route
+          path="/"
+          element={
+            isCoordinator ? (
+              <CoordinatorHomePage />
+            ) : (
+              <CandidateHomePage isLoggedIn={isLoggedIn} />
+            )
+          }
+        />
         <Route
           path="/auth"
           element={

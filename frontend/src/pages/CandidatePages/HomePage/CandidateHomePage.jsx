@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import "./HomePage.css";
+import "./CandidateHomePage.css";
 
-function HomePage({ isLoggedIn }) {
+function CandidateHomePage({ isLoggedIn }) {
   const applications = [];
 
   if (!isLoggedIn) {
@@ -55,7 +55,7 @@ function HomePage({ isLoggedIn }) {
         </p>
         <div className="home-actions">
           <Link className="primary-btn" to="/admission">
-            Otwórz stronę rekrutacji
+            Zapisz się na studia
           </Link>
           <Link className="ghost-link" to="/messages">
             Wiadomości
@@ -79,4 +79,4 @@ function HomePage({ isLoggedIn }) {
   );
 }
 
-export default HomePage;
+export default CandidateHomePage;
