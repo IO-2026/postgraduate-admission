@@ -111,7 +111,7 @@ function App() {
         <Route
           path="/users"
           element={
-            isLoggedIn && user?.role === "ADMIN" ? (
+            isLoggedIn && user?.role === "Admin" ? (
               <UsersPage />
             ) : (
               <Navigate to="/" replace />

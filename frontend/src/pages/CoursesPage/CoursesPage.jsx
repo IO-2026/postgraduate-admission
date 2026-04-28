@@ -144,7 +144,7 @@ function CoursesPage({ isLoggedIn, user }) {
         </p>
 
         {isLoggedIn &&
-          (user?.role === "ADMIN" || user?.role === "COORDINATOR") &&
+          (user?.role === "Admin" || user?.role === "Coordinator") &&
           !isFormOpen && (
             <button
               className="primary-btn add-course-btn"
@@ -278,7 +278,7 @@ function CoursesPage({ isLoggedIn, user }) {
                 )}
               </div>
               {isLoggedIn &&
-                (user?.role === "ADMIN" || user?.role === "COORDINATOR") && (
+                (user?.role === "Admin" || user?.role === "Coordinator") ? (
                   <div className="course-card-actions">
                     <button
                       className="secondary-btn edit-btn"
@@ -293,7 +293,16 @@ function CoursesPage({ isLoggedIn, user }) {
                       Usuń
                     </button>
                   </div>
-                )}
+                ) : isLoggedIn && user?.role === "Candidate" ? (
+                  <div className="course-card-actions">
+                    <Link
+                      to={`/admission?courseId=${course.id}`}
+                      className="primary-btn"
+                    >
+                      Aplikuj
+                    </Link>
+                  </div>
+                ) : null}
             </div>
           ))}
         </div>

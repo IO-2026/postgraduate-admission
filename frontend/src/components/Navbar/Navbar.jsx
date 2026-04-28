@@ -34,7 +34,7 @@ function Navbar({ isLoggedIn, user }) {
           Wiadomości
         </Link>
 
-        {user?.role === "ADMIN" && (
+        {user?.role === "Admin" && (
           <div className="admin-menu">
             <span className="admin-menu-label">Panel Admina</span>
             <div className="admin-dropdown">

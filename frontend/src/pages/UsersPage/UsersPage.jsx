@@ -91,9 +91,9 @@ function UsersPage() {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="role-select"
                   >
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="COORDINATOR">COORDINATOR</option>
-                    <option value="CANDIDATE">CANDIDATE</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Coordinator">Coordinator</option>
+                    <option value="Candidate">Candidate</option>
                   </select>
                 </td>
               </tr>

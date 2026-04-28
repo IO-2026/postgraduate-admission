@@ -30,8 +30,8 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Email is already taken!");
         }
 
-        Role userRole = roleRepository.findByName("CANDIDATE")
-                .orElseThrow(() -> new IllegalArgumentException("Role CANDIDATE not found!"));
+        Role userRole = roleRepository.findByName("Candidate")
+                .orElseThrow(() -> new IllegalArgumentException("Role Candidate not found!"));
 
         User user = new User();
         user.setName(registerRequest.getName().trim());

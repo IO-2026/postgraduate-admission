@@ -72,7 +72,10 @@ public class AuthTests {
 
     @BeforeEach
     void setUp() {
-        testRole = roleRepository.findById(1).orElse(null);
+        testRole = roleRepository.findAll().stream()
+                .filter(r -> r.getName().equals("Candidate"))
+                .findFirst()
+                .orElse(null);
 
         User testUser = new User();
         testUser.setName("Jane");
