@@ -8,7 +8,7 @@ import {
 } from "../../services/courseApi";
 import "./CoursesPage.css";
 
-function CoursesPage({ isLoggedIn }) {
+function CoursesPage({ isLoggedIn, user }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -143,7 +143,7 @@ function CoursesPage({ isLoggedIn }) {
           pracy.
         </p>
 
-        {isLoggedIn && !isFormOpen && (
+        {isLoggedIn && (user?.role === "ADMIN" || user?.role === "COORDINATOR") && !isFormOpen && (
           <button
             className="primary-btn add-course-btn"
             onClick={() => setIsFormOpen(true)}
@@ -275,7 +275,7 @@ function CoursesPage({ isLoggedIn }) {
                   </span>
                 )}
               </div>
-              {isLoggedIn && (
+              {isLoggedIn && (user?.role === "ADMIN" || user?.role === "COORDINATOR") && (
                 <div className="course-card-actions">
                   <button
                     className="secondary-btn edit-btn"

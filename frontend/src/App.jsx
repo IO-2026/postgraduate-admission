@@ -6,6 +6,8 @@ import HomePage from "./pages/HomePage/HomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import CoursesPage from "./pages/CoursesPage/CoursesPage";
+import UsersPage from "./pages/UsersPage/UsersPage";
+import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -14,20 +16,31 @@ function getInitialAuthState() {
   try {
     const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!savedAuth) {
-      return false;
+      return { isLoggedIn: false, user: null };
     }
 
     const parsedAuth = JSON.parse(savedAuth);
-    return Boolean(parsedAuth?.isLoggedIn);
+    
+    // Force logout if we have a legacy format without the user object
+    if (parsedAuth?.isLoggedIn && !parsedAuth?.user) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return { isLoggedIn: false, user: null };
+    }
+
+    return {
+      isLoggedIn: Boolean(parsedAuth?.isLoggedIn),
+      user: parsedAuth?.user || null,
+    };
   } catch {
-    return false;
+    return { isLoggedIn: false, user: null };
   }
 }
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(getInitialAuthState);
+  const [authState, setAuthState] = useState(getInitialAuthState);
+  const { isLoggedIn, user } = authState;
 
-  const handleAuthSuccess = useCallback((user, authPayload) => {
+  const handleAuthSuccess = useCallback((userData, authPayload) => {
     const token =
       typeof authPayload === "string"
         ? authPayload
@@ -41,10 +54,10 @@ function App() {
       typeof authPayload === "object" && authPayload ? authPayload.role : null;
 
     const mergedUser = {
-      ...(user || {}),
-      id: payloadUserId ?? user?.id ?? null,
-      email: user?.email ?? payloadEmail ?? null,
-      role: user?.role ?? payloadRole ?? null,
+      ...(userData || {}),
+      id: payloadUserId ?? userData?.id ?? null,
+      email: userData?.email ?? payloadEmail ?? null,
+      role: userData?.role ?? payloadRole ?? null,
     };
 
     localStorage.setItem(
@@ -55,18 +68,19 @@ function App() {
         token: token || null,
       }),
     );
-    setIsLoggedIn(true);
+    setAuthState({ isLoggedIn: true, user: mergedUser });
   }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    setIsLoggedIn(false);
+    setAuthState({ isLoggedIn: false, user: null });
   }, []);
 
   return (
     <div className="app-shell">
+      <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={handleLogout} />
       <Routes>
-        <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
+        <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} user={user} />} />
         <Route
           path="/auth"
           element={
@@ -79,7 +93,17 @@ function App() {
         />
         <Route
           path="/courses"
-          element={<CoursesPage isLoggedIn={isLoggedIn} />}
+          element={<CoursesPage isLoggedIn={isLoggedIn} user={user} />}
+        />
+        <Route
+          path="/users"
+          element={
+            isLoggedIn && user?.role === "ADMIN" ? (
+              <UsersPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="/admission"

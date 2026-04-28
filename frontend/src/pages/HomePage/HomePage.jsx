@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./HomePage.css";
 
-function HomePage({ isLoggedIn }) {
+function HomePage({ isLoggedIn, user }) {
   const applications = [];
 
   if (!isLoggedIn) {
@@ -42,27 +42,6 @@ function HomePage({ isLoggedIn }) {
   return (
     <section className="home-view">
       <header className="home-header">
-        <Link
-          className="profile-corner-btn"
-          to="/profile"
-          aria-label="Otwórz profil"
-        >
-          <svg
-            className="profile-corner-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            role="presentation"
-            aria-hidden="true"
-          >
-            <path
-              d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.2 0-7 2.1-7 5v1h14v-1c0-2.9-2.8-5-7-5Z"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
         <p className="home-tag">Studia podyplomowe AGH</p>
         <h1>Strona główna</h1>
         <p className="home-subtitle">
