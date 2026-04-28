@@ -25,12 +25,6 @@ function Navbar({ isLoggedIn, user }) {
           to="/admission"
           className={location.pathname === "/admission" ? "active" : ""}
         >
-          Rekrutacja
-        </Link>
-        <Link
-          to="/messages"
-          className={location.pathname === "/messages" ? "active" : ""}
-        >
           Wiadomości
         </Link>
 

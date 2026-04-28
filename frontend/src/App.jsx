@@ -60,30 +60,29 @@ function App() {
     const payloadTelNumber =
       typeof authPayload === "object" && authPayload ? authPayload.telNumber : null;
 
-    const mergedUser = {
-      ...(user || {}),
-      id: payloadUserId ?? user?.id ?? null,
-      email: user?.email ?? payloadEmail ?? null,
-      role: user?.role ?? payloadRole ?? null,
-      name: user?.name ?? payloadName ?? null,
-      surname: user?.surname ?? payloadSurname ?? null,
-      telNumber: user?.telNumber ?? payloadTelNumber ?? null,
+    const newUser = {
+      id: payloadUserId || null,
+      email: payloadEmail || userData?.email || null,
+      role: payloadRole || null,
+      name: payloadName || userData?.name || null,
+      surname: payloadSurname || userData?.surname || null,
+      telNumber: payloadTelNumber || userData?.telNumber || null,
     };
 
     localStorage.setItem(
       AUTH_STORAGE_KEY,
       JSON.stringify({
         isLoggedIn: true,
-        user: mergedUser,
+        user: newUser,
         token: token || null,
       }),
     );
-    setAuthState({ isLoggedIn: true, user: mergedUser });
+    setAuthState({ isLoggedIn: true, user: newUser });
   }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    setAuthState({ isLoggedIn: false, user: null });
+    window.location.href = "/";
   }, []);
 
   return (
