@@ -6,11 +6,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.backend.model.user.UserRepository;
+import com.example.backend.model.user.User;
+
 @Service
 @RequiredArgsConstructor
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
@@ -40,7 +44,10 @@ public class CourseService {
                 course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
             }
             if (courseDTO.getCoordinatorId() != null) {
-                course.setCoordinatorId(courseDTO.getCoordinatorId());
+                // fetch user and set as coordinator
+                User u = userRepository.findById(courseDTO.getCoordinatorId())
+                        .orElseThrow(() -> new RuntimeException("Coordinator user not found"));
+                course.setCoordinator(u);
             }
             Course updatedCourse = courseRepository.save(course);
             return mapToDTO(updatedCourse);
@@ -48,6 +55,7 @@ public class CourseService {
     }
 
     private CourseDTO mapToDTO(Course course) {
+        Long coordId = course.getCoordinator() != null ? course.getCoordinator().getId() : null;
         return CourseDTO.builder()
                 .id(course.getId())
                 .name(course.getName())
@@ -55,7 +63,7 @@ public class CourseService {
                 .price(course.getPrice())
                 .recruitmentStart(course.getRecruitmentStart())
                 .recruitmentEnd(course.getRecruitmentEnd())
-                .coordinatorId(course.getCoordinatorId())
+                .coordinatorId(coordId)
                 .build();
     }
 
@@ -72,7 +80,9 @@ public class CourseService {
             course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
         }
         if (courseDTO.getCoordinatorId() != null) {
-            course.setCoordinatorId(courseDTO.getCoordinatorId());
+            User u = userRepository.findById(courseDTO.getCoordinatorId())
+                    .orElseThrow(() -> new RuntimeException("Coordinator user not found"));
+            course.setCoordinator(u);
         }
         return course;
     }

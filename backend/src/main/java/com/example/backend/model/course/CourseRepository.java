@@ -10,4 +10,3 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByCoordinator(User coordinator);
     List<Course> findByCoordinatorId(Long coordinatorId);
 }
-}

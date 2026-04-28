@@ -34,7 +34,7 @@ public class Course {
     @Column(length = 1000)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Double price;
 
     @Column(name = "recruitment_start", nullable = false)
@@ -44,7 +44,7 @@ public class Course {
     private LocalDate recruitmentEnd = LocalDate.now().plusMonths(3);
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coordinator_id", nullable = false)
+    @JoinColumn(name = "coordinator_id", nullable = true)
     private User coordinator;
 
     public Course(Long id, String name) {

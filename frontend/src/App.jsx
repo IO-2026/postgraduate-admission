@@ -72,76 +72,80 @@ function App() {
         return null;
       })();
 
-      const userRoleId = (() => {
-        if (user?.roleId != null) return user.roleId;
-        if (typeof user?.role === "number") return user.role;
-        if (user?.role && typeof user.role.id === "number") return user.role.id;
-        return null;
-      })();
+      // Use functional state update to avoid capturing `user` in this callback
+      setAuthState((prev) => {
+        const prevUser = prev?.user;
+        const userRoleId = (() => {
+          if (prevUser?.roleId != null) return prevUser.roleId;
+          if (typeof prevUser?.role === "number") return prevUser.role;
+          if (prevUser?.role && typeof prevUser.role.id === "number")
+            return prevUser.role.id;
+          return null;
+        })();
 
-      const mergedUser = {
-        ...(userData || {}),
-        id: payloadUserId ?? userData?.id ?? null,
-        email: userData?.email ?? payloadEmail ?? null,
-        roleId: userRoleId ?? payloadRoleId ?? null,
-        role: userData?.role ?? payloadRole ?? null,
-        name: userData?.name ?? null,
-        surname: userData?.surname ?? null,
-      };
+        const mergedUser = {
+          ...(userData || {}),
+          id: payloadUserId ?? userData?.id ?? null,
+          email: userData?.email ?? payloadEmail ?? null,
+          roleId: userRoleId ?? payloadRoleId ?? null,
+          role: userData?.role ?? payloadRole ?? null,
+          name: userData?.name ?? null,
+          surname: userData?.surname ?? null,
+        };
 
-      localStorage.setItem(
-        AUTH_STORAGE_KEY,
-        JSON.stringify({
-          isLoggedIn: true,
-          user: mergedUser,
-          token: token || null,
-        }),
-      );
-
-      // Prefetch admin-related data if user is admin
-      const isAdmin =
-        mergedUser.roleId === 2 ||
-        (typeof mergedUser.role === "string" &&
-          mergedUser.role.toLowerCase().includes("admin"));
-
-      if (isAdmin) {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        // Prefetch users and courses and coordinators-with-courses
-        queryClient.prefetchQuery(
-          ["allUsers", token],
-          async () => {
-            const r = await fetch("/api/users", { headers });
-            if (!r.ok) throw new Error("Failed to fetch users");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
+        localStorage.setItem(
+          AUTH_STORAGE_KEY,
+          JSON.stringify({
+            isLoggedIn: true,
+            user: mergedUser,
+            token: token || null,
+          }),
         );
 
-        queryClient.prefetchQuery(
-          ["courses", token],
-          async () => {
-            const r = await fetch("/api/courses", { headers });
-            if (!r.ok) throw new Error("Failed to fetch courses");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
-        );
+        // Prefetch admin-related data if user is admin
+        const isAdmin =
+          mergedUser.roleId === 2 ||
+          (typeof mergedUser.role === "string" &&
+            mergedUser.role.toLowerCase().includes("admin"));
 
-        queryClient.prefetchQuery(
-          ["coordinatorsWithCourses", token],
-          async () => {
-            const r = await fetch("/api/admin/coordinators-with-courses", {
-              headers,
-            });
-            if (!r.ok) throw new Error("Failed to fetch coordinators");
-            return r.json();
-          },
-          { staleTime: 1000 * 60 * 5 },
-        );
-      }
+        if (isAdmin) {
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      setAuthState({ isLoggedIn: true, user: mergedUser });
+          queryClient.prefetchQuery(
+            ["allUsers", token],
+            async () => {
+              const r = await fetch("/api/users", { headers });
+              if (!r.ok) throw new Error("Failed to fetch users");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+
+          queryClient.prefetchQuery(
+            ["courses", token],
+            async () => {
+              const r = await fetch("/api/courses", { headers });
+              if (!r.ok) throw new Error("Failed to fetch courses");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+
+          queryClient.prefetchQuery(
+            ["coordinatorsWithCourses", token],
+            async () => {
+              const r = await fetch("/api/admin/coordinators-with-courses", {
+                headers,
+              });
+              if (!r.ok) throw new Error("Failed to fetch coordinators");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+        }
+
+        return { isLoggedIn: true, user: mergedUser };
+      });
     },
     [queryClient],
   );

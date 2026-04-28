@@ -8,28 +8,21 @@ import com.example.backend.model.user.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class CourseController {
+public class AdminCourseController {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
-    public CourseController(CourseRepository courseRepository, UserRepository userRepository) {
+    public AdminCourseController(CourseRepository courseRepository, UserRepository userRepository) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
-    }
-
-    @GetMapping("/courses")
-    public ResponseEntity<List<Course>> getCourses() {
-        return ResponseEntity.ok(courseRepository.findAll());
     }
 
     @PostMapping("/admin/courses/{id}/coordinator")

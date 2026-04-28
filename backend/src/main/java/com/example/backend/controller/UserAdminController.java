@@ -32,7 +32,7 @@ public class UserAdminController {
         this.courseRepository = courseRepository;
     }
 
-    @GetMapping("/users")
+    @GetMapping("/admin/users")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> users = userRepository.findAll().stream()
                 .map(u -> new UserDto(u.getId(), u.getName(), u.getSurname(), u.getEmail(), u.getRole() != null ? u.getRole().getId() : null))
