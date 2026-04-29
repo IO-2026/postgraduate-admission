@@ -21,6 +21,7 @@ public class UserService implements UserDetailsService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final com.example.backend.model.course.CourseRepository courseRepository;
 
 
     public void registerUser(RegisterRequest registerRequest) {
@@ -63,6 +64,16 @@ public class UserService implements UserDetailsService {
 
         Role newRole = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " not found!"));
+
+        // if user is currently a coordinator and new role is not coordinator, prevent demotion while courses assigned
+        boolean isCurrentlyCoordinator = user.getRole() != null && Integer.valueOf(3).equals(user.getRole().getId());
+        boolean willBeCoordinator = newRole != null && Integer.valueOf(3).equals(newRole.getId());
+        if (isCurrentlyCoordinator && !willBeCoordinator) {
+            java.util.List<com.example.backend.model.course.Course> assigned = courseRepository.findByCoordinatorId(userId);
+            if (assigned != null && !assigned.isEmpty()) {
+                throw new IllegalArgumentException("Cannot demote user while they have assigned courses. Reassign courses first.");
+            }
+        }
 
         user.setRole(newRole);
         User updatedUser = userRepository.save(user);

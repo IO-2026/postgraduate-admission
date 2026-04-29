@@ -121,23 +121,19 @@ function AdminCoordinatorAssignment() {
         const prevCourse = (previousCourses || []).find(
           (c) => Number(c.id) === Number(vars.courseId),
         );
-        const previousCoordinatorId = prevCourse?.coordinator?.id ?? null;
+        const previousCoordinatorId = prevCourse?.coordinatorId ?? null;
 
         const coordObj = (previousCoordinators || []).find(
           (c) => Number(c.id) === Number(vars.coordinatorId),
         );
 
-        // update courses cache optimistically
+        // update courses cache optimistically (use coordinatorId DTO field)
         queryClient.setQueryData(["courses", token], (prev = []) =>
           (prev || []).map((c) =>
             c.id === vars.courseId
               ? {
                   ...c,
-                  coordinator: {
-                    id: coordObj?.id,
-                    name: coordObj?.name,
-                    email: coordObj?.email,
-                  },
+                  coordinatorId: coordObj?.id ?? null,
                 }
               : c,
           ),
@@ -194,23 +190,28 @@ function AdminCoordinatorAssignment() {
         setError(err?.message || "Błąd przypisania koordynatora kierunku");
       },
       onSuccess: (data, vars, context) => {
-        // set course to server returned object
+        // set course to server-returned CourseDTO (map coordinator -> coordinatorId)
+        const mappedCourseDTO = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          recruitmentStart: data.recruitmentStart,
+          recruitmentEnd: data.recruitmentEnd,
+          coordinatorId: data.coordinator?.id || data.coordinatorId || null,
+        };
         queryClient.setQueryData(["courses", token], (prev = []) =>
-          (prev || []).map((c) => (c.id === data.id ? data : c)),
+          (prev || []).map((c) => (c.id === data.id ? mappedCourseDTO : c)),
         );
 
-        // synchronize coordinators' courses lists using returned data
+        // synchronize coordinators' courses lists using returned data (use mapped coordinatorId)
+        const mappedCoordinatorId = data.coordinator?.id || data.coordinatorId;
         queryClient.setQueryData(
           ["coordinatorsWithCourses", token],
           (prev = []) =>
             (prev || []).map((c) => {
-              if (
-                Number(c.id) ===
-                Number(data.coordinator?.id || data.coordinatorId)
-              ) {
-                const exists = (c.courses || []).some(
-                  (cr) => cr.id === data.id,
-                );
+              if (Number(c.id) === Number(mappedCoordinatorId)) {
+                const exists = (c.courses || []).some((cr) => cr.id === data.id);
                 if (exists) return c;
                 return {
                   ...c,
@@ -290,13 +291,7 @@ function AdminCoordinatorAssignment() {
                     <label>Koordynator kierunku:&nbsp;</label>
                     <select
                       className="form-input"
-                      value={
-                        course.coordinator
-                          ? course.coordinator.id
-                          : sortedCoordinators && sortedCoordinators.length > 0
-                            ? sortedCoordinators[0].id
-                            : ""
-                      }
+                      value={course.coordinatorId ?? ""}
                       onChange={(e) =>
                         handleCourseCoordinatorChange(course.id, e.target.value)
                       }
@@ -304,6 +299,7 @@ function AdminCoordinatorAssignment() {
                         !(sortedCoordinators && sortedCoordinators.length > 0)
                       }
                     >
+                      <option value="">-- Brak koordynatora --</option>
                       {sortedCoordinators.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name} {c.email ? `(${c.email})` : ""}
