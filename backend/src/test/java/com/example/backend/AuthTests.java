@@ -58,7 +58,7 @@ public class AuthTests {
 
     @MockitoBean
     private EmailService emailService;
-  
+
     @Configuration
     static class TestMailConfig {
         @Bean
@@ -72,10 +72,11 @@ public class AuthTests {
 
     @BeforeEach
     void setUp() {
-        testRole = roleRepository.findAll().stream()
-                .filter(r -> r.getName().equals("Candidate"))
-                .findFirst()
-                .orElse(null);
+        testRole = roleRepository.findByName("Candidate").orElseGet(() -> {
+            Role role = new Role();
+            role.setName("Candidate");
+            return roleRepository.save(role);
+        });
 
         User testUser = new User();
         testUser.setName("Jane");
@@ -87,24 +88,24 @@ public class AuthTests {
         userRepository.save(testUser);
     }
 
-    //Registration tests
+    // Registration tests
 
     @Test
     void registerUser_ShouldSucceed_WhenValidPayload() throws Exception {
         Map<String, Object> registerRequest = new HashMap<>();
         registerRequest.put("name", "John");
         registerRequest.put("surname", "Smith");
-        registerRequest.put("email", "john.smith@example.com");
+        String registerEmail = "john.smith." + System.currentTimeMillis() + "@example.com";
+        registerRequest.put("email", registerEmail);
         registerRequest.put("password", "MyPassword!1");
         registerRequest.put("telNumber", "123456789");
-        registerRequest.put("roleId", testRole.getId());
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        assertTrue(userRepository.findByEmail("john.smith@example.com").isPresent());
+        assertTrue(userRepository.findByEmail(registerEmail).isPresent());
     }
 
     @Test
@@ -114,17 +115,15 @@ public class AuthTests {
         registerRequest.put("name", "Duplicate");
         registerRequest.put("surname", "User");
         registerRequest.put("password", "Pass123!");
-        registerRequest.put("roleId", testRole.getId());
+        registerRequest.put("telNumber", "123456789");
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().is4xxClientError());
     }
 
-
-
-    //Login tests
+    // Login tests
 
     @Test
     void loginUser_ShouldSucceed_WhenCredentialsAreValid() throws Exception {
@@ -133,8 +132,8 @@ public class AuthTests {
         loginRequest.put("password", "SecurePass123!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk());
     }
 
@@ -145,8 +144,8 @@ public class AuthTests {
         loginRequest.put("password", "SomePassword123!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -157,8 +156,8 @@ public class AuthTests {
         loginRequest.put("password", "WrongPassword!");
 
         mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
