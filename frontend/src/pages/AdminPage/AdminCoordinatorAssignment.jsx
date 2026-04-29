@@ -211,7 +211,9 @@ function AdminCoordinatorAssignment() {
           (prev = []) =>
             (prev || []).map((c) => {
               if (Number(c.id) === Number(mappedCoordinatorId)) {
-                const exists = (c.courses || []).some((cr) => cr.id === data.id);
+                const exists = (c.courses || []).some(
+                  (cr) => cr.id === data.id,
+                );
                 if (exists) return c;
                 return {
                   ...c,
