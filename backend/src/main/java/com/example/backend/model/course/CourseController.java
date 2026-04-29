@@ -1,5 +1,6 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,6 @@ import com.example.backend.model.course.Course;
 public class CourseController {
 
     private final CourseService courseService;
-    private final UserRepository userRepository;
-    private final CourseRepository courseRepository;
 
     @GetMapping("/courses")
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
@@ -73,14 +72,7 @@ public class CourseController {
     @PostMapping("/admin/courses/{id}/coordinator")
     public ResponseEntity<?> assignCourseCoordinator(@PathVariable("id") Long id, @RequestBody AssignRequest req) {
         try {
-            Long coordinatorId = req.getCoordinatorId();
-            if (coordinatorId == null) {
-                return ResponseEntity.badRequest().body("Coordinator id cannot be null");
-            }
-            User coordinator = userRepository.findById(coordinatorId).orElseThrow(() -> new IllegalArgumentException("Coordinator not found"));
-            Course course = courseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Course not found"));
-            course.setCoordinator(coordinator);
-            Course saved = courseRepository.save(course);
+            Course saved = courseService.assignCoordinator(id, req.getCoordinatorId());
             return ResponseEntity.ok(saved);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

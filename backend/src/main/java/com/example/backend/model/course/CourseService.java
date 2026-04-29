@@ -1,5 +1,6 @@
 package com.example.backend.model.course;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -85,5 +86,20 @@ public class CourseService {
             course.setCoordinator(u);
         }
         return course;
+    }
+
+    @Transactional
+    public Course assignCoordinator(Long courseId, Long coordinatorId) {
+        if (coordinatorId == null) {
+            throw new IllegalArgumentException("Coordinator id cannot be null");
+        }
+
+        User coordinator = userRepository.findById(coordinatorId)
+                .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        course.setCoordinator(coordinator);
+        return courseRepository.save(course);
     }
 }
