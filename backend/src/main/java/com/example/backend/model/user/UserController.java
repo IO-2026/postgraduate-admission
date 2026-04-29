@@ -3,22 +3,20 @@ package com.example.backend.model.user;
 import com.example.backend.auth.AuthService;
 import com.example.backend.auth.DTO.LoginRequest;
 import com.example.backend.auth.DTO.RegisterRequest;
-import com.example.backend.model.course.Course;
-import com.example.backend.model.course.CourseRepository;
-import com.example.backend.model.role.Role;
-import com.example.backend.model.role.RoleRepository;
-import com.example.backend.model.user.AdminUserDto;
-import com.example.backend.model.user.CoordinatorDto;
-import com.example.backend.model.user.CoordinatorWithCoursesDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
