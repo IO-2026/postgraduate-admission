@@ -17,6 +17,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.mockito.Mockito;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,8 +87,6 @@ public class AuthTests {
         userRepository.save(user);
     }
 
-    @MockitoBean
-    private EmailService emailService;
 
     @Configuration
     static class TestMailConfig {
@@ -93,25 +97,6 @@ public class AuthTests {
         }
     }
 
-    private Role testRole;
-
-    @BeforeEach
-    void setUp() {
-        testRole = roleRepository.findByName("Candidate").orElseGet(() -> {
-            Role role = new Role();
-            role.setName("Candidate");
-            return roleRepository.save(role);
-        });
-
-        User testUser = new User();
-        testUser.setName("Jane");
-        testUser.setSurname("Doe");
-        testUser.setEmail("jane.doe@example.com");
-        testUser.setPassword(passwordEncoder.encode("SecurePass123!"));
-        testUser.setTelNumber("987654321");
-        testUser.setRole(testRole);
-        userRepository.save(testUser);
-    }
 
     // Registration tests
 
