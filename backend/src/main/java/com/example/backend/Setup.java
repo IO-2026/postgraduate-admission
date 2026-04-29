@@ -50,8 +50,15 @@ public class Setup {
         // Seed courses if none exist
         List<Course> courses = courseRepository.findAll();
         if (courses.isEmpty()) {
-            courseRepository.save(new Course(null, "Informatyka Stosowana"));
-            courseRepository.save(new Course(null, "Zarządzanie Projektami"));
+            Course c1 = new Course();
+            c1.setName("Informatyka Stosowana");
+            c1.setPrice(0.0);
+            courseRepository.save(c1);
+
+            Course c2 = new Course();
+            c2.setName("Zarządzanie Projektami");
+            c2.setPrice(0.0);
+            courseRepository.save(c2);
         }
 
         // Ensure default admin user exists

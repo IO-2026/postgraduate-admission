@@ -1,5 +1,5 @@
 package com.example.backend;
-import com.example.backend.dto.AssignRequest;
+import com.example.backend.model.course.AssignRequest;
 
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;
@@ -87,7 +87,10 @@ public class AdminControllerIntegrationTest {
         user.setRole(coordRole);
         user = userRepository.save(user);
 
-        Course course = courseRepository.save(new Course(null, "TestCourse"));
+        Course course = new Course();
+        course.setName("TestCourse");
+        course.setPrice(0.0);
+        course = courseRepository.save(course);
 
         AssignRequest req = new AssignRequest(user.getId());
 

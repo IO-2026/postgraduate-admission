@@ -13,20 +13,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.example.backend.model.user.UserRepository;
+import com.example.backend.model.user.User;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.example.backend.model.course.AssignRequest;
+import com.example.backend.model.course.CourseRepository;
+import com.example.backend.model.course.Course;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
-    @GetMapping
+    @GetMapping("/courses")
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
-    @PostMapping
+    @PostMapping("/courses")
     public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO savedCourse = courseService.saveCourse(courseDTO);
@@ -37,7 +47,7 @@ public class CourseController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/courses/{id}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         try {
             courseService.deleteCourse(id);
@@ -48,7 +58,7 @@ public class CourseController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/courses/{id}")
     public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO updatedCourse = courseService.updateCourse(id, courseDTO);
@@ -56,6 +66,24 @@ public class CourseController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    // Admin assignment endpoint (kept under /api/admin/... by the front-end)
+    @PostMapping("/admin/courses/{id}/coordinator")
+    public ResponseEntity<?> assignCourseCoordinator(@PathVariable("id") Long id, @RequestBody AssignRequest req) {
+        try {
+            Long coordinatorId = req.getCoordinatorId();
+            if (coordinatorId == null) {
+                return ResponseEntity.badRequest().body("Coordinator id cannot be null");
+            }
+            User coordinator = userRepository.findById(coordinatorId).orElseThrow(() -> new IllegalArgumentException("Coordinator not found"));
+            Course course = courseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Course not found"));
+            course.setCoordinator(coordinator);
+            Course saved = courseRepository.save(course);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

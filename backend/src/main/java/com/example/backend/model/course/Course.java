@@ -34,7 +34,7 @@ public class Course {
     @Column(length = 1000)
     private String description;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Double price;
 
     @Column(name = "recruitment_start", nullable = false)
