@@ -6,6 +6,7 @@ import {
   updateCourse,
   deleteCourse,
 } from "../../../services/courseApi";
+import { formatDisplayDate } from "../../../utils/dateFormat";
 import "./AdminCoursesPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -220,6 +221,14 @@ function AdminCoursesPage() {
           </svg>
           Wróć do strony głównej
         </Link>
+        {!isFormOpen && (
+          <button
+            className="primary-btn add-course-btn add-course-btn--top"
+            onClick={() => setIsFormOpen(true)}
+          >
+            + Dodaj kierunek
+          </button>
+        )}
       </div>
       <header className="courses-header">
         <p className="courses-tag">Studia podyplomowe AGH</p>
@@ -228,15 +237,6 @@ function AdminCoursesPage() {
           Zarządzaj ofertą kierunków studiów podyplomowych oraz harmonogramem
           rekrutacji.
         </p>
-
-        {!isFormOpen && (
-          <button
-            className="primary-btn add-course-btn"
-            onClick={() => setIsFormOpen(true)}
-          >
-            + Dodaj nowy kierunek
-          </button>
-        )}
       </header>
 
       {isFormOpen && (
@@ -363,8 +363,8 @@ function AdminCoursesPage() {
                 <div className="course-meta">
                   {course.recruitmentStart && course.recruitmentEnd && (
                     <span className="meta-tag">
-                      Rekrutacja: {course.recruitmentStart} -{" "}
-                      {course.recruitmentEnd}
+                      Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
+                      {formatDisplayDate(course.recruitmentEnd)}
                     </span>
                   )}
                   {course.coordinatorId ? (

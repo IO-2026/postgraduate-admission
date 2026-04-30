@@ -3,7 +3,7 @@ import "./HomePage.css";
 
 function AdminHomePage() {
   const quickActions = [
-    { label: "Kierunki studiów", to: "/admin/courses", kind: "main" },
+    { label: "Kierunki studiów", to: "/admin/courses" },
     { label: "Użytkownicy", to: "/users" },
   ];
 
@@ -19,7 +19,7 @@ function AdminHomePage() {
           {quickActions.map((action) => (
             <Link
               key={action.to}
-              className={action.kind === "main" ? "primary-btn" : "ghost-link"}
+              className="primary-btn"
               to={action.to}
             >
               {action.label}

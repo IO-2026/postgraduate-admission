@@ -199,6 +199,16 @@
   color: var(--primary);
 }
 
+.admission-course-picker .meta-dates {
+  display: grid;
+  gap: 8px;
+}
+
+.admission-course-picker .meta-dates strong {
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
 .admission-course-picker .course-card-actions {
   margin-top: auto;
   padding-top: 16px;

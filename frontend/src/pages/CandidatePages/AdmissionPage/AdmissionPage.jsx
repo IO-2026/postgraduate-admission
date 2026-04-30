@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
+import { formatDisplayDate } from "../../../utils/dateFormat";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 const DEFAULT_COURSE_ID = 1;
@@ -539,13 +540,19 @@ function AdmissionPage() {
                             : "Rekrutacja"}
                         </span>
                         <span className="meta-dates">
-                          {course.recruitmentStart} - {course.recruitmentEnd}
+                          <span>
+                            Od{" "}
+                            <strong>
+                              {formatDisplayDate(course.recruitmentStart)}
+                            </strong>
+                          </span>
+                          <span>
+                            Do{" "}
+                            <strong>
+                              {formatDisplayDate(course.recruitmentEnd)}
+                            </strong>
+                          </span>
                         </span>
-                      </span>
-                    )}
-                    {course.coordinatorId && (
-                      <span className="meta-tag">
-                        Koordynator ID: {course.coordinatorId}
                       </span>
                     )}
                   </div>

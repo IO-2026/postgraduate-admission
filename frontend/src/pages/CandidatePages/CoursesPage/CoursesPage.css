@@ -1,6 +1,6 @@
 .courses-view {
   display: grid;
-  gap: 18px;
+  gap: 16px;
   min-height: calc(100svh - 64px);
   align-content: start;
   width: 100%;
@@ -11,7 +11,7 @@
   justify-content: flex-start;
   align-items: center;
   min-height: 48px;
-  margin: 8px 0 16px;
+  margin: 8px 0 0;
 }
 
 .courses-back-link {
@@ -163,11 +163,6 @@
   display: flex;
   align-items: stretch;
   gap: 24px;
-}
-
-.course-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 34px rgba(17, 47, 74, 0.18);
 }
 
 .course-card::after {

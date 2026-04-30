@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { fetchCourses } from "../../../services/courseApi";
+import { formatDisplayDate } from "../../../utils/dateFormat";
 import "./CoursesPage.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
@@ -149,8 +150,9 @@ function CoursesPage() {
                       <div className="course-meta">
                         {course.recruitmentStart && course.recruitmentEnd && (
                           <span className="meta-tag">
-                            Rekrutacja: {course.recruitmentStart} -{" "}
-                            {course.recruitmentEnd}
+                            Rekrutacja:{" "}
+                            {formatDisplayDate(course.recruitmentStart)} -{" "}
+                            {formatDisplayDate(course.recruitmentEnd)}
                           </span>
                         )}
                       </div>

@@ -1,5 +1,21 @@
 @import "../../CandidatePages/CoursesPage/CoursesPage.css";
 
+.courses-view {
+	min-height: 0;
+}
+
+.courses-top-actions {
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.add-course-btn--top {
+	min-height: 36px;
+	padding: 8px 16px;
+	font-size: 0.86rem;
+	box-shadow: 0 6px 14px rgba(15, 127, 115, 0.2);
+}
+
 .form-group select {
 	padding: 0.6rem 1rem;
 	border: 1px solid var(--field-border);

@@ -19,20 +19,6 @@ function CandidateHomePage({ isLoggedIn }) {
             <Link className="primary-btn" to="/auth">
               Zaloguj się
             </Link>
-            <Link
-              className="secondary-btn"
-              to="/courses"
-              style={{
-                padding: "0.8rem 1.5rem",
-                borderRadius: "8px",
-                textDecoration: "none",
-                color: "var(--text-dark)",
-                border: "1px solid var(--border)",
-                background: "white",
-              }}
-            >
-              Oferta studiów
-            </Link>
           </div>
         </div>
       </section>
