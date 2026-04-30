@@ -17,11 +17,7 @@ function AdminHomePage() {
         </p>
         <div className="admin-home-actions">
           {quickActions.map((action) => (
-            <Link
-              key={action.to}
-              className="primary-btn"
-              to={action.to}
-            >
+            <Link key={action.to} className="primary-btn" to={action.to}>
               {action.label}
             </Link>
           ))}

@@ -151,9 +151,7 @@ function AdminCoursesPage() {
     setFormSubmitting(true);
 
     if (!formData.name || !formData.price || isNaN(formData.price)) {
-      setFormError(
-        "Wypelnij poprawnie nazwe i cene (musi byc liczba).",
-      );
+      setFormError("Wypelnij poprawnie nazwe i cene (musi byc liczba).");
       setFormSubmitting(false);
       return;
     }
@@ -310,7 +308,9 @@ function AdminCoursesPage() {
                   .filter((coord) => coord?.email)
                   .map((coord) => (
                     <option key={coord.id} value={coord.email}>
-                      {coord.name ? `${coord.name} (${coord.email})` : coord.email}
+                      {coord.name
+                        ? `${coord.name} (${coord.email})`
+                        : coord.email}
                     </option>
                   ))}
               </select>
@@ -369,7 +369,7 @@ function AdminCoursesPage() {
                   )}
                   {course.coordinatorId ? (
                     <span className="meta-tag">
-                      Koordynator: {" "}
+                      Koordynator:{" "}
                       {coordinatorEmailById.get(String(course.coordinatorId)) ||
                         "brak danych"}
                     </span>

@@ -462,7 +462,10 @@ function AdmissionPage() {
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
       <div className="admission-top-actions">
-        <Link className="ghost-link admission-back-link" to={courseId ? "/admission" : "/"}>
+        <Link
+          className="ghost-link admission-back-link"
+          to={courseId ? "/admission" : "/"}
+        >
           <svg
             className="admission-back-icon"
             viewBox="0 0 24 24"
@@ -521,52 +524,53 @@ function AdmissionPage() {
                   );
 
                 return (
-                <div key={course.id} className="course-card">
-                  <div className="course-card-header">
-                    <div className="course-title">
-                      <h3>{course.name}</h3>
-                      <p className="course-description">
-                        {course.description || "Brak opisu dla tego programu."}
-                      </p>
+                  <div key={course.id} className="course-card">
+                    <div className="course-card-header">
+                      <div className="course-title">
+                        <h3>{course.name}</h3>
+                        <p className="course-description">
+                          {course.description ||
+                            "Brak opisu dla tego programu."}
+                        </p>
+                      </div>
+                      <span className="course-price">{course.price} PLN</span>
                     </div>
-                    <span className="course-price">{course.price} PLN</span>
-                  </div>
-                  <div className="course-meta">
-                    {hasRecruitmentRange && (
-                      <span className="meta-tag meta-tag--dates">
-                        <span className="meta-label">
-                          {recruitmentOpen
-                            ? "Rekrutacja otwarta"
-                            : "Rekrutacja"}
-                        </span>
-                        <span className="meta-dates">
-                          <span>
-                            Od{" "}
-                            <strong>
-                              {formatDisplayDate(course.recruitmentStart)}
-                            </strong>
+                    <div className="course-meta">
+                      {hasRecruitmentRange && (
+                        <span className="meta-tag meta-tag--dates">
+                          <span className="meta-label">
+                            {recruitmentOpen
+                              ? "Rekrutacja otwarta"
+                              : "Rekrutacja"}
                           </span>
-                          <span>
-                            Do{" "}
-                            <strong>
-                              {formatDisplayDate(course.recruitmentEnd)}
-                            </strong>
+                          <span className="meta-dates">
+                            <span>
+                              Od{" "}
+                              <strong>
+                                {formatDisplayDate(course.recruitmentStart)}
+                              </strong>
+                            </span>
+                            <span>
+                              Do{" "}
+                              <strong>
+                                {formatDisplayDate(course.recruitmentEnd)}
+                              </strong>
+                            </span>
                           </span>
                         </span>
-                      </span>
-                    )}
-                  </div>
-                  {isLoggedIn ? (
-                    <div className="course-card-actions">
-                      <Link
-                        to={`/admission?courseId=${course.id}`}
-                        className="primary-btn"
-                      >
-                        Aplikuj
-                      </Link>
+                      )}
                     </div>
-                  ) : null}
-                </div>
+                    {isLoggedIn ? (
+                      <div className="course-card-actions">
+                        <Link
+                          to={`/admission?courseId=${course.id}`}
+                          className="primary-btn"
+                        >
+                          Aplikuj
+                        </Link>
+                      </div>
+                    ) : null}
+                  </div>
                 );
               })}
             </div>
@@ -593,222 +597,225 @@ function AdmissionPage() {
               <section className="admission-section" aria-label="Dane konta">
                 <h2>Dane konta</h2>
 
-              <label>
-                E-mail
-                <input type="email" value={account.email} readOnly />
-              </label>
-
-              <label>
-                Data urodzenia
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={account.dateOfBirth}
-                  onChange={onAccountInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("dateOfBirth")}
-                />
-                {renderFieldError("dateOfBirth")}
-              </label>
-
-              <label>
-                PESEL
-                <input
-                  type="text"
-                  name="pesel"
-                  value={account.pesel}
-                  onChange={onAccountInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("pesel")}
-                />
-                {renderFieldError("pesel")}
-              </label>
-            </section>
-
-            <section className="admission-section" aria-label="Dane do wniosku">
-              <h2>Dane do wniosku</h2>
-
-              <label>
-                Uczelnia
-                <input
-                  type="text"
-                  name="university"
-                  value={draft.university}
-                  onChange={onDraftInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("university")}
-                />
-                {renderFieldError("university")}
-              </label>
-
-              <div className="admission-grid">
                 <label>
-                  Ulica i numer
-                  <input
-                    type="text"
-                    name="street"
-                    value={draft.street}
-                    onChange={onDraftInput}
-                    onBlur={onFieldBlur}
-                    disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("street")}
-                  />
-                  {renderFieldError("street")}
+                  E-mail
+                  <input type="email" value={account.email} readOnly />
                 </label>
 
                 <label>
-                  Kod pocztowy
+                  Data urodzenia
                   <input
-                    type="text"
-                    name="postalCode"
-                    value={draft.postalCode}
-                    onChange={onDraftInput}
+                    type="date"
+                    name="dateOfBirth"
+                    value={account.dateOfBirth}
+                    onChange={onAccountInput}
                     onBlur={onFieldBlur}
                     disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("postalCode")}
+                    aria-invalid={getInputAriaInvalid("dateOfBirth")}
                   />
-                  {renderFieldError("postalCode")}
-                </label>
-              </div>
-
-              <label>
-                Miasto
-                <input
-                  type="text"
-                  name="city"
-                  value={draft.city}
-                  onChange={onDraftInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("city")}
-                />
-                {renderFieldError("city")}
-              </label>
-
-              <div className="admission-grid">
-                <label>
-                  Poprzedni stopień
-                  <input
-                    type="text"
-                    name="previousDegree"
-                    value={draft.previousDegree}
-                    onChange={onDraftInput}
-                    onBlur={onFieldBlur}
-                    disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("previousDegree")}
-                  />
-                  {renderFieldError("previousDegree")}
+                  {renderFieldError("dateOfBirth")}
                 </label>
 
                 <label>
-                  Kierunek ukończonych studiów
+                  PESEL
                   <input
                     type="text"
-                    name="fieldOfStudy"
-                    value={draft.fieldOfStudy}
-                    onChange={onDraftInput}
+                    name="pesel"
+                    value={account.pesel}
+                    onChange={onAccountInput}
                     onBlur={onFieldBlur}
                     disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("fieldOfStudy")}
+                    aria-invalid={getInputAriaInvalid("pesel")}
                   />
-                  {renderFieldError("fieldOfStudy")}
+                  {renderFieldError("pesel")}
                 </label>
-              </div>
+              </section>
 
-              <label>
-                Rok ukończenia
-                <input
-                  type="text"
-                  name="graduationYear"
-                  value={draft.graduationYear}
-                  onChange={onDraftInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("graduationYear")}
-                />
-                {renderFieldError("graduationYear")}
-              </label>
-            </section>
-
-            <section className="admission-section" aria-label="Dokumenty">
-              <h2>Dokumenty</h2>
-
-              <label>
-                Link do dyplomu (PDF)
-                <input
-                  type="url"
-                  name="diplomaUrl"
-                  value={draft.diplomaUrl}
-                  onChange={onDraftInput}
-                  onBlur={onFieldBlur}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("diplomaUrl")}
-                />
-                {renderFieldError("diplomaUrl")}
-              </label>
-              <p className="admission-hint">
-                Na tym etapie wystarczy link. Przesyłanie plików zostanie dodane
-                później.
-              </p>
-            </section>
-
-            <section className="admission-section" aria-label="Zgody">
-              <h2>Zgody</h2>
-
-              <label className="admission-checkbox">
-                <input
-                  type="checkbox"
-                  name="truthfulnessConsent"
-                  checked={draft.truthfulnessConsent}
-                  onChange={onDraftCheckbox}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("truthfulnessConsent")}
-                />
-                <span>Oświadczam, że dane są prawdziwe.</span>
-              </label>
-              {renderFieldError("truthfulnessConsent")}
-
-              <label className="admission-checkbox">
-                <input
-                  type="checkbox"
-                  name="gdprConsent"
-                  checked={draft.gdprConsent}
-                  onChange={onDraftCheckbox}
-                  disabled={isSubmitting}
-                  aria-invalid={getInputAriaInvalid("gdprConsent")}
-                />
-                <span>
-                  Wyrażam zgodę na przetwarzanie moich danych osobowych w celu
-                  przeprowadzenia rekrutacji (RODO).
-                </span>
-              </label>
-              {renderFieldError("gdprConsent")}
-            </section>
-
-            {submitError ? (
-              <p className="form-error" role="alert">
-                {submitError}
-              </p>
-            ) : null}
-            {submitInfo ? <p className="form-info">{submitInfo}</p> : null}
-
-            <div className="admission-actions">
-              <button
-                type="submit"
-                className="primary-btn"
-                disabled={isSubmitting || hasValidationErrors}
+              <section
+                className="admission-section"
+                aria-label="Dane do wniosku"
               >
-                {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
-              </button>
-            </div>
-            {!isSubmitting && hasValidationErrors ? (
-              <p className="admission-disabled-note">
-                Uzupełnij błędy powyżej, aby wysłać wniosek.
-              </p>
-            ) : null}
+                <h2>Dane do wniosku</h2>
+
+                <label>
+                  Uczelnia
+                  <input
+                    type="text"
+                    name="university"
+                    value={draft.university}
+                    onChange={onDraftInput}
+                    onBlur={onFieldBlur}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("university")}
+                  />
+                  {renderFieldError("university")}
+                </label>
+
+                <div className="admission-grid">
+                  <label>
+                    Ulica i numer
+                    <input
+                      type="text"
+                      name="street"
+                      value={draft.street}
+                      onChange={onDraftInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("street")}
+                    />
+                    {renderFieldError("street")}
+                  </label>
+
+                  <label>
+                    Kod pocztowy
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={draft.postalCode}
+                      onChange={onDraftInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("postalCode")}
+                    />
+                    {renderFieldError("postalCode")}
+                  </label>
+                </div>
+
+                <label>
+                  Miasto
+                  <input
+                    type="text"
+                    name="city"
+                    value={draft.city}
+                    onChange={onDraftInput}
+                    onBlur={onFieldBlur}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("city")}
+                  />
+                  {renderFieldError("city")}
+                </label>
+
+                <div className="admission-grid">
+                  <label>
+                    Poprzedni stopień
+                    <input
+                      type="text"
+                      name="previousDegree"
+                      value={draft.previousDegree}
+                      onChange={onDraftInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("previousDegree")}
+                    />
+                    {renderFieldError("previousDegree")}
+                  </label>
+
+                  <label>
+                    Kierunek ukończonych studiów
+                    <input
+                      type="text"
+                      name="fieldOfStudy"
+                      value={draft.fieldOfStudy}
+                      onChange={onDraftInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("fieldOfStudy")}
+                    />
+                    {renderFieldError("fieldOfStudy")}
+                  </label>
+                </div>
+
+                <label>
+                  Rok ukończenia
+                  <input
+                    type="text"
+                    name="graduationYear"
+                    value={draft.graduationYear}
+                    onChange={onDraftInput}
+                    onBlur={onFieldBlur}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("graduationYear")}
+                  />
+                  {renderFieldError("graduationYear")}
+                </label>
+              </section>
+
+              <section className="admission-section" aria-label="Dokumenty">
+                <h2>Dokumenty</h2>
+
+                <label>
+                  Link do dyplomu (PDF)
+                  <input
+                    type="url"
+                    name="diplomaUrl"
+                    value={draft.diplomaUrl}
+                    onChange={onDraftInput}
+                    onBlur={onFieldBlur}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("diplomaUrl")}
+                  />
+                  {renderFieldError("diplomaUrl")}
+                </label>
+                <p className="admission-hint">
+                  Na tym etapie wystarczy link. Przesyłanie plików zostanie
+                  dodane później.
+                </p>
+              </section>
+
+              <section className="admission-section" aria-label="Zgody">
+                <h2>Zgody</h2>
+
+                <label className="admission-checkbox">
+                  <input
+                    type="checkbox"
+                    name="truthfulnessConsent"
+                    checked={draft.truthfulnessConsent}
+                    onChange={onDraftCheckbox}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("truthfulnessConsent")}
+                  />
+                  <span>Oświadczam, że dane są prawdziwe.</span>
+                </label>
+                {renderFieldError("truthfulnessConsent")}
+
+                <label className="admission-checkbox">
+                  <input
+                    type="checkbox"
+                    name="gdprConsent"
+                    checked={draft.gdprConsent}
+                    onChange={onDraftCheckbox}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("gdprConsent")}
+                  />
+                  <span>
+                    Wyrażam zgodę na przetwarzanie moich danych osobowych w celu
+                    przeprowadzenia rekrutacji (RODO).
+                  </span>
+                </label>
+                {renderFieldError("gdprConsent")}
+              </section>
+
+              {submitError ? (
+                <p className="form-error" role="alert">
+                  {submitError}
+                </p>
+              ) : null}
+              {submitInfo ? <p className="form-info">{submitInfo}</p> : null}
+
+              <div className="admission-actions">
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={isSubmitting || hasValidationErrors}
+                >
+                  {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
+                </button>
+              </div>
+              {!isSubmitting && hasValidationErrors ? (
+                <p className="admission-disabled-note">
+                  Uzupełnij błędy powyżej, aby wysłać wniosek.
+                </p>
+              ) : null}
             </form>
           )}
         </div>

@@ -260,10 +260,7 @@ function App() {
             )
           }
         />
-        <Route
-          path="/courses"
-          element={<CoursesPage />}
-        />
+        <Route path="/courses" element={<CoursesPage />} />
         <Route
           path="/admin/courses"
           element={isAdmin ? <AdminCoursesPage /> : <Navigate to="/" replace />}

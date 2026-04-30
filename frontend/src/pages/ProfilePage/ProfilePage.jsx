@@ -58,7 +58,7 @@ function ProfilePage({ user, onLogout }) {
           </div>
         </div>
 
-          <div className="profile-actions">
+        <div className="profile-actions">
           <button type="button" className="ghost-btn" onClick={onLogout}>
             Wyloguj się
           </button>

@@ -86,7 +86,6 @@ function CoursesPage() {
     }
   };
 
-
   return (
     <section className="courses-view">
       <div className="courses-top-actions">
@@ -116,7 +115,6 @@ function CoursesPage() {
           spośród innowacyjnych programów edukacyjnych dopasowanych do rynku
           pracy.
         </p>
-
       </header>
 
       {loading ? (
