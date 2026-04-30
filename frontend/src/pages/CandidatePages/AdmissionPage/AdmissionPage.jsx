@@ -279,6 +279,10 @@ function AdmissionPage() {
   const [courses, setCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [coursesError, setCoursesError] = useState("");
+  const selectedCourse = useMemo(
+    () => courses.find((course) => Number(course.id) === Number(courseId)),
+    [courses, courseId],
+  );
 
   useEffect(() => {
     setAccount(getAccountDefaults(user));
@@ -291,10 +295,6 @@ function AdmissionPage() {
   }, [courseId]);
 
   useEffect(() => {
-    if (courseId) {
-      return undefined;
-    }
-
     let isActive = true;
 
     const loadCourses = async () => {
@@ -326,7 +326,7 @@ function AdmissionPage() {
     return () => {
       isActive = false;
     };
-  }, [courseId]);
+  }, []);
 
   useEffect(() => {
     if (courseId) {
@@ -461,7 +461,7 @@ function AdmissionPage() {
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
       <div className="admission-top-actions">
-        <Link className="ghost-link admission-back-link" to="/">
+        <Link className="ghost-link admission-back-link" to={courseId ? "/admission" : "/"}>
           <svg
             className="admission-back-icon"
             viewBox="0 0 24 24"
@@ -476,7 +476,7 @@ function AdmissionPage() {
               strokeLinejoin="round"
             />
           </svg>
-          Wróć do strony głównej
+          {courseId ? "Wróć do wyboru kierunku" : "Wróć do strony głównej"}
         </Link>
       </div>
       <header className="admission-header">
@@ -484,7 +484,11 @@ function AdmissionPage() {
         <h1>Wniosek rekrutacyjny</h1>
         {courseId ? (
           <p className="admission-subtitle">
-            Wybrany kierunek: <strong>ID {courseId}</strong>
+            Wybrany kierunek:{" "}
+            <strong>
+              {selectedCourse?.name ||
+                (coursesLoading ? "Ładowanie..." : "Wybrany kierunek")}
+            </strong>
           </p>
         ) : (
           <p className="admission-subtitle">
@@ -792,12 +796,6 @@ function AdmissionPage() {
               >
                 {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
               </button>
-              <Link className="ghost-link" to="/">
-                Wróć do strony głównej
-              </Link>
-              <Link className="ghost-link" to="/messages">
-                Wiadomości
-              </Link>
             </div>
             {!isSubmitting && hasValidationErrors ? (
               <p className="admission-disabled-note">

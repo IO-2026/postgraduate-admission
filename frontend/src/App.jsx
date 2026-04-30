@@ -82,6 +82,18 @@ function App() {
         typeof authPayload === "object" && authPayload
           ? authPayload.role
           : null;
+      const payloadName =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.name
+          : null;
+      const payloadSurname =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.surname
+          : null;
+      const payloadTelNumber =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.telNumber
+          : null;
 
       const payloadRoleId = (() => {
         if (typeof authPayload === "object" && authPayload) {
@@ -110,8 +122,9 @@ function App() {
           email: userData?.email ?? payloadEmail ?? null,
           roleId: userRoleId ?? payloadRoleId ?? null,
           role: userData?.role ?? payloadRole ?? null,
-          name: userData?.name ?? null,
-          surname: userData?.surname ?? null,
+          name: userData?.name ?? payloadName ?? null,
+          surname: userData?.surname ?? payloadSurname ?? null,
+          telNumber: userData?.telNumber ?? payloadTelNumber ?? null,
         };
 
         localStorage.setItem(

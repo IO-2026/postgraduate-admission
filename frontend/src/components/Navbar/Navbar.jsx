@@ -1,10 +1,13 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar({ isLoggedIn, user }) {
-  const location = useLocation();
-
   if (!isLoggedIn) return null;
+
+  const profileLabel =
+    user?.name?.trim().split(/\s+/)[0] ||
+    user?.fullName?.trim().split(/\s+/)[0] ||
+    "Profil";
 
   return (
     <nav className="main-navbar">
@@ -13,7 +16,7 @@ function Navbar({ isLoggedIn, user }) {
       </div>
       <div className="navbar-profile">
         <Link to="/profile" className="profile-link">
-          <span>{user?.name || "Profil"}</span>
+          <span>{profileLabel}</span>
           <svg
             viewBox="0 0 24 24"
             fill="none"
