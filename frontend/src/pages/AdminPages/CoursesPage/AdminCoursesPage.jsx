@@ -387,7 +387,7 @@ function AdminCoursesPage() {
                   className="secondary-btn delete-btn"
                   onClick={() => handleDelete(course.id)}
                 >
-                  Usun
+                  Usuń
                 </button>
               </div>
             </div>

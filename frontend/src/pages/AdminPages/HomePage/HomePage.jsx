@@ -3,9 +3,8 @@ import "./HomePage.css";
 
 function AdminHomePage() {
   const quickActions = [
-    { label: "Zarządzaj koordynatorami", to: "/coordinators", kind: "main" },
+    { label: "Kierunki studiów", to: "/admin/courses", kind: "main" },
     { label: "Użytkownicy", to: "/users" },
-    { label: "Kierunki studiów", to: "/admin/courses" },
   ];
 
   return (
@@ -14,7 +13,7 @@ function AdminHomePage() {
         <p className="admin-home-tag">Studia podyplomowe AGH</p>
         <h1>Panel administratora</h1>
         <p className="admin-home-subtitle">
-          Zarządzaj użytkownikami, koordynatorami i ofertą studiów.
+          Zarządzaj użytkownikami i ofertą studiów.
         </p>
         <div className="admin-home-actions">
           {quickActions.map((action) => (

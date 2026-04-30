@@ -7,7 +7,6 @@ import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage
 import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import AdminCoordinators from "./pages/AdminPages/CoordinatorManagement/AdminCoordinators";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
 import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
@@ -295,12 +294,6 @@ function App() {
             ) : (
               <Navigate to="/" replace />
             )
-          }
-        />
-        <Route
-          path="/coordinators"
-          element={
-            isLoggedIn ? <AdminCoordinators /> : <Navigate to="/" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

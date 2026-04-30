@@ -3,10 +3,19 @@ import { fetchUsers, updateUserRole } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import "./UsersPage.css";
 
+const ROLE_FILTERS = [
+  { label: "Wszyscy", value: "all" },
+  { label: "Admin", value: "Admin" },
+  { label: "Coordinator", value: "Coordinator" },
+  { label: "Candidate", value: "Candidate" },
+];
+
 function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
 
@@ -40,6 +49,24 @@ function UsersPage() {
       alert("Wystąpił błąd podczas zmiany roli.");
     }
   };
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredUsers = users.filter((user) => {
+    const matchesRole =
+      roleFilter === "all" || String(user.roleName) === roleFilter;
+    const searchableText = [
+      user.name,
+      user.surname,
+      `${user.name || ""} ${user.surname || ""}`,
+      user.email,
+    ]
+      .join(" ")
+      .toLowerCase();
+    const matchesSearch =
+      !normalizedSearch || searchableText.includes(normalizedSearch);
+
+    return matchesRole && matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -79,6 +106,31 @@ function UsersPage() {
 
       {error && <div className="error-message">{error}</div>}
 
+      <section className="users-controls" aria-label="Filtrowanie użytkowników">
+        <label className="users-search-field">
+          Szukaj
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Imię, nazwisko lub e-mail"
+          />
+        </label>
+
+        <div className="users-role-filter" role="group" aria-label="Filtr roli">
+          {ROLE_FILTERS.map((role) => (
+            <button
+              key={role.value}
+              type="button"
+              className={roleFilter === role.value ? "active" : ""}
+              onClick={() => setRoleFilter(role.value)}
+            >
+              {role.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="table-container">
         <table className="users-table">
           <thead>
@@ -91,7 +143,7 @@ function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>
@@ -112,10 +164,10 @@ function UsersPage() {
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {filteredUsers.length === 0 && (
               <tr>
                 <td colSpan="5" className="empty-table">
-                  Brak użytkowników
+                  Brak użytkowników pasujących do filtrów
                 </td>
               </tr>
             )}

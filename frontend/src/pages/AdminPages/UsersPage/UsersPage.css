@@ -103,6 +103,74 @@
   color: var(--error);
 }
 
+.users-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.users-search-field {
+  display: grid;
+  gap: 8px;
+  min-width: min(360px, 100%);
+  color: var(--text-strong);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.users-search-field input {
+  height: 42px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  color: var(--text-strong);
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.users-search-field input:focus {
+  border-color: var(--field-focus);
+  box-shadow: 0 0 0 3px rgba(15, 127, 115, 0.18);
+  outline: none;
+}
+
+.users-role-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.users-role-filter button {
+  min-height: 38px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: var(--ghost-bg);
+  color: var(--text-strong);
+  padding: 0 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.users-role-filter button:hover,
+.users-role-filter button.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
 .table-container {
   overflow-x: auto;
   background: var(--panel-bg);
@@ -163,6 +231,15 @@
   .users-header,
   .table-container {
     padding: 20px;
+  }
+
+  .users-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .users-role-filter {
+    justify-content: flex-start;
   }
 
   .users-table th,
