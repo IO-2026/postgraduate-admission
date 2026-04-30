@@ -2,7 +2,7 @@
   display: grid;
   justify-items: center;
   align-items: start;
-  padding: 28px 0 40px;
+  padding: 0 0 40px;
 }
 
 .profile-card {
@@ -12,6 +12,15 @@
   background: var(--panel-bg);
   box-shadow: var(--shadow-soft);
   padding: 28px;
+}
+
+.profile-top-actions {
+  width: min(680px, 100%);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 48px;
+  margin: 8px 0 16px;
 }
 
 .profile-card h1 {
@@ -111,6 +120,17 @@
   padding-top: 24px;
   border-top: 1px solid var(--panel-border);
   justify-content: flex-start;
+}
+
+.profile-back-link {
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.profile-back-icon {
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 640px) {

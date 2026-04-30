@@ -5,7 +5,7 @@ import {
   createCourse,
   updateCourse,
   deleteCourse,
-} from "../../services/courseApi";
+} from "../../../services/courseApi";
 import "./CoursesPage.css";
 
 function CoursesPage({ isLoggedIn, user }) {
