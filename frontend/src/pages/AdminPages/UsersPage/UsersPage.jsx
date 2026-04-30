@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateUserRole } from "../../services/userApi";
+import { fetchUsers, updateUserRole } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import "./UsersPage.css";
 
@@ -51,12 +51,26 @@ function UsersPage() {
 
   return (
     <div className="users-page">
+      <div className="users-top-actions">
+        <Link className="ghost-link users-back-link" to="/">
+          <svg
+            className="users-back-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18l-6-6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć do strony głównej
+        </Link>
+      </div>
       <header className="users-header">
-        <div className="header-top">
-          <Link to="/" className="back-link">
-            ← Powrót do strony głównej
-          </Link>
-        </div>
         <h1>Zarządzanie Użytkownikami</h1>
         <p className="users-subtitle">
           Zmieniaj uprawnienia użytkowników w systemie.

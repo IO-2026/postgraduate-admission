@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import "../UsersPage/UsersPage.css";
-import "./AdminCoordinatorAssignment.css";
+import "./AdminCoordinators.css";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 
@@ -272,12 +272,26 @@ function AdminCoordinators() {
   if (!isAdmin) {
     return (
       <div className="users-page">
+        <div className="users-top-actions">
+          <Link className="ghost-link users-back-link" to="/">
+            <svg
+              className="users-back-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 18l-6-6 6-6"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Wróć do strony głównej
+          </Link>
+        </div>
         <header className="users-header">
-          <div className="header-top">
-            <Link to="/" className="back-link">
-              ← Powrót do strony głównej
-            </Link>
-          </div>
           <h1>Brak uprawnień</h1>
           <p className="users-subtitle">
             Ta strona jest dostępna tylko dla administratorów.
@@ -295,12 +309,26 @@ function AdminCoordinators() {
 
   return (
     <div className="users-page">
+      <div className="users-top-actions">
+        <Link className="ghost-link users-back-link" to="/">
+          <svg
+            className="users-back-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18l-6-6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć do strony głównej
+        </Link>
+      </div>
       <header className="users-header">
-        <div className="header-top">
-          <Link to="/" className="back-link">
-            ← Powrót do strony głównej
-          </Link>
-        </div>
         <h1>Koordynatorzy</h1>
         <p className="users-subtitle">
           Lista koordynatorów oraz przypisane do nich kierunki. Możesz też
