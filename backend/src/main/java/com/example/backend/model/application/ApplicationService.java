@@ -20,6 +20,7 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
+
     @Transactional
     public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
 
