@@ -5,9 +5,9 @@ import "./UsersPage.css";
 
 const ROLE_FILTERS = [
   { label: "Wszyscy", value: "all" },
-  { label: "Admin", value: "Admin" },
-  { label: "Coordinator", value: "Coordinator" },
-  { label: "Candidate", value: "Candidate" },
+  { label: "Administrator", value: "Admin" },
+  { label: "Koordynator", value: "Coordinator" },
+  { label: "Kandydat", value: "Candidate" },
 ];
 
 function UsersPage() {
@@ -157,9 +157,9 @@ function UsersPage() {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="role-select"
                   >
-                    <option value="Admin">Admin</option>
-                    <option value="Coordinator">Coordinator</option>
-                    <option value="Candidate">Candidate</option>
+                    <option value="Admin">Administrator</option>
+                    <option value="Coordinator">Koordynator</option>
+                    <option value="Candidate">Kandydat</option>
                   </select>
                 </td>
               </tr>
