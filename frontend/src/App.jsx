@@ -9,7 +9,7 @@ import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminCoordinatorAssignment from "./pages/AdminPage/AdminCoordinatorAssignment";
 import AdminCoordinators from "./pages/AdminPage/AdminCoordinators";
-import CoursesPage from "./pages/CoursesPage/CoursesPage";
+import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";

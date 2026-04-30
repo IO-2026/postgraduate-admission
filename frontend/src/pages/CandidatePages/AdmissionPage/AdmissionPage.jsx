@@ -1,5 +1,5 @@
 import "./AdmissionPage.css";
-import "../../CoursesPage/CoursesPage.css";
+import "../CoursesPage/CoursesPage.css";
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
