@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApplicationValidationTests {
 
   private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null);
+    ApplicationService applicationService = new ApplicationService(null, null, null, null);
     ApplicationController controller = new ApplicationController(applicationService);
 
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();

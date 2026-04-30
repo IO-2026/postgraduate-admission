@@ -1,6 +1,7 @@
 package com.example.backend.services;
 
 
+import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.dto.AdmissionAddressDto;
 import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 
@@ -41,6 +43,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private EmailService emailService;
+
+    @Spy
+    private ApplicationMapper applicationMapper = new ApplicationMapper();
 
     @InjectMocks
     private ApplicationService applicationService;

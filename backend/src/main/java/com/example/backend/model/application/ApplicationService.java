@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
+
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -20,9 +21,6 @@ public class ApplicationService {
 
     @Transactional
     public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
-
-
-
         User user = userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);

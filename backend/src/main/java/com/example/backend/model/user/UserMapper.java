@@ -18,6 +18,7 @@ public class UserMapper {
 
         User user = new User();
         user.setEmail(registerRequest.getEmail());
+        user.setName(registerRequest.getName());
         user.setSurname(registerRequest.getSurname());
         user.setTelNumber(registerRequest.getTelNumber());
         user.setEmail(registerRequest.getEmail());
