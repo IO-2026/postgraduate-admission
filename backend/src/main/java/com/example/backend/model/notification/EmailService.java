@@ -1,6 +1,5 @@
 package com.example.backend.model.notification;
 
-
 import com.example.backend.model.application.Application;
 import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;

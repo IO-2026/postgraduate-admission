@@ -6,6 +6,7 @@ import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
+const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const CONSENT_ERROR_MESSAGES = {
   truthfulnessConsent: "Wymagana zgoda na prawdziwość danych.",
