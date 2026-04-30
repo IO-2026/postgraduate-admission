@@ -15,47 +15,55 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping
+    @GetMapping("/courses")
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
-    @PostMapping
+    @PostMapping("/courses")
     public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO savedCourse = courseService.saveCourse(courseDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage() + (e.getCause() != null ? " Cause: " + e.getCause().getMessage() : ""));
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/courses/{id}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         try {
             courseService.deleteCourse(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/courses/{id}")
     public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO updatedCourse = courseService.updateCourse(id, courseDTO);
             return ResponseEntity.ok(updatedCourse);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    // Admin assignment endpoint (kept under /api/admin/... by the front-end)
+    @PostMapping("/admin/courses/{id}/coordinator")
+    public ResponseEntity<?> assignCourseCoordinator(@PathVariable("id") Long id, @RequestBody AssignRequest req) {
+        try {
+            Course saved = courseService.assignCoordinator(id, req.getCoordinatorId());
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

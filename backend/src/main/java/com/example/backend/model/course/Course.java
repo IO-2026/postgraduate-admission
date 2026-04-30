@@ -1,20 +1,27 @@
 package com.example.backend.model.course;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
+import com.example.backend.model.user.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "courses")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Course {
 
     @Id
@@ -31,11 +38,22 @@ public class Course {
     private Double price;
 
     @Column(name = "recruitment_start", nullable = false)
-    private java.time.LocalDate recruitmentStart = java.time.LocalDate.now();
+    private LocalDate recruitmentStart = LocalDate.now();
 
     @Column(name = "recruitment_end", nullable = false)
-    private java.time.LocalDate recruitmentEnd = java.time.LocalDate.now().plusMonths(3);
+    private LocalDate recruitmentEnd = LocalDate.now().plusMonths(3);
 
-    @Column(name = "coordinator_id", nullable = false)
-    private Long coordinatorId = 1L;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "coordinator_id", nullable = true)
+    private User coordinator;
+
+    public Course(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

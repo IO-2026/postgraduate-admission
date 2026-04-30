@@ -1,10 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import AdmissionPage from "./pages/AdmissionPage/AdmissionPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import HomePage from "./pages/HomePage/HomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import AdminCoordinatorAssignment from "./pages/AdminPage/AdminCoordinatorAssignment";
+import AdminCoordinators from "./pages/AdminPage/AdminCoordinators";
 import CoursesPage from "./pages/CoursesPage/CoursesPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import Navbar from "./components/Navbar/Navbar";
@@ -39,55 +42,173 @@ function getInitialAuthState() {
 function App() {
   const [authState, setAuthState] = useState(getInitialAuthState);
   const { isLoggedIn, user } = authState;
+  const queryClient = useQueryClient();
 
-  const handleAuthSuccess = useCallback((userData, authPayload) => {
-    const token =
-      typeof authPayload === "string"
-        ? authPayload
-        : authPayload?.token || authPayload?.jwt || authPayload?.accessToken;
+  const handleAuthSuccess = useCallback(
+    (userData, authPayload) => {
+      const token =
+        typeof authPayload === "string"
+          ? authPayload
+          : authPayload?.token || authPayload?.jwt || authPayload?.accessToken;
 
-    const payloadUserId =
-      typeof authPayload === "object" && authPayload ? authPayload.id : null;
-    const payloadEmail =
-      typeof authPayload === "object" && authPayload ? authPayload.email : null;
-    const payloadRole =
-      typeof authPayload === "object" && authPayload ? authPayload.role : null;
+      const payloadUserId =
+        typeof authPayload === "object" && authPayload ? authPayload.id : null;
+      const payloadEmail =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.email
+          : null;
+      const payloadRole =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.role
+          : null;
 
-    const payloadName =
-      typeof authPayload === "object" && authPayload ? authPayload.name : null;
-    const payloadSurname =
-      typeof authPayload === "object" && authPayload
-        ? authPayload.surname
-        : null;
-    const payloadTelNumber =
-      typeof authPayload === "object" && authPayload
-        ? authPayload.telNumber
-        : null;
+      const payloadRoleId = (() => {
+        if (typeof authPayload === "object" && authPayload) {
+          if (typeof authPayload.roleId === "number") return authPayload.roleId;
+          if (typeof authPayload.role === "number") return authPayload.role;
+          if (authPayload.role && typeof authPayload.role.id === "number")
+            return authPayload.role.id;
+        }
+        return null;
+      })();
 
-    const newUser = {
-      id: payloadUserId || null,
-      email: payloadEmail || userData?.email || null,
-      role: payloadRole || null,
-      name: payloadName || userData?.name || null,
-      surname: payloadSurname || userData?.surname || null,
-      telNumber: payloadTelNumber || userData?.telNumber || null,
-    };
+      // Use functional state update to avoid capturing `user` in this callback
+      setAuthState((prev) => {
+        const prevUser = prev?.user;
+        const userRoleId = (() => {
+          if (prevUser?.roleId != null) return prevUser.roleId;
+          if (typeof prevUser?.role === "number") return prevUser.role;
+          if (prevUser?.role && typeof prevUser.role.id === "number")
+            return prevUser.role.id;
+          return null;
+        })();
 
-    localStorage.setItem(
-      AUTH_STORAGE_KEY,
-      JSON.stringify({
-        isLoggedIn: true,
-        user: newUser,
-        token: token || null,
-      }),
-    );
-    setAuthState({ isLoggedIn: true, user: newUser });
-  }, []);
+        const mergedUser = {
+          ...(userData || {}),
+          id: payloadUserId ?? userData?.id ?? null,
+          email: userData?.email ?? payloadEmail ?? null,
+          roleId: userRoleId ?? payloadRoleId ?? null,
+          role: userData?.role ?? payloadRole ?? null,
+          name: userData?.name ?? null,
+          surname: userData?.surname ?? null,
+        };
+
+        localStorage.setItem(
+          AUTH_STORAGE_KEY,
+          JSON.stringify({
+            isLoggedIn: true,
+            user: mergedUser,
+            token: token || null,
+          }),
+        );
+
+        // Prefetch admin-related data if user is admin
+        const isAdmin =
+          mergedUser.roleId === 2 ||
+          (typeof mergedUser.role === "string" &&
+            mergedUser.role.toLowerCase().includes("admin"));
+
+        if (isAdmin) {
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+          queryClient.prefetchQuery(
+            ["allUsers", token],
+            async () => {
+              const r = await fetch("/api/users", { headers });
+              if (!r.ok) throw new Error("Failed to fetch users");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+
+          queryClient.prefetchQuery(
+            ["courses", token],
+            async () => {
+              const r = await fetch("/api/courses", { headers });
+              if (!r.ok) throw new Error("Failed to fetch courses");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+
+          queryClient.prefetchQuery(
+            ["coordinatorsWithCourses", token],
+            async () => {
+              const r = await fetch("/api/admin/coordinators-with-courses", {
+                headers,
+              });
+              if (!r.ok) throw new Error("Failed to fetch coordinators");
+              return r.json();
+            },
+            { staleTime: 1000 * 60 * 5 },
+          );
+        }
+
+        return { isLoggedIn: true, user: mergedUser };
+      });
+    },
+    [queryClient],
+  );
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     window.location.href = "/";
   }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.isLoggedIn) return;
+      const user = parsed.user;
+      const token = parsed.token || null;
+      const roleId =
+        user?.roleId ??
+        (typeof user?.role === "number" ? user.role : (user?.role?.id ?? null));
+      const isAdmin =
+        roleId === 2 ||
+        (typeof user?.role === "string" &&
+          user.role.toLowerCase().includes("admin"));
+      if (user && isAdmin) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        queryClient.prefetchQuery(
+          ["allUsers", token],
+          async () => {
+            const r = await fetch("/api/users", { headers });
+            if (!r.ok) throw new Error("Failed to fetch users");
+            return r.json();
+          },
+          { staleTime: 1000 * 60 * 5 },
+        );
+
+        queryClient.prefetchQuery(
+          ["courses", token],
+          async () => {
+            const r = await fetch("/api/courses", { headers });
+            if (!r.ok) throw new Error("Failed to fetch courses");
+            return r.json();
+          },
+          { staleTime: 1000 * 60 * 5 },
+        );
+
+        queryClient.prefetchQuery(
+          ["coordinatorsWithCourses", token],
+          async () => {
+            const r = await fetch("/api/admin/coordinators-with-courses", {
+              headers,
+            });
+            if (!r.ok) throw new Error("Failed to fetch coordinators");
+            return r.json();
+          },
+          { staleTime: 1000 * 60 * 5 },
+        );
+      }
+    } catch {
+      // ignore prefetch errors
+    }
+  }, [queryClient]);
 
   return (
     <div className="app-shell">
@@ -137,6 +258,22 @@ function App() {
             ) : (
               <Navigate to="/" replace />
             )
+          }
+        />
+        <Route
+          path="/assign-coordinators"
+          element={
+            isLoggedIn ? (
+              <AdminCoordinatorAssignment />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/coordinators"
+          element={
+            isLoggedIn ? <AdminCoordinators /> : <Navigate to="/" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

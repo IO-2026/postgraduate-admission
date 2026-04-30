@@ -10,13 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.model.notification.EmailService;
+
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.model.role.RoleRepository;
@@ -25,12 +25,26 @@ import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;
 import com.example.backend.security.JwtUtil;
 
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 public class ApplicationTests {
+
+    @org.springframework.test.context.DynamicPropertySource
+    static void dynamicProperties(org.springframework.test.context.DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
+        registry.add("spring.datasource.driver-class-name", () -> "org.h2.Driver");
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+        registry.add("spring.jpa.show-sql", () -> "false");
+        registry.add("jwt.secret", () -> "01234567890123456789012345678901");
+        registry.add("jwt.expiration", () -> "86400000");
+    }
+
+
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,8 +64,6 @@ public class ApplicationTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private EmailService emailService;
 
     private User testUser;
     private Course testCourse;

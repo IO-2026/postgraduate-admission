@@ -1,0 +1,186 @@
+.admin-view .admin-header {
+  margin-bottom: 18px;
+}
+
+.admin-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
+.admin-form label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--text-strong);
+}
+
+.admin-form select,
+.admin-form input,
+.admin-form textarea {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  margin-top: 6px;
+}
+
+.admin-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.form-error {
+  color: var(--error);
+  margin-top: 8px;
+}
+
+.form-info {
+  color: var(--text-strong);
+  margin-top: 8px;
+}
+
+/* Appended styles to align with site design tokens */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary, #fff);
+  border-color: var(--primary);
+}
+
+.btn-secondary {
+  background: var(--muted, #f3f4f6);
+  color: var(--text);
+  border-color: var(--panel-border);
+}
+
+.assignments-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.assignments-table th,
+.assignments-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.coordinator-card {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  margin-bottom: 12px;
+}
+
+.coord-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 12px;
+}
+
+.form-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  width: 100%;
+}
+
+.search-results {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.search-results h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--text-strong);
+}
+
+.search-results ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.search-result-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.search-result-item:hover {
+  background: var(--ghost-bg);
+}
+
+.cohort-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.remove-btn {
+  margin-left: 8px;
+}
+
+.coord-courses {
+  margin: 8px 0;
+}
+
+.coord-courses-list {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.coord-courses-list li {
+  background: var(--field-bg);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+}
