@@ -189,8 +189,22 @@
 .course-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
+}
+
+.course-card-main {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.course-card-side {
+  display: grid;
+  justify-items: end;
+  gap: 16px;
+  flex: 0 0 auto;
+  max-width: min(280px, 42%);
 }
 
 .course-card-body {
@@ -288,6 +302,40 @@
   align-self: flex-start;
 }
 
+.course-coordinator {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(15, 127, 115, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.56);
+  text-align: right;
+}
+
+.course-coordinator-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.course-coordinator-name {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.course-coordinator-email {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.course-coordinator-email:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .course-card-actions {
   display: flex;
   flex-direction: column;
@@ -327,6 +375,20 @@
 
   .course-card {
     flex-direction: column;
+  }
+
+  .course-card-header {
+    flex-direction: column;
+  }
+
+  .course-card-side {
+    justify-items: start;
+    max-width: 100%;
+  }
+
+  .course-coordinator {
+    justify-items: start;
+    text-align: left;
   }
 
   .course-card-actions {

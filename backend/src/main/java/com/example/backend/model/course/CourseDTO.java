@@ -19,4 +19,6 @@ public class CourseDTO {
     private LocalDate recruitmentStart;
     private LocalDate recruitmentEnd;
     private Long coordinatorId;
+    private String coordinatorName;
+    private String coordinatorEmail;
 }
