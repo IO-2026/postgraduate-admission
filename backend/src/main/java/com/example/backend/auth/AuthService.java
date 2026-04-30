@@ -33,6 +33,8 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+        assert userDetails != null;
+
         String jwt = jwtUtil.generateToken(userDetails);
 
         User user = userRepository.findByEmail(email).orElseThrow();
