@@ -1,8 +1,10 @@
 package com.example.backend.model.course;
 
-import com.example.backend.model.application.Application;
-import com.example.backend.model.application.ApplicationRepository;
-import com.example.backend.model.user.*;
+import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.user.UserRepository;
+import com.example.backend.model.user.UserService;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.CandidateWithApplicationDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationService applicationService;
     private final UserService userService;
 
     public List<CourseDTO> getAllCourses() {
@@ -111,7 +113,7 @@ public class CourseService {
     }
 
     public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
-        return applicationRepository.findAll().stream()
+        return applicationService.getAllApplications().stream()
                 .filter(a -> Objects.equals(a.getCourseId(), courseId))
                 .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
                 .collect(Collectors.toList());

@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
@@ -88,5 +90,9 @@ public class ApplicationService {
 
         application.setStatus(newStatus);
         emailService.sendApplicationStatusChange(user, application);
+    }
+
+    public List<Application> getAllApplications() {
+        return applicationRepository.findAll();
     }
 }

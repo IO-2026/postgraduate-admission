@@ -6,6 +6,9 @@
 
 .course-management-back-link {
   justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border-radius: 999px;
   background: var(--ghost-bg);
   padding: 10px 16px;
@@ -17,6 +20,11 @@
 
 .course-management-back-link:hover {
   background: var(--ghost-hover);
+}
+
+.course-management-back-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .course-management-header {
