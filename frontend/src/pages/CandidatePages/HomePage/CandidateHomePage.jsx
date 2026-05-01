@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import "./HomePage.css";
+import "./CandidateHomePage.css";
 
-function HomePage({ isLoggedIn }) {
+function CandidateHomePage({ isLoggedIn }) {
   const applications = [];
 
   if (!isLoggedIn) {
@@ -18,20 +18,6 @@ function HomePage({ isLoggedIn }) {
           <div style={{ display: "flex", gap: "1rem" }}>
             <Link className="primary-btn" to="/auth">
               Zaloguj się
-            </Link>
-            <Link
-              className="secondary-btn"
-              to="/courses"
-              style={{
-                padding: "0.8rem 1.5rem",
-                borderRadius: "8px",
-                textDecoration: "none",
-                color: "var(--text-dark)",
-                border: "1px solid var(--border)",
-                background: "white",
-              }}
-            >
-              Oferta studiów
             </Link>
           </div>
         </div>
@@ -50,7 +36,7 @@ function HomePage({ isLoggedIn }) {
         </p>
         <div className="home-actions">
           <Link className="primary-btn" to="/admission">
-            Otwórz stronę rekrutacji
+            Zapisz się na studia
           </Link>
           <Link className="ghost-link" to="/courses">
             Kierunki studiów
@@ -77,4 +63,4 @@ function HomePage({ isLoggedIn }) {
   );
 }
 
-export default HomePage;
+export default CandidateHomePage;

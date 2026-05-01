@@ -1,15 +1,16 @@
 import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
 import { useQueryClient } from "@tanstack/react-query";
-import AdmissionPage from "./pages/AdmissionPage/AdmissionPage";
 import AuthPage from "./pages/AuthPage/AuthPage";
-import HomePage from "./pages/HomePage/HomePage";
+import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
+import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
 import MessagesPage from "./pages/MessagesPage/MessagesPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import AdminCoordinatorAssignment from "./pages/AdminPage/AdminCoordinatorAssignment";
-import AdminCoordinators from "./pages/AdminPage/AdminCoordinators";
-import CoursesPage from "./pages/CoursesPage/CoursesPage";
-import UsersPage from "./pages/UsersPage/UsersPage";
+import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
+import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
+import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
+import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 
@@ -39,9 +40,28 @@ function getInitialAuthState() {
   }
 }
 
+function getRoleId(user) {
+  if (!user) return null;
+  if (user.roleId != null) return user.roleId;
+  if (typeof user.role === "number") return user.role;
+  if (user.role && typeof user.role.id === "number") return user.role.id;
+  return null;
+}
+
+function isAdminUser(user) {
+  const roleId = getRoleId(user);
+  return (
+    roleId === 2 ||
+    (typeof user?.role === "string" &&
+      user.role.toLowerCase().includes("admin"))
+  );
+}
+
 function App() {
   const [authState, setAuthState] = useState(getInitialAuthState);
   const { isLoggedIn, user } = authState;
+  const isAdmin = isLoggedIn && isAdminUser(user);
+  const isCoordinator = isLoggedIn && user?.role === "Coordinator";
   const queryClient = useQueryClient();
 
   const handleAuthSuccess = useCallback(
@@ -60,6 +80,18 @@ function App() {
       const payloadRole =
         typeof authPayload === "object" && authPayload
           ? authPayload.role
+          : null;
+      const payloadName =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.name
+          : null;
+      const payloadSurname =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.surname
+          : null;
+      const payloadTelNumber =
+        typeof authPayload === "object" && authPayload
+          ? authPayload.telNumber
           : null;
 
       const payloadRoleId = (() => {
@@ -89,8 +121,9 @@ function App() {
           email: userData?.email ?? payloadEmail ?? null,
           roleId: userRoleId ?? payloadRoleId ?? null,
           role: userData?.role ?? payloadRole ?? null,
-          name: userData?.name ?? null,
-          surname: userData?.surname ?? null,
+          name: userData?.name ?? payloadName ?? null,
+          surname: userData?.surname ?? payloadSurname ?? null,
+          telNumber: userData?.telNumber ?? payloadTelNumber ?? null,
         };
 
         localStorage.setItem(
@@ -103,10 +136,7 @@ function App() {
         );
 
         // Prefetch admin-related data if user is admin
-        const isAdmin =
-          mergedUser.roleId === 2 ||
-          (typeof mergedUser.role === "string" &&
-            mergedUser.role.toLowerCase().includes("admin"));
+        const isAdmin = isAdminUser(mergedUser);
 
         if (isAdmin) {
           const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -163,13 +193,7 @@ function App() {
       if (!parsed?.isLoggedIn) return;
       const user = parsed.user;
       const token = parsed.token || null;
-      const roleId =
-        user?.roleId ??
-        (typeof user?.role === "number" ? user.role : (user?.role?.id ?? null));
-      const isAdmin =
-        roleId === 2 ||
-        (typeof user?.role === "string" &&
-          user.role.toLowerCase().includes("admin"));
+      const isAdmin = isAdminUser(user);
       if (user && isAdmin) {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -216,7 +240,15 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<HomePage isLoggedIn={isLoggedIn} user={user} />}
+          element={
+            isAdmin ? (
+              <AdminHomePage />
+            ) : isCoordinator ? (
+              <CoordinatorHomePage />
+            ) : (
+              <CandidateHomePage isLoggedIn={isLoggedIn} />
+            )
+          }
         />
         <Route
           path="/auth"
@@ -228,9 +260,10 @@ function App() {
             )
           }
         />
+        <Route path="/courses" element={<CoursesPage />} />
         <Route
-          path="/courses"
-          element={<CoursesPage isLoggedIn={isLoggedIn} user={user} />}
+          path="/admin/courses"
+          element={isAdmin ? <AdminCoursesPage /> : <Navigate to="/" replace />}
         />
         <Route
           path="/users"
@@ -258,22 +291,6 @@ function App() {
             ) : (
               <Navigate to="/" replace />
             )
-          }
-        />
-        <Route
-          path="/assign-coordinators"
-          element={
-            isLoggedIn ? (
-              <AdminCoordinatorAssignment />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route
-          path="/coordinators"
-          element={
-            isLoggedIn ? <AdminCoordinators /> : <Navigate to="/" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
