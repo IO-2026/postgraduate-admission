@@ -6,9 +6,11 @@ import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final ApplicationMapper applicationMapper;
 
 
     @Transactional
@@ -94,5 +97,19 @@ public class ApplicationService {
 
     public List<Application> getAllApplications() {
         return applicationRepository.findAll();
+    }
+
+    public void updateApplication(ApplicationDto dto) {
+        long id = dto.getId();
+
+        Application existingApplication = applicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        applicationMapper.updateEntityFromDTO(dto, existingApplication);
+        applicationMapper.toDto(applicationRepository.save(existingApplication));
+    }
+
+    public ApplicationDto getApplication(long id) {
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
+        return applicationMapper.toDto(application);
     }
 }

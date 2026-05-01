@@ -12,6 +12,7 @@ import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
 import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
+import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 
@@ -270,6 +271,12 @@ function App() {
           path="/coordinator/courses/:courseId/manage"
           element={
             isCoordinator ? <CourseManagementPage /> : <Navigate to="/" replace />
+          }
+        />
+        <Route
+          path="/coordinator/courses/:courseId/applications/:applicationId/manage"
+          element={
+            isCoordinator ? <ApplicationManagementPage /> : <Navigate to="/" replace />
           }
         />
         <Route

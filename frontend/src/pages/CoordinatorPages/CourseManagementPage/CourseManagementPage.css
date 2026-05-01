@@ -2,6 +2,7 @@
   display: grid;
   gap: 18px;
   align-content: start;
+  padding-bottom: 80px;
 }
 
 .course-management-back-link {
@@ -235,6 +236,7 @@
   display: grid;
   gap: 5px;
   min-width: 0;
+  flex: 1;
 }
 
 .course-candidate-main h3 {
@@ -313,3 +315,83 @@
     justify-content: flex-start;
   }
 }
+
+.course-candidate-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.candidate-dropdown-toggle {
+  list-style: none;
+  cursor: pointer;
+  background: var(--ghost-bg, #f3f4f6);
+  border: none;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-strong);
+  padding: 0;
+}
+
+.candidate-dropdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.candidate-dropdown-toggle:hover {
+  background: var(--ghost-hover, #e5e7eb);
+}
+
+.candidate-dropdown[open] .candidate-dropdown-toggle {
+  background: var(--ghost-hover, #e5e7eb);
+}
+
+.candidate-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid var(--panel-border, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.candidate-dropdown-menu button,
+.candidate-dropdown-menu a {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-strong);
+  transition: background 0.2s;
+  text-decoration: none;
+  display: block;
+}
+
+.candidate-dropdown-menu button:hover,
+.candidate-dropdown-menu a:hover {
+  background: var(--ghost-bg, #f3f4f6);
+}
+
+.candidate-dropdown-menu .candidate-dropdown-delete {
+  color: var(--error, #dc2626);
+}
+
+.candidate-dropdown-menu .candidate-dropdown-delete:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+

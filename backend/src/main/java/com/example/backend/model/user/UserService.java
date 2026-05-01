@@ -102,6 +102,7 @@ public class UserService implements UserDetailsService {
                 .name(user.getName())
                 .surname(user.getSurname())
                 .email(user.getEmail())
+                .applicationId(application.getId())
                 .isPaid(application.getIsPaid())
                 .status(application.getStatus().getDescription())
                 .build();

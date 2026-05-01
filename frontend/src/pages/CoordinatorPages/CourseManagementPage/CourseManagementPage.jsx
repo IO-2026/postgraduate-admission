@@ -109,6 +109,22 @@ function CourseManagementPage() {
     };
   }, [courseId]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const detailsElements = document.querySelectorAll(".candidate-dropdown[open]");
+      detailsElements.forEach((details) => {
+        if (!details.contains(event.target)) {
+          details.removeAttribute("open");
+        }
+      });
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -358,6 +374,23 @@ function CourseManagementPage() {
                         ? "Opłacone"
                         : "Nieopłacone"}
                     </span>
+                  </div>
+                  <div className="course-candidate-actions">
+                    <details className="candidate-dropdown">
+                      <summary className="candidate-dropdown-toggle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="1"></circle>
+                          <circle cx="19" cy="12" r="1"></circle>
+                          <circle cx="5" cy="12" r="1"></circle>
+                        </svg>
+                      </summary>
+                      <div className="candidate-dropdown-menu">
+                        <Link to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`} className="candidate-dropdown-manage">
+                          Zarządzaj aplikacją
+                        </Link>
+                        <button type="button" className="candidate-dropdown-delete">Usuń aplikację</button>
+                      </div>
+                    </details>
                   </div>
                 </article>
               );
