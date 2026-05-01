@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateUserRole } from "../../services/userApi";
+import { fetchUsers, updateUserRole } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import "./UsersPage.css";
+
+const ROLE_FILTERS = [
+  { label: "Wszyscy", value: "all" },
+  { label: "Administrator", value: "Admin" },
+  { label: "Koordynator", value: "Coordinator" },
+  { label: "Kandydat", value: "Candidate" },
+];
 
 function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
 
@@ -41,6 +50,24 @@ function UsersPage() {
     }
   };
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredUsers = users.filter((user) => {
+    const matchesRole =
+      roleFilter === "all" || String(user.roleName) === roleFilter;
+    const searchableText = [
+      user.name,
+      user.surname,
+      `${user.name || ""} ${user.surname || ""}`,
+      user.email,
+    ]
+      .join(" ")
+      .toLowerCase();
+    const matchesSearch =
+      !normalizedSearch || searchableText.includes(normalizedSearch);
+
+    return matchesRole && matchesSearch;
+  });
+
   if (loading) {
     return (
       <div className="users-page">
@@ -51,12 +78,26 @@ function UsersPage() {
 
   return (
     <div className="users-page">
+      <div className="users-top-actions">
+        <Link className="ghost-link users-back-link" to="/">
+          <svg
+            className="users-back-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18l-6-6 6-6"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć do strony głównej
+        </Link>
+      </div>
       <header className="users-header">
-        <div className="header-top">
-          <Link to="/" className="back-link">
-            ← Powrót do strony głównej
-          </Link>
-        </div>
         <h1>Zarządzanie Użytkownikami</h1>
         <p className="users-subtitle">
           Zmieniaj uprawnienia użytkowników w systemie.
@@ -64,6 +105,31 @@ function UsersPage() {
       </header>
 
       {error && <div className="error-message">{error}</div>}
+
+      <section className="users-controls" aria-label="Filtrowanie użytkowników">
+        <label className="users-search-field">
+          Szukaj
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Imię, nazwisko lub e-mail"
+          />
+        </label>
+
+        <div className="users-role-filter" role="group" aria-label="Filtr roli">
+          {ROLE_FILTERS.map((role) => (
+            <button
+              key={role.value}
+              type="button"
+              className={roleFilter === role.value ? "active" : ""}
+              onClick={() => setRoleFilter(role.value)}
+            >
+              {role.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <div className="table-container">
         <table className="users-table">
@@ -77,7 +143,7 @@ function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>
@@ -91,17 +157,17 @@ function UsersPage() {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="role-select"
                   >
-                    <option value="Admin">Admin</option>
-                    <option value="Coordinator">Coordinator</option>
-                    <option value="Candidate">Candidate</option>
+                    <option value="Admin">Administrator</option>
+                    <option value="Coordinator">Koordynator</option>
+                    <option value="Candidate">Kandydat</option>
                   </select>
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {filteredUsers.length === 0 && (
               <tr>
                 <td colSpan="5" className="empty-table">
-                  Brak użytkowników
+                  Brak użytkowników pasujących do filtrów
                 </td>
               </tr>
             )}

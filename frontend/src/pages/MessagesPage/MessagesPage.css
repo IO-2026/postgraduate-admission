@@ -1,7 +1,8 @@
 .messages-view {
-  min-height: calc(100svh - 64px);
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-items: start;
+  padding: 28px 0 40px;
 }
 
 .messages-card {
