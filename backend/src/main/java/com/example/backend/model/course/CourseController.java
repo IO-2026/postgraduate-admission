@@ -1,5 +1,6 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.user.CandidateWithApplicationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class CourseController {
 
     // Admin assignment endpoint (kept under /api/admin/... by the front-end)
     @PostMapping("/admin/courses/{id}/coordinator")
-    public ResponseEntity<?> assignCourseCoordinator(@PathVariable("id") Long id, @RequestBody AssignRequest req) {
+    public ResponseEntity<?> assignCourseCoordinator(@PathVariable Long id, @RequestBody AssignRequest req) {
         try {
             Course saved = courseService.assignCoordinator(id, req.getCoordinatorId());
             return ResponseEntity.ok(saved);
@@ -68,8 +68,13 @@ public class CourseController {
         }
     }
 
-    @GetMapping
-    public List<CourseDTO> getCoursesOfCoordinator(@RequestParam Long coordinatorId) {
+    @GetMapping("/courses/{coordinatorId}")
+    public List<CourseDTO> getCoursesOfCoordinator(@PathVariable Long coordinatorId) {
         return courseService.getCoursesOfCoordinator(coordinatorId);
+    }
+
+    @GetMapping("/courses/{id}/candidates")
+    public List<CandidateWithApplicationDto> getCourseCandidates(@PathVariable Long id) {
+        return courseService.getCourseCandidates(id);
     }
 }

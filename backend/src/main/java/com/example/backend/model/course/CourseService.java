@@ -1,14 +1,15 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.application.Application;
+import com.example.backend.model.application.ApplicationRepository;
+import com.example.backend.model.user.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.example.backend.model.user.UserRepository;
-import com.example.backend.model.user.User;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,8 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
+    private final UserService userService;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
@@ -105,5 +108,12 @@ public class CourseService {
 
         course.setCoordinator(coordinator);
         return courseRepository.save(course);
+    }
+
+    public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
+        return applicationRepository.findAll().stream()
+                .filter(a -> Objects.equals(a.getCourseId(), courseId))
+                .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
+                .collect(Collectors.toList());
     }
 }

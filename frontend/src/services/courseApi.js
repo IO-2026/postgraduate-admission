@@ -19,6 +19,34 @@ export async function fetchCourses() {
   return response.json();
 }
 
+export async function fetchCoursesOfCoordinator(coordinatorId) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/courses/${coordinatorId}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać kierunków koordynatora");
+  }
+  return response.json();
+}
+
+export async function fetchCourseCandidates(id) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/courses/${id}/candidates`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać kandydatów kierunku");
+  }
+  return response.json();
+}
+
 export async function createCourse(courseData) {
   const token = getToken();
 
