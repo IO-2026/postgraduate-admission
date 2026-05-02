@@ -25,6 +25,10 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    public CourseDTO getCourseById(Long id) {
+        return courseRepository.findById(id).map(this::mapToDTO).orElse(null);
+    }
+
     public CourseDTO saveCourse(CourseDTO courseDTO) {
         Course course = mapToEntity(courseDTO);
         Course savedCourse = courseRepository.save(course);

@@ -193,6 +193,71 @@
   margin: 16px 0 0;
   padding: 0;
   list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.application-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.application-item-main h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  color: var(--text-strong);
+}
+
+.application-item-main p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+}
+
+.application-item-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.application-status,
+.application-payment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.application-status {
+  color: var(--text-strong);
+  background: rgba(17, 47, 74, 0.1);
+}
+
+.application-payment-paid {
+  color: #0a6b37;
+  background: rgba(16, 185, 129, 0.16);
+}
+
+.application-payment-unpaid {
+  color: #9a3412;
+  background: rgba(251, 146, 60, 0.2);
+}
+
+.applications-error {
+  margin-top: 14px;
+  color: #b42318;
 }
 
 .applications-empty {
@@ -229,5 +294,17 @@
   .home-header,
   .applications-section {
     padding: 20px;
+  }
+
+  .application-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .application-item-meta {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
   }
 }

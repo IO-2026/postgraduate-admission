@@ -6,6 +6,7 @@ import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -13,12 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final ApplicationMapper applicationMapper;
 
     @Transactional
     public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
@@ -87,5 +91,12 @@ public class ApplicationService {
 
         application.setStatus(newStatus);
         emailService.sendApplicationStatusChange(user, application);
+    }
+
+    public List<ApplicationDto> getApplicationsOfUser(long userId) {
+        return applicationRepository.findAll().stream()
+                .filter(application -> application.getUser().getId() == userId)
+                .map(applicationMapper::toDto)
+                .toList();
     }
 }
