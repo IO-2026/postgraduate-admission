@@ -270,13 +270,21 @@ function App() {
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={
-            isCoordinator ? <CourseManagementPage /> : <Navigate to="/" replace />
+            isCoordinator ? (
+              <CourseManagementPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
         <Route
           path="/coordinator/courses/:courseId/applications/:applicationId/manage"
           element={
-            isCoordinator ? <ApplicationManagementPage /> : <Navigate to="/" replace />
+            isCoordinator ? (
+              <ApplicationManagementPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
         <Route

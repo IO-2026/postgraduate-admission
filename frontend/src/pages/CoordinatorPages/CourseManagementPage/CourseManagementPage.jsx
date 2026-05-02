@@ -91,9 +91,7 @@ function CourseManagementPage() {
         }
       } catch (err) {
         if (isMounted) {
-          setCandidatesError(
-            err.message || "Nie udało się pobrać kandydatów.",
-          );
+          setCandidatesError(err.message || "Nie udało się pobrać kandydatów.");
         }
       } finally {
         if (isMounted) {
@@ -111,7 +109,9 @@ function CourseManagementPage() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const detailsElements = document.querySelectorAll(".candidate-dropdown[open]");
+      const detailsElements = document.querySelectorAll(
+        ".candidate-dropdown[open]",
+      );
       detailsElements.forEach((details) => {
         if (!details.contains(event.target)) {
           details.removeAttribute("open");
@@ -152,7 +152,9 @@ function CourseManagementPage() {
       formData.recruitmentEnd &&
       formData.recruitmentStart > formData.recruitmentEnd
     ) {
-      setFormError("Data rozpoczęcia rekrutacji nie może być późniejsza od daty zakończenia.");
+      setFormError(
+        "Data rozpoczęcia rekrutacji nie może być późniejsza od daty zakończenia.",
+      );
       return;
     }
 
@@ -184,7 +186,8 @@ function CourseManagementPage() {
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
         coordinatorId: updatedCourse.coordinatorId ?? prev.coordinatorId,
         coordinatorName: updatedCourse.coordinatorName || prev.coordinatorName,
-        coordinatorEmail: updatedCourse.coordinatorEmail || prev.coordinatorEmail,
+        coordinatorEmail:
+          updatedCourse.coordinatorEmail || prev.coordinatorEmail,
       }));
       setSuccessMessage("Zapisano zmiany kierunku.");
     } catch (err) {
@@ -220,7 +223,9 @@ function CourseManagementPage() {
       </header>
 
       {loading ? (
-        <div className="course-management-state">Ładowanie danych kierunku...</div>
+        <div className="course-management-state">
+          Ładowanie danych kierunku...
+        </div>
       ) : error ? (
         <div className="course-management-state course-management-error">
           {error}

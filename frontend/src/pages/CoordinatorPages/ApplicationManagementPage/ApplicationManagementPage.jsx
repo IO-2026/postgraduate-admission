@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getApplication, updateApplicationStatus, updateApplication } from "../../../services/applicationApi";
+import {
+  getApplication,
+  updateApplicationStatus,
+  updateApplication,
+} from "../../../services/applicationApi";
 import "./ApplicationManagementPage.css";
 
 function ApplicationManagementPage() {
   const { courseId, applicationId } = useParams();
-  
+
   const [applicationData, setApplicationData] = useState({
     id: applicationId,
     status: "SUBMITTED",
@@ -27,7 +31,7 @@ function ApplicationManagementPage() {
     userSurname: "",
     userEmail: "",
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -43,7 +47,7 @@ function ApplicationManagementPage() {
         setLoading(true);
         setError("");
         const data = await getApplication(applicationId);
-        
+
         if (isMounted) {
           setApplicationData({
             id: data.id || data.applicationId || applicationId,
@@ -142,7 +146,9 @@ function ApplicationManagementPage() {
   if (loading) {
     return (
       <section className="application-management-view">
-        <div className="application-management-state">Ładowanie danych aplikacji...</div>
+        <div className="application-management-state">
+          Ładowanie danych aplikacji...
+        </div>
       </section>
     );
   }
@@ -150,7 +156,10 @@ function ApplicationManagementPage() {
   if (error && !applicationData.userName) {
     return (
       <section className="application-management-view">
-        <Link className="application-management-back-link" to={`/coordinator/courses/${courseId}/manage`}>
+        <Link
+          className="application-management-back-link"
+          to={`/coordinator/courses/${courseId}/manage`}
+        >
           <svg
             className="application-management-back-icon"
             viewBox="0 0 24 24"
@@ -176,7 +185,10 @@ function ApplicationManagementPage() {
 
   return (
     <section className="application-management-view">
-      <Link className="application-management-back-link" to={`/coordinator/courses/${courseId}/manage`}>
+      <Link
+        className="application-management-back-link"
+        to={`/coordinator/courses/${courseId}/manage`}
+      >
         <svg
           className="application-management-back-icon"
           viewBox="0 0 24 24"
@@ -219,7 +231,9 @@ function ApplicationManagementPage() {
               >
                 <option value="SUBMITTED">Wniosek przyjęty</option>
                 <option value="VERIFIED">Wniosek zweryfikowany</option>
-                <option value="WAITING_LIST">Wniosek na liście rezerwowej</option>
+                <option value="WAITING_LIST">
+                  Wniosek na liście rezerwowej
+                </option>
                 <option value="ACCEPTED">Wniosek zaakceptowany</option>
                 <option value="REJECTED">Wniosek odrzucony</option>
                 <option value="WITHDRAWN">Wniosek wycofany</option>
@@ -445,7 +459,11 @@ function ApplicationManagementPage() {
               ) : (
                 <div className="application-management-readonly">
                   {applicationData.diplomaUrl ? (
-                    <a href={applicationData.diplomaUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={applicationData.diplomaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {applicationData.diplomaUrl}
                     </a>
                   ) : (
@@ -460,7 +478,13 @@ function ApplicationManagementPage() {
             <h3>Zdjęcie dyplomu</h3>
             <div className="application-management-diploma-placeholder">
               <div className="application-management-diploma-placeholder-content">
-                <svg className="application-management-diploma-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="application-management-diploma-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <polyline points="21 15 16 10 5 21"></polyline>
@@ -499,7 +523,9 @@ function ApplicationManagementPage() {
           <h3>Zgody</h3>
           <div className="application-management-form-grid">
             <div className="application-management-field application-management-field-checkbox">
-              <label htmlFor="truthfulnessConsent">Zgoda na rzetelność informacji</label>
+              <label htmlFor="truthfulnessConsent">
+                Zgoda na rzetelność informacji
+              </label>
               {isEditMode ? (
                 <input
                   id="truthfulnessConsent"
@@ -516,7 +542,9 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field application-management-field-checkbox">
-              <label htmlFor="gdprConsent">Zgoda na przetwarzanie danych (RODO)</label>
+              <label htmlFor="gdprConsent">
+                Zgoda na przetwarzanie danych (RODO)
+              </label>
               {isEditMode ? (
                 <input
                   id="gdprConsent"

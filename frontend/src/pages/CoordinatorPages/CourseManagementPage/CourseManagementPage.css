@@ -409,7 +409,7 @@
   font-family: inherit;
   font-size: 0.95rem;
   color: var(--text-strong);
-  transition: background 0.2s;
+  transition: background-color 0.2s;
   text-decoration: none;
   display: block;
 }
@@ -427,5 +427,4 @@
   .candidate-edit-application {
     width: 100%;
   }
-.candidate-dropdown-menu .candidate-dropdown-delete:hover {
 
