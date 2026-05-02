@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ public class CourseService {
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
                 .map(this::mapToDTO)
+                .sorted(Comparator.comparing(CourseDTO::getName))
                 .collect(Collectors.toList());
     }
 

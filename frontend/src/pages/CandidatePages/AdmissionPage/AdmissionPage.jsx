@@ -1,6 +1,6 @@
 import "./AdmissionPage.css";
 import "../CoursesPage/CoursesPage.css";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
@@ -258,6 +258,7 @@ function isRecruitmentOpen(start, end) {
 }
 
 function AdmissionPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
@@ -432,11 +433,7 @@ function AdmissionPage() {
       );
 
       clearDraft(courseId);
-      setDraft(getDraftDefaults(null));
-      setErrors({});
-      setTouched({});
-      setSubmitAttempted(false);
-      setSubmitInfo("Wniosek został wysłany.");
+      navigate("/admission/success");
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
     } finally {
@@ -595,7 +592,7 @@ function AdmissionPage() {
           ) : (
             <form className="admission-form" onSubmit={onSubmit} noValidate>
               <section className="admission-section" aria-label="Dane konta">
-                <h2>Dane konta</h2>
+                <h2>Dane kandydata</h2>
 
                 <label>
                   E-mail
@@ -635,7 +632,7 @@ function AdmissionPage() {
                 className="admission-section"
                 aria-label="Dane do wniosku"
               >
-                <h2>Dane do wniosku</h2>
+                <h2>Informacje o ukończonej uczelni</h2>
 
                 <label>
                   Uczelnia
@@ -653,7 +650,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Ulica i numer
+                    Ulica i numer budynku
                     <input
                       type="text"
                       name="street"
@@ -697,7 +694,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Poprzedni stopień
+                    Otrzymany tytuł
                     <input
                       type="text"
                       name="previousDegree"
@@ -711,7 +708,7 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    Kierunek ukończonych studiów
+                    Kierunek
                     <input
                       type="text"
                       name="fieldOfStudy"
