@@ -32,6 +32,7 @@ function ApplicationManagementPage() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
@@ -92,6 +93,27 @@ function ApplicationManagementPage() {
     }));
   };
 
+  const handleStatusChange = async (e) => {
+    const nextStatus = e.target.value;
+
+    setApplicationData((prev) => ({
+      ...prev,
+      status: nextStatus,
+    }));
+    setSuccessMessage("");
+    setError("");
+
+    try {
+      setStatusSaving(true);
+      await updateApplicationStatus(applicationId, nextStatus);
+      setSuccessMessage("Zapisano status aplikacji.");
+    } catch (err) {
+      setError(err.message || "Nie udało się zapisać statusu aplikacji.");
+    } finally {
+      setStatusSaving(false);
+    }
+  };
+
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
     setSuccessMessage("");
@@ -109,9 +131,6 @@ function ApplicationManagementPage() {
         await updateApplication(applicationData);
         setSuccessMessage("Zaktualizowano dane aplikacji.");
         setIsEditMode(false);
-      } else {
-        await updateApplicationStatus(applicationId, applicationData.status);
-        setSuccessMessage("Zapisano zmiany w aplikacji.");
       }
     } catch (err) {
       setError(err.message || "Nie udało się zapisać zmian.");
@@ -189,13 +208,14 @@ function ApplicationManagementPage() {
         <div className="application-management-section">
           <h3>Informacje podstawowe</h3>
           <div className="application-management-form-grid">
-            <div className="application-management-field">
+            <div className="application-management-field application-management-field-status">
               <label htmlFor="app-status">Status</label>
               <select
                 id="app-status"
                 name="status"
                 value={applicationData.status}
-                onChange={handleChange}
+                onChange={handleStatusChange}
+                disabled={statusSaving}
               >
                 <option value="SUBMITTED">Wniosek przyjęty</option>
                 <option value="VERIFIED">Wniosek zweryfikowany</option>
@@ -537,19 +557,21 @@ function ApplicationManagementPage() {
               Anuluj
             </button>
           )}
-          <button
-            type="submit"
-            className="application-management-submit"
-            disabled={submitting}
-          >
-            {submitting ? "Zapisywanie..." : isEditMode ? "Zapisz dane" : "Zapisz zmiany"}
-          </button>
+          {isEditMode && (
+            <button
+              type="submit"
+              className="application-management-submit"
+              disabled={submitting}
+            >
+              {submitting ? "Zapisywanie..." : "Zapisz dane"}
+            </button>
+          )}
           {!isEditMode && (
             <button
               type="button"
               className="application-management-edit"
               onClick={toggleEditMode}
-              disabled={submitting}
+              disabled={submitting || statusSaving}
             >
               Edytuj dane
             </button>

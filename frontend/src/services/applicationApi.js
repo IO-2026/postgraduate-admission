@@ -27,13 +27,16 @@ export async function getApplication(applicationId) {
 
 export async function updateApplicationStatus(applicationId, status) {
   const token = getToken();
-  const response = await fetch(`${API_URL}/applications/${applicationId}`, {
-    method: "PUT",
+  const response = await fetch(`${API_URL}/applications/`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({
+      id: applicationId,
+      status,
+    }),
   });
 
   if (!response.ok) {

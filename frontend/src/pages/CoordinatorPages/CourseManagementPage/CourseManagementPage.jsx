@@ -376,21 +376,12 @@ function CourseManagementPage() {
                     </span>
                   </div>
                   <div className="course-candidate-actions">
-                    <details className="candidate-dropdown">
-                      <summary className="candidate-dropdown-toggle">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="1"></circle>
-                          <circle cx="19" cy="12" r="1"></circle>
-                          <circle cx="5" cy="12" r="1"></circle>
-                        </svg>
-                      </summary>
-                      <div className="candidate-dropdown-menu">
-                        <Link to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`} className="candidate-dropdown-manage">
-                          Zarządzaj aplikacją
-                        </Link>
-                        <button type="button" className="candidate-dropdown-delete">Usuń aplikację</button>
-                      </div>
-                    </details>
+                    <Link
+                      to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
+                      className="candidate-edit-application"
+                    >
+                      Edytuj aplikację
+                    </Link>
                   </div>
                 </article>
               );

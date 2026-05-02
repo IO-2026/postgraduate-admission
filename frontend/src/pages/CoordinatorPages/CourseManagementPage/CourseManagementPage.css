@@ -322,6 +322,38 @@
   align-items: center;
 }
 
+.candidate-edit-application {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--primary-hover);
+  border-radius: 999px;
+  background: var(--primary);
+  padding: 10px 20px;
+  color: var(--primary-text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.candidate-edit-application:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 8px 18px rgba(15, 127, 115, 0.2);
+  transform: translateY(-1px);
+}
+
+.candidate-edit-application:focus-visible {
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+  outline-offset: 2px;
+}
+
 .candidate-dropdown-toggle {
   list-style: none;
   cursor: pointer;
@@ -391,7 +423,9 @@
   color: var(--error, #dc2626);
 }
 
+
+  .candidate-edit-application {
+    width: 100%;
+  }
 .candidate-dropdown-menu .candidate-dropdown-delete:hover {
-  background: rgba(220, 38, 38, 0.1);
-}
 

@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -39,7 +40,10 @@ public class CourseService {
     }
 
     public List<CourseDTO> getCoursesOfCoordinator(Long id) {
-        return courseRepository.findAllByCoordinatorId(id).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return courseRepository.findAllByCoordinatorId(id).stream()
+                .map(this::mapToDTO)
+                .sorted(Comparator.comparing(CourseDTO::getName))
+                .collect(Collectors.toList());
     }
 
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
@@ -116,6 +120,7 @@ public class CourseService {
         return applicationService.getAllApplications().stream()
                 .filter(a -> Objects.equals(a.getCourseId(), courseId))
                 .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
+                .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
                 .collect(Collectors.toList());
     }
 }

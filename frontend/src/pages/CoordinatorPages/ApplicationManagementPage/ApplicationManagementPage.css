@@ -134,6 +134,16 @@
   background-color: rgba(15, 127, 115, 0.02);
 }
 
+.application-management-field-status select {
+  background-color: rgba(15, 127, 115, 0.06);
+  border-color: rgba(15, 127, 115, 0.25);
+}
+
+.application-management-field-status select:focus {
+  background-color: rgba(15, 127, 115, 0.08);
+  border-color: var(--primary);
+}
+
 .application-management-field-checkbox {
   display: flex;
   align-items: center;
