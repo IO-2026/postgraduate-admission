@@ -423,8 +423,6 @@
   color: var(--error, #dc2626);
 }
 
-
-  .candidate-edit-application {
-    width: 100%;
-  }
-
+.candidate-edit-application {
+  width: 100%;
+}
