@@ -47,7 +47,7 @@ public class CourseService {
 
     public List<CourseDTO> getCoursesOfCoordinator(Long id) {
         return courseRepository.findAllByCoordinatorId(id).stream()
-                .map(this::mapToDTO)
+                .map(courseMapper::toDTO)
                 .sorted(Comparator.comparing(CourseDTO::getName))
                 .collect(Collectors.toList());
     }
