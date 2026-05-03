@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/users";
+const API_URL = "/api/users";
 
 export const fetchUsers = async (token) => {
   const response = await fetch(API_URL, {

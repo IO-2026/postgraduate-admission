@@ -44,8 +44,6 @@ public class ApplicationTests {
         registry.add("jwt.expiration", () -> "86400000");
     }
 
-
-
     @Autowired
     private MockMvc mockMvc;
 
