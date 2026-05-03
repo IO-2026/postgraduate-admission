@@ -1,5 +1,6 @@
 package com.example.backend.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final AuthEntryPointConfig unauthorizedHandler;
@@ -31,18 +33,8 @@ public class SecurityConfig {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthTokenFilter authTokenFilter;
 
-    public SecurityConfig(AuthEntryPointConfig unauthorizedHandler,
-                          UserDetailsService userDetailsService,
-                          BCryptPasswordEncoder passwordEncoder,
-                          AuthTokenFilter authTokenFilter) {
-        this.unauthorizedHandler = unauthorizedHandler;
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-        this.authTokenFilter = authTokenFilter;
-    }
-
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config){
         return config.getAuthenticationManager();
     }
 
@@ -54,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http){
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

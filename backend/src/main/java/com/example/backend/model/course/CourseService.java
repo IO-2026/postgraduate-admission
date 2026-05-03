@@ -1,5 +1,6 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.course.dto.CourseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,17 +17,22 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final CourseMapper courseMapper;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(courseMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public CourseDTO saveCourse(CourseDTO courseDTO) {
-        Course course = mapToEntity(courseDTO);
-        Course savedCourse = courseRepository.save(course);
-        return mapToDTO(savedCourse);
+        Course course = courseMapper.toEntity(courseDTO);
+        if (courseDTO.getCoordinatorId() != null) {
+            User u = userRepository.findById(courseDTO.getCoordinatorId())
+                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+            course.setCoordinator(u);
+        }
+        return courseMapper.toDTO(courseRepository.save(course));
     }
 
     public void deleteCourse(Long id) {
@@ -34,63 +40,28 @@ public class CourseService {
     }
 
     public List<CourseDTO> getCoursesOfCoordinator(Long id) {
-        return courseRepository.findAllByCoordinatorId(id).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return courseRepository.findAllByCoordinatorId(id).stream().map(courseMapper::toDTO).collect(Collectors.toList());
     }
 
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
-        return courseRepository.findById(id).map(course -> {
-            course.setName(courseDTO.getName());
-            course.setDescription(courseDTO.getDescription());
-            course.setPrice(courseDTO.getPrice());
-            if (courseDTO.getRecruitmentStart() != null) {
-                course.setRecruitmentStart(courseDTO.getRecruitmentStart());
-            }
-            if (courseDTO.getRecruitmentEnd() != null) {
-                course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
-            }
-            if (courseDTO.getCoordinatorId() != null) {
-                // fetch user and set as coordinator
-                User u = userRepository.findById(courseDTO.getCoordinatorId())
-                        .orElseThrow(() -> new RuntimeException("Coordinator user not found"));
-                course.setCoordinator(u);
-            }
-            Course updatedCourse = courseRepository.save(course);
-            return mapToDTO(updatedCourse);
-        }).orElseThrow(() -> new RuntimeException("Course not found"));
-    }
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
 
-    private CourseDTO mapToDTO(Course course) {
-        Long coordId = course.getCoordinator() != null ? course.getCoordinator().getId() : null;
-        return CourseDTO.builder()
-                .id(course.getId())
-                .name(course.getName())
-                .description(course.getDescription())
-                .price(course.getPrice())
-                .recruitmentStart(course.getRecruitmentStart())
-                .recruitmentEnd(course.getRecruitmentEnd())
-                .coordinatorId(coordId)
-                .build();
-    }
-
-    private Course mapToEntity(CourseDTO courseDTO) {
-        Course course = new Course();
-        course.setId(courseDTO.getId());
         course.setName(courseDTO.getName());
         course.setDescription(courseDTO.getDescription());
         course.setPrice(courseDTO.getPrice());
-        if (courseDTO.getRecruitmentStart() != null) {
-            course.setRecruitmentStart(courseDTO.getRecruitmentStart());
-        }
-        if (courseDTO.getRecruitmentEnd() != null) {
-            course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
-        }
+        course.setRecruitmentStart(courseDTO.getRecruitmentStart());
+        course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
+
         if (courseDTO.getCoordinatorId() != null) {
             User u = userRepository.findById(courseDTO.getCoordinatorId())
-                    .orElseThrow(() -> new RuntimeException("Coordinator user not found"));
+                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
             course.setCoordinator(u);
         }
-        return course;
+
+        return courseMapper.toDTO(courseRepository.save(course));
     }
+
 
     @Transactional
     public Course assignCoordinator(Long courseId, Long coordinatorId) {

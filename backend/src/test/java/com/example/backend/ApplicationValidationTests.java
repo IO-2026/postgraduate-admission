@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import com.example.backend.BackendExceptionHandler;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApplicationValidationTests {
 
   private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null);
+    ApplicationService applicationService = new ApplicationService(null, null, null, null);
     ApplicationController controller = new ApplicationController(applicationService);
 
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
