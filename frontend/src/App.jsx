@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
+import SuccessPage from "./pages/CandidatePages/SuccessPage/SuccessPage";
+import PaymentPage from "./pages/CandidatePages/PaymentPage/PaymentPage";
 import { useQueryClient } from "@tanstack/react-query";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
@@ -246,7 +248,7 @@ function App() {
             ) : isCoordinator ? (
               <CoordinatorHomePage />
             ) : (
-              <CandidateHomePage isLoggedIn={isLoggedIn} />
+              <CandidateHomePage isLoggedIn={isLoggedIn} user={user} />
             )
           }
         />
@@ -278,6 +280,14 @@ function App() {
         <Route
           path="/admission"
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/admission/success"
+          element={isLoggedIn ? <SuccessPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/payment/:id"
+          element={isLoggedIn ? <PaymentPage /> : <Navigate to="/" replace />}
         />
         <Route
           path="/messages"

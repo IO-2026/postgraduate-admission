@@ -4,6 +4,10 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
+    <module name="RegexpMultiline">
+        <property name="format" value="(?:\r?\n)[ \t]*(?:\r?\n)[ \t]*\}"/>
+        <property name="message" value="An empty line before a closing brace '}' is not allowed."/>
+    </module>
     <module name="TreeWalker">
         <module name="MethodLength">
             <property name="max" value="100"/>

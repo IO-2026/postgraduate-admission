@@ -44,8 +44,6 @@ public class ApplicationTests {
         registry.add("jwt.expiration", () -> "86400000");
     }
 
-
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -63,7 +61,6 @@ public class ApplicationTests {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
     private User testUser;
     private Course testCourse;
@@ -184,5 +181,50 @@ public class ApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void submitApplication_ShouldFail_WhenCandidateAlreadyApplied() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicant = new HashMap<>();
+        applicant.put("dateOfBirth", "2000-01-01");
+        applicant.put("pesel", "44051401458");
+        Map<String, String> address = new HashMap<>();
+        address.put("street", "Testowa 1");
+        address.put("postalCode", "30-059");
+        address.put("city", "Kraków");
+        applicant.put("address", address);
+
+        Map<String, Object> education = new HashMap<>();
+        education.put("previousDegree", "Inżynier");
+        education.put("fieldOfStudy", "Informatyka");
+        education.put("graduationYear", 2020);
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("courseId", testCourse.getId());
+        details.put("university", "Test University");
+        details.put("diplomaUrl", "http://example.com/diploma.pdf");
+        details.put("truthfulnessConsent", true);
+        details.put("gdprConsent", true);
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("applicant", applicant);
+        request.put("education", education);
+        request.put("details", details);
+
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        mockMvc.perform(post("/api/applications/submit")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/applications/submit")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isBadRequest());
     }
 }

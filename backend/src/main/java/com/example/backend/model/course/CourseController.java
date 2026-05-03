@@ -27,6 +27,12 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
+    @GetMapping("/courses/{id}")
+    public ResponseEntity<CourseDTO> getCourseById(@PathVariable Long id) {
+        System.out.println(courseService.getCourseById(id));
+        return ResponseEntity.ok(courseService.getCourseById(id));
+    }
+
     @PostMapping("/courses")
     public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
         try {
@@ -68,7 +74,7 @@ public class CourseController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/courses/ofCoordinator")
     public List<CourseDTO> getCoursesOfCoordinator(@RequestParam Long coordinatorId) {
         return courseService.getCoursesOfCoordinator(coordinatorId);
     }

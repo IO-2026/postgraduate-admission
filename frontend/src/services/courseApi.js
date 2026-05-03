@@ -19,6 +19,20 @@ export async function fetchCourses() {
   return response.json();
 }
 
+export async function fetchCourseById(id) {
+  if (id == null) throw new Error("Brak id kierunku");
+  const token = getToken();
+  const response = await fetch(`${API_URL}/courses/${id}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Nie udało się pobrać kierunku o id ${id}`);
+  }
+  return response.json();
+}
+
 export async function createCourse(courseData) {
   const token = getToken();
 
