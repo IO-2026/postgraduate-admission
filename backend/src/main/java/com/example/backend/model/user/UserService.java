@@ -110,8 +110,6 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-
-
     @Transactional
     public AdminUserDto promoteToCoordinator(Long id) {
         User user = userRepository.findById(id)
@@ -158,7 +156,4 @@ public class UserService implements UserDetailsService {
                 })
                 .toList();
     }
-
-
-
 }
