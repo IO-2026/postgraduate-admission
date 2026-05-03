@@ -1,4 +1,4 @@
-package com.example.backend.model.user;
+package com.example.backend.model.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
