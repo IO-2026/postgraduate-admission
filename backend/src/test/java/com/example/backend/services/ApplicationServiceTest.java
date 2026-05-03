@@ -1,7 +1,11 @@
 package com.example.backend.services;
 
 
-import com.example.backend.model.application.*;
+import com.example.backend.model.application.Application;
+import com.example.backend.model.application.ApplicationMapper;
+import com.example.backend.model.application.ApplicationRepository;
+import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.AdmissionAddressDto;
 import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
