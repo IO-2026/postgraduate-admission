@@ -40,7 +40,7 @@ public class CourseService {
     }
 
     public List<CourseDTO> getCoursesOfCoordinator(Long id) {
-        return courseRepository.findAllByCoordinatorId(id).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return courseRepository.findAllByCoordinatorId(id).stream().map(courseMapper::toDTO).collect(Collectors.toList());
     }
 
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
