@@ -1,6 +1,7 @@
 package com.example.backend.model.user;
 
 import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseBriefDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
@@ -159,8 +160,8 @@ public class UserService implements UserDetailsService {
 
     private CoordinatorWithCoursesDto mapToCoordinatorWithCoursesDto(User u) {
         List<Course> courses = courseRepository.findByCoordinatorId(u.getId());
-        List<com.example.backend.model.course.CourseBriefDto> briefs = courses.stream()
-                .map(c -> new com.example.backend.model.course.CourseBriefDto(c.getId(), c.getName()))
+        List<CourseBriefDto> briefs = courses.stream()
+                .map(c -> new CourseBriefDto(c.getId(), c.getName()))
                 .collect(Collectors.toList());
 
         return new CoordinatorWithCoursesDto(
@@ -170,5 +171,4 @@ public class UserService implements UserDetailsService {
                 briefs
         );
     }
-
 }

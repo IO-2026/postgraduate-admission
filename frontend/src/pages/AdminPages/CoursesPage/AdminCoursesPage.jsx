@@ -367,13 +367,9 @@ function AdminCoursesPage() {
                       {formatDisplayDate(course.recruitmentEnd)}
                     </span>
                   )}
-                  {course.coordinatorId ? (
-                    <span className="meta-tag">
-                      Koordynator:{" "}
-                      {coordinatorEmailById.get(String(course.coordinatorId)) ||
-                        "brak danych"}
-                    </span>
-                  ) : null}
+                  <span className="meta-tag">
+                    Koordynator: {course.coordinatorName + " (" + course.coordinatorEmail + ")" || "Brak"}
+                  </span>
                 </div>
               </div>
               <div className="course-card-actions">
