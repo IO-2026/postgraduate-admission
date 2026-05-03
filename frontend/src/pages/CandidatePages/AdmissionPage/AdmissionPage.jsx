@@ -4,9 +4,19 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
+import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
+
+function resolveUserId(user) {
+  if (!user || typeof user !== "object") return null;
+  if (typeof user.id === "number") return user.id;
+  if (typeof user.userId === "number") return user.userId;
+
+  const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
+  return Number.isNaN(parsedId) ? null : parsedId;
+}
 const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const CONSENT_ERROR_MESSAGES = {
@@ -281,6 +291,7 @@ function AdmissionPage() {
   const [courses, setCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [coursesError, setCoursesError] = useState("");
+  const [appliedCourseIds, setAppliedCourseIds] = useState([]);
   const selectedCourse = useMemo(
     () => courses.find((course) => Number(course.id) === Number(courseId)),
     [courses, courseId],
@@ -329,6 +340,31 @@ function AdmissionPage() {
       isActive = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadApplications = async () => {
+      const userId = resolveUserId(user);
+      if (!isLoggedIn || !userId) return;
+
+      try {
+        const data = await fetchApplicationsOfUser(userId);
+        if (!isActive) return;
+        if (Array.isArray(data)) {
+          setAppliedCourseIds(data.map(app => Number(app.courseId)));
+        }
+      } catch {
+        // Ignore error
+      }
+    };
+
+    loadApplications();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user, isLoggedIn]);
 
   useEffect(() => {
     if (courseId) {
@@ -559,12 +595,22 @@ function AdmissionPage() {
                     </div>
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        <Link
-                          to={`/admission?courseId=${course.id}`}
-                          className="primary-btn"
-                        >
-                          Aplikuj
-                        </Link>
+                        {appliedCourseIds.includes(Number(course.id)) ? (
+                          <button
+                            disabled
+                            className="primary-btn"
+                            style={{ opacity: 0.6, cursor: "not-allowed" }}
+                          >
+                            Już aplikowano
+                          </button>
+                        ) : (
+                          <Link
+                            to={`/admission?courseId=${course.id}`}
+                            className="primary-btn"
+                          >
+                            Aplikuj
+                          </Link>
+                        )}
                       </div>
                     ) : null}
                   </div>

@@ -30,17 +30,16 @@ public class ApplicationController {
         return applicationService.getApplicationsOfUser(userId);
     }
 
-
     @PostMapping("/submit")
-    public ResponseEntity<Void> submit(
-            @Valid @RequestBody AdmissionSubmitRequest request,
-            @AuthenticationPrincipal User authenticatedUser
-    ) {
+    public ResponseEntity<Void> submit(@Valid @RequestBody AdmissionSubmitRequest request, @AuthenticationPrincipal User authenticatedUser) {
         if (authenticatedUser == null || authenticatedUser.getId() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        applicationService.saveApplication(request, authenticatedUser.getId());
+        Application savedApplication = applicationService.saveApplication(request, authenticatedUser.getId());
+        if (savedApplication == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

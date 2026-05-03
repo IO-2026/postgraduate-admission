@@ -74,7 +74,7 @@ public class CourseController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/courses/ofCoordinator")
     public List<CourseDTO> getCoursesOfCoordinator(@RequestParam Long coordinatorId) {
         return courseService.getCoursesOfCoordinator(coordinatorId);
     }

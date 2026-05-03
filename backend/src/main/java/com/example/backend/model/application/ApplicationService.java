@@ -36,6 +36,14 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
 
+        long courseId = details.getCourseId();
+        long userId = user.getId();
+
+        List<ApplicationDto> applicationsOfUser = getApplicationsOfUser(userId);
+        if (applicationsOfUser.stream().anyMatch(application -> application.getCourseId() == courseId)) {
+            return null;
+        }
+
         Application application = new Application();
         application.setUser(user);
 
