@@ -3,7 +3,10 @@ import "./SuccessPage.css";
 
 function SuccessPage() {
   return (
-    <section className="success-view" aria-label="Potwierdzenie wysłania wniosku">
+    <section
+      className="success-view"
+      aria-label="Potwierdzenie wysłania wniosku"
+    >
       <div className="success-container">
         <div className="success-icon">
           <svg
@@ -32,7 +35,7 @@ function SuccessPage() {
         </p>
 
         <div className="success-actions">
-            <Link to="/" className="primary-btn">
+          <Link to="/" className="primary-btn">
             Wróć do strony głównej
           </Link>
           <Link to="/admission" className="ghost-link">

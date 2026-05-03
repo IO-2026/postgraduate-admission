@@ -170,5 +170,4 @@ public class AuthTests {
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
-
 }

@@ -67,5 +67,4 @@ public class EmailService {
             System.err.println("CRITICAL: Failed to send email to " + to + " after retries: " + e.getMessage());
         }
     }
-    
 }

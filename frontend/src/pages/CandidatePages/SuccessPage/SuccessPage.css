@@ -73,7 +73,9 @@
   color: white;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease,
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.2s ease;
   display: inline-block;
   min-height: 44px;
@@ -103,7 +105,9 @@
   color: var(--text-strong);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   display: inline-block;
   min-height: 44px;
   display: flex;

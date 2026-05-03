@@ -69,7 +69,11 @@ function CandidateHomePage({ isLoggedIn, user }) {
     let isMounted = true;
 
     const loadCourseNames = async () => {
-      if (!isLoggedIn || !Array.isArray(applications) || applications.length === 0) {
+      if (
+        !isLoggedIn ||
+        !Array.isArray(applications) ||
+        applications.length === 0
+      ) {
         setCourseNames({});
         return;
       }
@@ -199,12 +203,20 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       <h3>{courseName}</h3>
                       <p>
                         Uczelnia: <strong>{university}</strong>
-                        {Number.isNaN(courseId) ? "" : ` • ID kierunku: ${courseId}`}
+                        {Number.isNaN(courseId)
+                          ? ""
+                          : ` • ID kierunku: ${courseId}`}
                       </p>
                     </div>
                     <div className="application-item-meta">
                       <span className="application-status">{statusLabel}</span>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
                         <span
                           className={
                             isPaid
@@ -236,7 +248,9 @@ function CandidateHomePage({ isLoggedIn, user }) {
           </ul>
         ) : null}
 
-        {!loadingApplications && !applicationsError && applications.length === 0 ? (
+        {!loadingApplications &&
+        !applicationsError &&
+        applications.length === 0 ? (
           <p className="applications-empty">Brak bieżących aplikacji.</p>
         ) : null}
       </section>

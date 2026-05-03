@@ -352,7 +352,7 @@ function AdmissionPage() {
         const data = await fetchApplicationsOfUser(userId);
         if (!isActive) return;
         if (Array.isArray(data)) {
-          setAppliedCourseIds(data.map(app => Number(app.courseId)));
+          setAppliedCourseIds(data.map((app) => Number(app.courseId)));
         }
       } catch {
         // Ignore error
