@@ -230,184 +230,189 @@ function AuthPage({ onAuthSuccess }) {
 
   return (
     <section className="auth-view">
-      <div className="auth-card">
-        <div
-          className="auth-switch"
-          role="tablist"
-          aria-label="Tryb autoryzacji"
-        >
-          <button
-            type="button"
-            className={mode === "login" ? "active" : ""}
-            onClick={() => switchMode("login")}
-            role="tab"
-            aria-selected={mode === "login"}
+      <h1 className="auth-page-title">AGH Studia Podyplomowe</h1>
+      <div className="auth-card-wrap">
+        <div className="auth-card">
+          <div
+            className="auth-switch"
+            role="tablist"
+            aria-label="Tryb autoryzacji"
           >
-            Logowanie
-          </button>
-          <button
-            type="button"
-            className={mode === "register" ? "active" : ""}
-            onClick={() => switchMode("register")}
-            role="tab"
-            aria-selected={mode === "register"}
-          >
-            Rejestracja
-          </button>
-        </div>
+            <button
+              type="button"
+              className={mode === "login" ? "active" : ""}
+              onClick={() => switchMode("login")}
+              role="tab"
+              aria-selected={mode === "login"}
+            >
+              Logowanie
+            </button>
+            <button
+              type="button"
+              className={mode === "register" ? "active" : ""}
+              onClick={() => switchMode("register")}
+              role="tab"
+              aria-selected={mode === "register"}
+            >
+              Rejestracja
+            </button>
+          </div>
 
-        <h1>{mode === "login" ? "Witaj ponownie" : "Utwórz konto"}</h1>
-        <p className="auth-subtitle">
-          {mode === "login"
-            ? "Zaloguj się, aby otworzyć stronę główną rekrutacji."
-            : "Utwórz profil, aby uzyskać dostęp do portalu rekrutacyjnego."}
-        </p>
-
-        {error ? (
-          <p className="form-error" role="alert">
-            {error}
+          <h2 className="auth-card-title">
+            {mode === "login" ? "Witaj ponownie" : "Utwórz konto"}
+          </h2>
+          <p className="auth-subtitle">
+            {mode === "login"
+              ? "Zaloguj się, aby otworzyć stronę główną rekrutacji."
+              : "Utwórz profil, aby uzyskać dostęp do portalu rekrutacyjnego."}
           </p>
-        ) : null}
-        {info ? <p className="form-info">{info}</p> : null}
 
-        {mode === "login" ? (
-          <form className="auth-form" onSubmit={submitLogin} noValidate>
-            <label>
-              E-mail
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                inputMode="email"
-                value={loginData.email}
-                onChange={onLoginInput}
+          {error ? (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          ) : null}
+          {info ? <p className="form-info">{info}</p> : null}
+
+          {mode === "login" ? (
+            <form className="auth-form" onSubmit={submitLogin} noValidate>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={loginData.email}
+                  onChange={onLoginInput}
+                  disabled={isSubmitting}
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <label>
+                Hasło
+                <input
+                  type="password"
+                  name="password"
+                  autoComplete="current-password"
+                  value={loginData.password}
+                  onChange={onLoginInput}
+                  disabled={isSubmitting}
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="primary-btn"
                 disabled={isSubmitting}
-                aria-invalid={!!error}
-              />
-            </label>
+              >
+                {isSubmitting ? "Trwa logowanie..." : "Zaloguj się"}
+              </button>
+            </form>
+          ) : (
+            <form className="auth-form" onSubmit={submitRegister} noValidate>
+              <label>
+                Imię
+                <input
+                  type="text"
+                  name="name"
+                  autoComplete="given-name"
+                  value={registerData.name}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  minLength={2}
+                  maxLength={50}
+                  aria-invalid={!!error}
+                />
+              </label>
 
-            <label>
-              Hasło
-              <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                value={loginData.password}
-                onChange={onLoginInput}
+              <label>
+                Nazwisko
+                <input
+                  type="text"
+                  name="surname"
+                  autoComplete="family-name"
+                  value={registerData.surname}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  minLength={2}
+                  maxLength={50}
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <label>
+                Numer telefonu
+                <input
+                  type="tel"
+                  name="telNumber"
+                  autoComplete="tel"
+                  value={registerData.telNumber}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  inputMode="tel"
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  value={registerData.email}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  inputMode="email"
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <label>
+                Hasło
+                <input
+                  type="password"
+                  name="password"
+                  autoComplete="new-password"
+                  value={registerData.password}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  minLength={PASSWORD_MIN_LENGTH}
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <label>
+                Potwierdź hasło
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  value={registerData.confirmPassword}
+                  onChange={onRegisterInput}
+                  disabled={isSubmitting}
+                  minLength={PASSWORD_MIN_LENGTH}
+                  aria-invalid={!!error}
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="primary-btn"
                 disabled={isSubmitting}
-                aria-invalid={!!error}
-              />
-            </label>
+              >
+                {isSubmitting ? "Trwa tworzenie konta..." : "Zarejestruj się"}
+              </button>
+            </form>
+          )}
 
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Trwa logowanie..." : "Zaloguj się"}
-            </button>
-          </form>
-        ) : (
-          <form className="auth-form" onSubmit={submitRegister} noValidate>
-            <label>
-              Imię
-              <input
-                type="text"
-                name="name"
-                autoComplete="given-name"
-                value={registerData.name}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                minLength={2}
-                maxLength={50}
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <label>
-              Nazwisko
-              <input
-                type="text"
-                name="surname"
-                autoComplete="family-name"
-                value={registerData.surname}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                minLength={2}
-                maxLength={50}
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <label>
-              Numer telefonu
-              <input
-                type="tel"
-                name="telNumber"
-                autoComplete="tel"
-                value={registerData.telNumber}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                inputMode="tel"
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <label>
-              E-mail
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={registerData.email}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                inputMode="email"
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <label>
-              Hasło
-              <input
-                type="password"
-                name="password"
-                autoComplete="new-password"
-                value={registerData.password}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                minLength={PASSWORD_MIN_LENGTH}
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <label>
-              Potwierdź hasło
-              <input
-                type="password"
-                name="confirmPassword"
-                autoComplete="new-password"
-                value={registerData.confirmPassword}
-                onChange={onRegisterInput}
-                disabled={isSubmitting}
-                minLength={PASSWORD_MIN_LENGTH}
-                aria-invalid={!!error}
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Trwa tworzenie konta..." : "Zarejestruj się"}
-            </button>
-          </form>
-        )}
-
-        <Link className="text-btn" to="/">
-          Wróć na stronę główną
-        </Link>
+          <Link className="text-btn" to="/">
+            Wróć na stronę główną
+          </Link>
+        </div>
       </div>
     </section>
   );

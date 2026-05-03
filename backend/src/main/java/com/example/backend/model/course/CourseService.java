@@ -39,6 +39,10 @@ public class CourseService {
         courseRepository.deleteById(id);
     }
 
+    public List<CourseDTO> getCoursesOfCoordinator(Long id) {
+        return courseRepository.findAllByCoordinatorId(id).stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
