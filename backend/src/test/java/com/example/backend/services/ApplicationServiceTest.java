@@ -1,15 +1,12 @@
 package com.example.backend.services;
 
 
+import com.example.backend.model.application.*;
 import com.example.backend.model.application.dto.AdmissionAddressDto;
 import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
-import com.example.backend.model.application.Application;
-import com.example.backend.model.application.ApplicationRepository;
-import com.example.backend.model.application.ApplicationService;
-import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -20,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +39,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private EmailService emailService;
+
+    @Mock
+    private ApplicationMapper applicationMapper;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -82,6 +83,7 @@ public class ApplicationServiceTest {
         mockUser.setSurname("Kowalski");
         mockUser.setEmail("jan@example.com");
         mockUser.setTelNumber("123456789");
+        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
@@ -130,15 +132,15 @@ public class ApplicationServiceTest {
         request.setDetails(details);
 
         User mockUser = new User();
-        mockUser.setId(1L);
+        mockUser.setId(3L);
         mockUser.setName("Jan");
         mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan@example.com");
+        mockUser.setEmail("jan3@example.com");
         mockUser.setTelNumber("123456789");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        applicationService.saveApplication(request, 1L);
+        applicationService.saveApplication(request, mockUser.getId());
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
     }
@@ -174,19 +176,19 @@ public class ApplicationServiceTest {
         request.setDetails(details);
 
         User mockUser = new User();
-        mockUser.setId(1L);
+        mockUser.setId(2L);
         mockUser.setName("Jan");
         mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan@example.com");
+        mockUser.setEmail("jan2@example.com");
         mockUser.setTelNumber("123456789");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
         org.mockito.Mockito.doThrow(new MailSendException("smtp unavailable"))
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
-        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, 1L));
+        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, mockUser.getId()));
 
         verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
