@@ -7,6 +7,7 @@ import com.example.backend.model.role.Role;
 import com.example.backend.model.role.RoleRepository;
 import com.example.backend.auth.DTO.RegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -170,5 +171,14 @@ public class UserService implements UserDetailsService {
                 u.getEmail(),
                 briefs
         );
+    }
+
+    public ResponseEntity<String> deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        userRepository.deleteById(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

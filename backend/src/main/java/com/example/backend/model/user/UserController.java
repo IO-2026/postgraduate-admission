@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,7 +79,7 @@ public class UserController {
     }
 
     @PostMapping("/admin/users/{id}/demote")
-    public ResponseEntity<?> demoteUser(@PathVariable("id") Long id) {
+    public ResponseEntity<?> demoteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.demoteToApplicant(id));
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -94,5 +95,10 @@ public class UserController {
     @GetMapping("/admin/coordinators-with-courses")
     public ResponseEntity<List<CoordinatorWithCoursesDto>> getCoordinatorsWithCourses() {
         return ResponseEntity.ok(userService.getCoordinatorsWithCourses());
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable long id) {
+        return userService.deleteUser(id);
     }
 }

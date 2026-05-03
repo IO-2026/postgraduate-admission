@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateUserRole } from "../../../services/userApi";
+import { fetchUsers, updateUserRole, deleteUser } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import "./UsersPage.css";
 
@@ -16,8 +16,19 @@ function UsersPage() {
   const [error, setError] = useState(null);
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".action-menu-container")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -47,6 +58,20 @@ function UsersPage() {
     } catch (err) {
       console.error(err);
       alert("Wystąpił błąd podczas zmiany roli.");
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("Czy na pewno chcesz usunąć tego użytkownika? Ta operacja jest nieodwracalna.")) {
+      return;
+    }
+
+    try {
+      await deleteUser(token, userId);
+      setUsers(users.filter((user) => user.id !== userId));
+    } catch (err) {
+      console.error(err);
+      alert("Wystąpił błąd podczas usuwania użytkownika.");
     }
   };
 
@@ -139,7 +164,8 @@ function UsersPage() {
               <th>Imię i nazwisko</th>
               <th>Email</th>
               <th>Telefon</th>
-              <th>Rola</th>
+              <th style={{ width: "1%", whiteSpace: "nowrap" }}>Rola</th>
+              <th style={{ width: "1%", paddingLeft: 0 }}>Akcje</th>
             </tr>
           </thead>
           <tbody>
@@ -151,7 +177,7 @@ function UsersPage() {
                 </td>
                 <td>{user.email}</td>
                 <td>{user.telNumber}</td>
-                <td>
+                <td style={{ width: "1%", whiteSpace: "nowrap" }}>
                   <select
                     value={user.roleName}
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
@@ -162,11 +188,50 @@ function UsersPage() {
                     <option value="Candidate">Kandydat</option>
                   </select>
                 </td>
+                <td style={{ width: "1%", paddingLeft: 0 }}>
+                  <div className="action-menu-container" style={{ position: "relative" }}>
+                    <button
+                      className="ghost-btn"
+                      onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
+                      aria-label="Więcej akcji"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "32px",
+                        height: "32px",
+                        padding: 0,
+                        borderRadius: "4px",
+                        color: "var(--text-muted)",
+                        transition: "background-color 0.2s, color 0.2s"
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <circle cx="5" cy="12" r="1.5" />
+                        <circle cx="12" cy="12" r="1.5" />
+                        <circle cx="19" cy="12" r="1.5" />
+                      </svg>
+                    </button>
+                    {openMenuId === user.id && (
+                      <div className="action-dropdown">
+                        <button
+                          className="action-dropdown-btn delete"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            handleDeleteUser(user.id);
+                          }}
+                        >
+                          Usuń użytkownika
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan="5" className="empty-table">
+                <td colSpan="6" className="empty-table">
                   Brak użytkowników pasujących do filtrów
                 </td>
               </tr>

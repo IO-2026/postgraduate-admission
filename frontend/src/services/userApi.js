@@ -32,3 +32,21 @@ export const updateUserRole = async (token, userId, roleName) => {
 
   return response.json();
 };
+
+export const deleteUser = async (token, userId) => {
+  const response = await fetch(`${API_URL}/${userId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete user");
+  }
+
+  const text = await response.text();
+  // Return the text directly since the backend might return a plain text success message instead of JSON.
+  return text;
+};
