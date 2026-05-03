@@ -141,8 +141,6 @@ public class ApplicationServiceTest {
         applicationService.saveApplication(request, 1L);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
-
-
     }
 
     @Test
