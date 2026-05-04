@@ -34,7 +34,7 @@ public class SecurityConfig {
     private final AuthTokenFilter authTokenFilter;
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config){
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
     }
 
@@ -46,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http){
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -61,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("Candidate")
                         .requestMatchers("/api/applications/*/status").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/users/**").hasRole("Admin")
+                        .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
+                        .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").hasRole("Candidate")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
