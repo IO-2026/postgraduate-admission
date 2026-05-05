@@ -303,17 +303,20 @@ function App() {
           path="/admission"
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
         />
-          <Route
-              path="/messages"
-              element={isLoggedIn ? <InboxPage /> : <Navigate to="/" replace />}
-          />
-          <Route
-              path="/send-message"
-              element={
-                  (isLoggedIn && (user?.role === "Coordinator" || isAdmin)) ?
-                      (<SendMessagePage user={user} />) : (<Navigate to="/" replace />)
-              }
-          />
+        <Route
+          path="/messages"
+          element={isLoggedIn ? <InboxPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/send-message"
+          element={
+            isLoggedIn && (user?.role === "Coordinator" || isAdmin) ? (
+              <SendMessagePage user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
         <Route
           path="/profile"
           element={
