@@ -1,3 +1,5 @@
+import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
+
 const API_BASE = "/api/messages";
 
 function getToken() {
@@ -61,4 +63,33 @@ export async function markAsRead(recipientId) {
     return request(`/${recipientId}/read`, {
         method: "PATCH",
     });
+}
+
+
+
+
+export async function getAvailableRecipients(user) {
+    const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    if (user?.role === "Admin") {
+        const res = await fetch("/api/users", { headers });
+        if (!res.ok) throw new Error("Błąd pobierania użytkowników");
+        const users = await res.json();
+        return users.filter(u => u.roleName === "Candidate" || u.role === "Candidate");
+    }
+
+    if (user?.role === "Coordinator") {
+        const myCourses = await fetchCoursesOfCoordinator(user.id);
+
+        const candidatesPromises = myCourses.map(course => fetchCourseCandidates(course.id));
+        const results = await Promise.all(candidatesPromises);
+
+        const allCandidates = results.flat();
+        return Array.from(
+            new Map(allCandidates.map(c => [c.id, c])).values()
+        );
+    }
+
+    return [];
 }

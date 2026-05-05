@@ -48,8 +48,6 @@ public class MessageController {
     @PatchMapping("/{recipientId}/read")
     public ResponseEntity<Void> markAsRead(@PathVariable Long recipientId,
                                            @AuthenticationPrincipal User user) {
-        System.out.println(user);
-        System.out.println(recipientId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

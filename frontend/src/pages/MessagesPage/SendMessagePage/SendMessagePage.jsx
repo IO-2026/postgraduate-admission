@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {sendMessage} from "../../../services/messageApi";
+import {getAvailableRecipients, sendMessage} from "../../../services/messageApi.js";
 import "./SendMessagePage.css";
 
-function SendMessagePage() {
+function SendMessagePage({user}) {
     const [recipients, setRecipients] = useState([]);
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
@@ -18,22 +18,17 @@ function SendMessagePage() {
         const fetchCandidates = async () => {
             setLoading(true);
             try {
-                const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
-                const res = await fetch("/api/users", {
-                    headers: token ? {Authorization: `Bearer ${token}`} : {},
-                });
-                if (!res.ok) throw new Error("Failed to fetch users");
-                const users = await res.json();
-                const candidatesOnly = users.filter((u) => u.roleName === "Candidate");
-                setRecipients(candidatesOnly);
+                const data = await getAvailableRecipients(user);
+                setRecipients(data);
             } catch (err) {
-                setError("Nie udało się pobrać listy kandydatów.");
+                setError(err.message || "Nie udało się pobrać listy odbiorców.");
             } finally {
                 setLoading(false);
             }
         };
-        fetchCandidates();
-    }, []);
+
+        if (user?.id) fetchCandidates();
+    }, [user]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -127,16 +122,6 @@ function SendMessagePage() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label className="checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={toAll}
-                                onChange={(e) => setToAll(e.target.checked)}
-                            />
-                            Wyślij do wszystkich kandydatów
-                        </label>
-                    </div>
 
                     {!toAll && (
                         <div className="recipients-list">

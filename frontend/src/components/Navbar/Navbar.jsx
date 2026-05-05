@@ -6,6 +6,15 @@ import {fetchUnreadCount} from "../../services/messageApi.js";
 function Navbar({isLoggedIn, user}) {
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const isAdmin = isLoggedIn && (
+        user?.role === "Admin" ||
+        user?.roleId === 2 ||
+        (typeof user?.role === "string" && user.role.toLowerCase().includes("admin"))
+    );
+
+    const isCoordinator = isLoggedIn && user?.role === "Coordinator";
+    const canSendMessage = isAdmin || isCoordinator;
+
     useEffect(() => {
         if (!isLoggedIn) return;
         const loadUnread = async () => {
@@ -28,20 +37,33 @@ function Navbar({isLoggedIn, user}) {
         user?.fullName?.trim().split(/\s+/)[0] ||
         "Profil";
 
-    const isCoordinatorOrAdmin = user?.role === "Coordinator" || user?.role === "Admin";
-
     return (
         <nav className="main-navbar">
             <div className="navbar-logo">
                 <Link to="/">AGH Rekrutacja</Link>
             </div>
             <div className="navbar-links">
-                <Link to="/courses">Kierunki</Link>
-                {isCoordinatorOrAdmin && (<Link to="/send-message" className="nav-link">Wyślij wiadomość</Link>)}
-                <Link to="/messages" className="nav-link">
-                    Wiadomości
-                    {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
-                </Link>
+                {!isAdmin && !isCoordinator && (
+                    <>
+                        <Link to="/courses">Kierunki</Link>
+                        <Link to="/messages" className="nav-link">
+                            Wiadomości
+                            {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
+                        </Link>
+                    </>
+                )}
+
+                {isAdmin && (
+                    <>
+                        <Link to="/admin/courses" className="nav-link">Kierunki</Link>
+                        <Link to="/users" className="nav-link">Użytkownicy</Link>
+                    </>
+                )}
+
+                {canSendMessage && (
+                    <Link to="/send-message" className="nav-link">Wyślij wiadomość</Link>
+                )}
+
             </div>
             <div className="navbar-profile">
                 <Link to="/profile" className="profile-link">

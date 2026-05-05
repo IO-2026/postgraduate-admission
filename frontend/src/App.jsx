@@ -16,7 +16,7 @@ import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManag
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
-import SendMessagePage from "./pages/CoordinatorPages/SendMessagePage/SendMessagePage.jsx";
+import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 
@@ -310,8 +310,8 @@ function App() {
           <Route
               path="/send-message"
               element={
-                  (isLoggedIn && (user?.role === "Coordinator" || user?.role === "Admin")) ?
-                      (<SendMessagePage />) : (<Navigate to="/" replace />)
+                  (isLoggedIn && (user?.role === "Coordinator" || isAdmin)) ?
+                      (<SendMessagePage user={user} />) : (<Navigate to="/" replace />)
               }
           />
         <Route
