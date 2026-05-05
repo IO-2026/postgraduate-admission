@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 
@@ -88,6 +89,10 @@ public class ApplicationServiceTest {
         mockUser.setTelNumber("123456789");
         when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        Application mockApplication = new Application();
+        mockApplication.setUniversity("Test University");
+        mockApplication.setCourseId(100L);
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
@@ -141,6 +146,9 @@ public class ApplicationServiceTest {
         mockUser.setEmail("jan3@example.com");
         mockUser.setTelNumber("123456789");
         when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser));
+        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
+        Application mockApplication = new Application();
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         applicationService.saveApplication(request, mockUser.getId());
@@ -186,8 +194,12 @@ public class ApplicationServiceTest {
         mockUser.setTelNumber("123456789");
 
         when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser));
+        Application mockApplication = new Application();
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
-        org.mockito.Mockito.doThrow(new MailSendException("smtp unavailable"))
+
+
+        Mockito.doThrow(new MailSendException("smtp unavailable"))
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 

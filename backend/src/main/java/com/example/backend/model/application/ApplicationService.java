@@ -1,5 +1,6 @@
 package com.example.backend.model.application;
 
+import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
@@ -25,6 +26,15 @@ public class ApplicationService {
         User user = userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
+
+        AdmissionDetailsDto details = admissionRequest.getDetails();
+        long courseId = details.getCourseId();
+        long userId = user.getId();
+
+        List<ApplicationDto> applicationsOfUser = getApplicationsOfUser(userId);
+        if (applicationsOfUser.stream().anyMatch(application -> application.getCourseId() == courseId)) {
+            return null;
+        }
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
