@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 @Table(name = "applications")
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 public class Application {
 
@@ -45,7 +47,7 @@ public class Application {
     private Long courseId;
 
     @Column(name = "is_paid")
-    private Boolean isPaid = false;
+    private Boolean isPaid;
 
     @Column(name = "applicant_date_of_birth")
     private LocalDate applicantDateOfBirth;

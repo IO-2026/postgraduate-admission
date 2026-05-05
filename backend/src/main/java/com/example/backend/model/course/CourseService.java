@@ -1,15 +1,19 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.user.UserRepository;
+import com.example.backend.model.user.UserService;
+import com.example.backend.model.user.User;
+import com.example.backend.model.user.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.example.backend.model.user.UserRepository;
-import com.example.backend.model.user.User;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,8 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final ApplicationService applicationService;
+    private final UserService userService;
     private final CourseMapper courseMapper;
 
     public List<CourseDTO> getAllCourses() {
@@ -40,7 +46,10 @@ public class CourseService {
     }
 
     public List<CourseDTO> getCoursesOfCoordinator(Long id) {
-        return courseRepository.findAllByCoordinatorId(id).stream().map(courseMapper::toDTO).collect(Collectors.toList());
+        return courseRepository.findAllByCoordinatorId(id).stream()
+                .map(courseMapper::toDTO)
+                .sorted(Comparator.comparing(CourseDTO::getName))
+                .collect(Collectors.toList());
     }
 
     public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
@@ -76,5 +85,13 @@ public class CourseService {
 
         course.setCoordinator(coordinator);
         return courseRepository.save(course);
+    }
+
+    public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
+        return applicationService.getAllApplications().stream()
+                .filter(a -> Objects.equals(a.getCourseId(), courseId))
+                .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
+                .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
+                .collect(Collectors.toList());
     }
 }
