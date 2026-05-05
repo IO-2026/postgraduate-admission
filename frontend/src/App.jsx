@@ -13,6 +13,8 @@ import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
+import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
+import SendMessagePage from "./pages/CoordinatorPages/SendMessagePage/SendMessagePage.jsx";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 
@@ -279,10 +281,17 @@ function App() {
           path="/admission"
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
         />
-        <Route
-          path="/messages"
-          element={isLoggedIn ? <MessagesPage /> : <Navigate to="/" replace />}
-        />
+          <Route
+              path="/messages"
+              element={isLoggedIn ? <InboxPage /> : <Navigate to="/" replace />}
+          />
+          <Route
+              path="/send-message"
+              element={
+                  (isLoggedIn && (user?.role === "Coordinator" || user?.role === "Admin")) ?
+                      (<SendMessagePage />) : (<Navigate to="/" replace />)
+              }
+          />
         <Route
           path="/profile"
           element={
