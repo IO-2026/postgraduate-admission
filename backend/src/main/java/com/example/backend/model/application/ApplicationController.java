@@ -1,6 +1,7 @@
 package com.example.backend.model.application;
 
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -44,5 +46,16 @@ public class ApplicationController {
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody ApplicationStatus newStatus) {
         applicationService.updateStatus(id, newStatus);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<?> updateApplication(@RequestBody ApplicationDto applicationDto) {
+        applicationService.updateApplication(applicationDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ApplicationDto getApplication(@PathVariable Long id) {
+        return applicationService.getApplication(id);
     }
 }

@@ -1,14 +1,16 @@
 package com.example.backend.model.application;
 
-
-
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,5 +60,23 @@ public class ApplicationService {
 
         application.setStatus(newStatus);
         emailService.sendApplicationStatusChange(user, application);
+    }
+
+    public List<Application> getAllApplications() {
+        return applicationRepository.findAll();
+    }
+
+    public void updateApplication(ApplicationDto dto) {
+        long id = dto.getId();
+
+        Application existingApplication = applicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        applicationMapper.updateEntityFromDTO(dto, existingApplication);
+        applicationMapper.toDto(applicationRepository.save(existingApplication));
+    }
+
+    public ApplicationDto getApplication(long id) {
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
+        return applicationMapper.toDto(application);
     }
 }

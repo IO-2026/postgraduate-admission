@@ -45,7 +45,7 @@ public class ApplicationServiceTest {
     private EmailService emailService;
 
     @Spy
-    private ApplicationMapper applicationMapper = new ApplicationMapper();
+    private ApplicationMapper applicationMapper;
 
     @InjectMocks
     private ApplicationService applicationService;

@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("Candidate")
-                        .requestMatchers("/api/applications/*/status").hasAnyRole("Admin", "Coordinator")
+                        .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/users/**").hasRole("Admin")
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
                         .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()

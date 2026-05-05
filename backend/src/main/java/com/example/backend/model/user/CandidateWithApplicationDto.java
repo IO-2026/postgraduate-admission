@@ -1,0 +1,20 @@
+package com.example.backend.model.user;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CandidateWithApplicationDto {
+    private Long id;
+    private String name;
+    private String surname;
+    private String email;
+    private long applicationId;
+    private boolean isPaid;
+    private String status;
+}
