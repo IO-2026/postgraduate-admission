@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   fetchInbox,
   markAsRead,
-  fetchUnreadCount,
 } from "../../../services/messageApi";
 import "./InboxPage.css";
 
