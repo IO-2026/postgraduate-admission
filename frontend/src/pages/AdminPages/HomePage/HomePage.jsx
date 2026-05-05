@@ -5,7 +5,6 @@ function AdminHomePage() {
   const quickActions = [
     { label: "Kierunki studiów", to: "/admin/courses" },
     { label: "Użytkownicy", to: "/users" },
-    { label: "Wyślij wiadomość", to: "/send-message" },
   ];
 
   return (

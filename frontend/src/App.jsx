@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
+import SuccessPage from "./pages/CandidatePages/SuccessPage/SuccessPage";
+import PaymentPage from "./pages/CandidatePages/PaymentPage/PaymentPage";
 import { useQueryClient } from "@tanstack/react-query";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
@@ -15,8 +17,6 @@ import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
-import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
-import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 
@@ -250,7 +250,7 @@ function App() {
             ) : isCoordinator ? (
               <CoordinatorHomePage user={user} />
             ) : (
-              <CandidateHomePage isLoggedIn={isLoggedIn} />
+              <CandidateHomePage isLoggedIn={isLoggedIn} user={user} />
             )
           }
         />
@@ -304,18 +304,16 @@ function App() {
           element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
         />
         <Route
-          path="/messages"
-          element={isLoggedIn ? <InboxPage /> : <Navigate to="/" replace />}
+          path="/admission/success"
+          element={isLoggedIn ? <SuccessPage /> : <Navigate to="/" replace />}
         />
         <Route
-          path="/send-message"
-          element={
-            isLoggedIn && (user?.role === "Coordinator" || isAdmin) ? (
-              <SendMessagePage user={user} />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
+          path="/payment/:id"
+          element={isLoggedIn ? <PaymentPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/messages"
+          element={isLoggedIn ? <MessagesPage /> : <Navigate to="/" replace />}
         />
         <Route
           path="/profile"
