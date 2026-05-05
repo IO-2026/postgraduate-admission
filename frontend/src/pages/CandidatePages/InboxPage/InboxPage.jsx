@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  fetchInbox,
-  markAsRead,
-} from "../../../services/messageApi";
+import { fetchInbox, markAsRead } from "../../../services/messageApi";
 import "./InboxPage.css";
 
 function InboxPage() {
