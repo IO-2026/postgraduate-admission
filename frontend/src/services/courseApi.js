@@ -21,11 +21,14 @@ export async function fetchCourses() {
 
 export async function fetchCoursesOfCoordinator(coordinatorId) {
   const token = getToken();
-  const response = await fetch(`${API_URL}/courses/ofCoordinator?coordinatorId=${coordinatorId}`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  const response = await fetch(
+    `${API_URL}/courses/ofCoordinator?coordinatorId=${coordinatorId}`,
+    {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     throw new Error("Nie udało się pobrać kierunków koordynatora");
