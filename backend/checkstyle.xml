@@ -23,7 +23,6 @@
             <property name="option" value="alone"/>
             <property name="tokens" value="INTERFACE_DEF, METHOD_DEF, CLASS_DEF"/>
         </module>
-        <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
     </module>
 </module>
