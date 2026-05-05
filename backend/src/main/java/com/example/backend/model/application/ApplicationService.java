@@ -1,10 +1,5 @@
 package com.example.backend.model.application;
 
-
-import com.example.backend.model.application.dto.AdmissionAddressDto;
-import com.example.backend.model.application.dto.AdmissionApplicantDto;
-import com.example.backend.model.application.dto.AdmissionDetailsDto;
-import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;

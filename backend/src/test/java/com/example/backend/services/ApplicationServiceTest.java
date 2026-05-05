@@ -1,21 +1,15 @@
 package com.example.backend.services;
 
-
 import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.application.ApplicationStatus;
-import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.dto.AdmissionAddressDto;
 import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
-import com.example.backend.model.application.Application;
-import com.example.backend.model.application.ApplicationRepository;
-import com.example.backend.model.application.ApplicationService;
-import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -23,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 

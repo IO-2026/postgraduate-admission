@@ -21,7 +21,7 @@ export async function fetchCourses() {
 
 export async function fetchCoursesOfCoordinator(coordinatorId) {
   const token = getToken();
-  const response = await fetch(`${API_URL}/courses/${coordinatorId}`, {
+  const response = await fetch(`${API_URL}/courses/ofCoordinator?coordinatorId=${coordinatorId}`, {
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -30,7 +30,9 @@ export async function fetchCoursesOfCoordinator(coordinatorId) {
   if (!response.ok) {
     throw new Error("Nie udało się pobrać kierunków koordynatora");
   }
-  return response.json();
+
+  const text = await response.text();
+  return text ? JSON.parse(text) : [];
 }
 
 export async function fetchCourseCandidates(id) {
