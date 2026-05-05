@@ -1,19 +1,18 @@
-package com.example.backend.model.user;
+package com.example.backend.model.user.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class AdminUserDto {
     private Long id;
     private String name;
     private String surname;
     private String email;
-    private String telNumber;
-    private String roleName;
+    private Integer roleId;
 }

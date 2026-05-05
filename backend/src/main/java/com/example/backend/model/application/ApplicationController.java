@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
@@ -53,5 +56,16 @@ public class ApplicationController {
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody ApplicationStatus newStatus) {
         applicationService.updateStatus(id, newStatus);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<?> updateApplication(@RequestBody ApplicationDto applicationDto) {
+        applicationService.updateApplication(applicationDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public ApplicationDto getApplication(@PathVariable Long id) {
+        return applicationService.getApplication(id);
     }
 }

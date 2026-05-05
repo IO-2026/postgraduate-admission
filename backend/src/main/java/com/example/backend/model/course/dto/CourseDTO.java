@@ -1,4 +1,4 @@
-package com.example.backend.model.course;
+package com.example.backend.model.course.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

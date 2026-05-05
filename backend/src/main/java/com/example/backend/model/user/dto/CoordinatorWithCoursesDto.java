@@ -1,6 +1,6 @@
-package com.example.backend.model.user;
+package com.example.backend.model.user.dto;
 
-import com.example.backend.model.course.CourseBriefDto;
+import com.example.backend.model.course.dto.CourseBriefDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

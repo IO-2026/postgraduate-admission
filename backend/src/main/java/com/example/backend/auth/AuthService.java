@@ -5,6 +5,7 @@ import com.example.backend.auth.DTO.LoginRequest;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.security.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,19 +16,12 @@ import org.springframework.stereotype.Service;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-
-    public AuthService(AuthenticationManager authenticationManager,
-                       UserRepository userRepository,
-                       JwtUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-    }
 
     public JwtResponse loginUser(LoginRequest loginRequest) {
         String email = normalizeEmail(loginRequest.getEmail());
@@ -38,6 +32,8 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        assert userDetails != null;
 
         String jwt = jwtUtil.generateToken(userDetails);
 

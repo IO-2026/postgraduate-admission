@@ -13,6 +13,8 @@ import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
 import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
+import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
+import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 
@@ -246,7 +248,7 @@ function App() {
             isAdmin ? (
               <AdminHomePage />
             ) : isCoordinator ? (
-              <CoordinatorHomePage />
+              <CoordinatorHomePage user={user} />
             ) : (
               <CandidateHomePage isLoggedIn={isLoggedIn} user={user} />
             )
@@ -266,6 +268,26 @@ function App() {
         <Route
           path="/admin/courses"
           element={isAdmin ? <AdminCoursesPage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/coordinator/courses/:courseId/manage"
+          element={
+            isCoordinator ? (
+              <CourseManagementPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/coordinator/courses/:courseId/applications/:applicationId/manage"
+          element={
+            isCoordinator ? (
+              <ApplicationManagementPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="/users"
