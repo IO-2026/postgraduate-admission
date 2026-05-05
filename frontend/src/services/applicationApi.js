@@ -25,13 +25,12 @@ export async function getApplication(applicationId) {
   if (!response.ok) {
     throw new Error("Nie udało się pobrać danych aplikacji");
   }
-
   return response.json();
 }
 
 export async function fetchApplicationsOfUser(userId) {
   const token = getToken();
-  const response = await fetch(`${API_URL}/applications/user/${userId}`, {
+  const response = await fetch(`${API_URL}/applications/of/${userId}`, {
     method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -41,7 +40,6 @@ export async function fetchApplicationsOfUser(userId) {
   if (!response.ok) {
     throw new Error("Nie udało się pobrać aplikacji użytkownika");
   }
-
   return response.json();
 }
 
