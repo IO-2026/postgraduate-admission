@@ -1,22 +1,12 @@
 import "./AdmissionPage.css";
 import "../CoursesPage/CoursesPage.css";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
-import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
-
-function resolveUserId(user) {
-  if (!user || typeof user !== "object") return null;
-  if (typeof user.id === "number") return user.id;
-  if (typeof user.userId === "number") return user.userId;
-
-  const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
-  return Number.isNaN(parsedId) ? null : parsedId;
-}
 const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const CONSENT_ERROR_MESSAGES = {
@@ -268,7 +258,6 @@ function isRecruitmentOpen(start, end) {
 }
 
 function AdmissionPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
@@ -291,7 +280,6 @@ function AdmissionPage() {
   const [courses, setCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [coursesError, setCoursesError] = useState("");
-  const [appliedCourseIds, setAppliedCourseIds] = useState([]);
   const selectedCourse = useMemo(
     () => courses.find((course) => Number(course.id) === Number(courseId)),
     [courses, courseId],
@@ -340,31 +328,6 @@ function AdmissionPage() {
       isActive = false;
     };
   }, []);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const loadApplications = async () => {
-      const userId = resolveUserId(user);
-      if (!isLoggedIn || !userId) return;
-
-      try {
-        const data = await fetchApplicationsOfUser(userId);
-        if (!isActive) return;
-        if (Array.isArray(data)) {
-          setAppliedCourseIds(data.map((app) => Number(app.courseId)));
-        }
-      } catch {
-        // Ignore error
-      }
-    };
-
-    loadApplications();
-
-    return () => {
-      isActive = false;
-    };
-  }, [user, isLoggedIn]);
 
   useEffect(() => {
     if (courseId) {
@@ -469,7 +432,11 @@ function AdmissionPage() {
       );
 
       clearDraft(courseId);
-      navigate("/admission/success");
+      setDraft(getDraftDefaults(null));
+      setErrors({});
+      setTouched({});
+      setSubmitAttempted(false);
+      setSubmitInfo("Wniosek został wysłany.");
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
     } finally {
@@ -595,22 +562,12 @@ function AdmissionPage() {
                     </div>
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        {appliedCourseIds.includes(Number(course.id)) ? (
-                          <button
-                            disabled
-                            className="primary-btn"
-                            style={{ opacity: 0.6, cursor: "not-allowed" }}
-                          >
-                            Już aplikowano
-                          </button>
-                        ) : (
-                          <Link
-                            to={`/admission?courseId=${course.id}`}
-                            className="primary-btn"
-                          >
-                            Aplikuj
-                          </Link>
-                        )}
+                        <Link
+                          to={`/admission?courseId=${course.id}`}
+                          className="primary-btn"
+                        >
+                          Aplikuj
+                        </Link>
                       </div>
                     ) : null}
                   </div>
@@ -638,7 +595,7 @@ function AdmissionPage() {
           ) : (
             <form className="admission-form" onSubmit={onSubmit} noValidate>
               <section className="admission-section" aria-label="Dane konta">
-                <h2>Dane kandydata</h2>
+                <h2>Dane konta</h2>
 
                 <label>
                   E-mail
@@ -678,7 +635,7 @@ function AdmissionPage() {
                 className="admission-section"
                 aria-label="Dane do wniosku"
               >
-                <h2>Informacje o ukończonej uczelni</h2>
+                <h2>Dane do wniosku</h2>
 
                 <label>
                   Uczelnia
@@ -696,7 +653,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Ulica i numer budynku
+                    Ulica i numer
                     <input
                       type="text"
                       name="street"
@@ -740,7 +697,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Otrzymany tytuł
+                    Poprzedni stopień
                     <input
                       type="text"
                       name="previousDegree"
@@ -754,7 +711,7 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    Kierunek
+                    Kierunek ukończonych studiów
                     <input
                       type="text"
                       name="fieldOfStudy"

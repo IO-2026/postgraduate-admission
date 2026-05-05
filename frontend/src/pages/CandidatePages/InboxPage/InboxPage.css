@@ -1,0 +1,146 @@
+.inbox-view {
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  padding: 28px 0 40px;
+}
+
+.inbox-top-actions {
+  width: min(1000px, 100%);
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.inbox-back-link {
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.inbox-back-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.inbox-card {
+  width: min(1000px, 100%);
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+.inbox-card h1 {
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  color: var(--text-strong);
+}
+
+.inbox-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.inbox-layout {
+  display: flex;
+  gap: 24px;
+  min-height: 400px;
+}
+
+.inbox-list {
+  flex: 1;
+  border-right: 1px solid var(--panel-border);
+  padding-right: 20px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.inbox-item {
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s;
+}
+
+.inbox-item:hover {
+  background: rgba(15, 127, 115, 0.08);
+}
+
+.inbox-item.unread {
+  background: rgba(15, 127, 115, 0.12);
+  border-left: 4px solid var(--primary);
+}
+
+.inbox-item.active {
+  background: rgba(15, 127, 115, 0.2);
+}
+
+.inbox-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.inbox-sender {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.inbox-date {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.inbox-subject {
+  font-weight: 500;
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inbox-detail {
+  flex: 2;
+  padding-left: 20px;
+}
+
+.inbox-detail-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.inbox-detail-header h3 {
+  margin: 0 0 8px;
+  color: var(--text-strong);
+}
+
+.inbox-detail-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.inbox-detail-content {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+  .inbox-layout {
+    flex-direction: column;
+  }
+  .inbox-list {
+    border-right: none;
+    padding-right: 0;
+    max-height: 300px;
+  }
+  .inbox-detail {
+    padding-left: 0;
+  }
+}

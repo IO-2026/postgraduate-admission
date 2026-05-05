@@ -28,12 +28,7 @@ public class CourseService {
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
                 .map(courseMapper::toDTO)
-                .sorted(Comparator.comparing(CourseDTO::getName))
                 .collect(Collectors.toList());
-    }
-
-    public CourseDTO getCourseById(Long id) {
-        return courseRepository.findById(id).map(courseMapper::toDTO).orElse(null);
     }
 
     public CourseDTO saveCourse(CourseDTO courseDTO) {

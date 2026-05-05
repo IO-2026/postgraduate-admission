@@ -1,15 +1,16 @@
 package com.example.backend.services;
 
-import com.example.backend.model.application.Application;
+
 import com.example.backend.model.application.ApplicationMapper;
-import com.example.backend.model.application.ApplicationRepository;
-import com.example.backend.model.application.ApplicationService;
-import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.AdmissionAddressDto;
 import com.example.backend.model.application.dto.AdmissionApplicantDto;
 import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionEducationDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
+import com.example.backend.model.application.Application;
+import com.example.backend.model.application.ApplicationRepository;
+import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -17,11 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +44,7 @@ public class ApplicationServiceTest {
     @Mock
     private EmailService emailService;
 
-    @Mock
+    @Spy
     private ApplicationMapper applicationMapper;
 
     @InjectMocks
@@ -87,12 +87,7 @@ public class ApplicationServiceTest {
         mockUser.setSurname("Kowalski");
         mockUser.setEmail("jan@example.com");
         mockUser.setTelNumber("123456789");
-        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-        Application mockApplication = new Application();
-        mockApplication.setUniversity("Test University");
-        mockApplication.setCourseId(100L);
-        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
@@ -140,20 +135,19 @@ public class ApplicationServiceTest {
         request.setDetails(details);
 
         User mockUser = new User();
-        mockUser.setId(3L);
+        mockUser.setId(1L);
         mockUser.setName("Jan");
         mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan3@example.com");
+        mockUser.setEmail("jan@example.com");
         mockUser.setTelNumber("123456789");
-        when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser));
-        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
-        Application mockApplication = new Application();
-        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        applicationService.saveApplication(request, mockUser.getId());
+        applicationService.saveApplication(request, 1L);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
+
+
     }
 
     @Test
@@ -187,23 +181,19 @@ public class ApplicationServiceTest {
         request.setDetails(details);
 
         User mockUser = new User();
-        mockUser.setId(2L);
+        mockUser.setId(1L);
         mockUser.setName("Jan");
         mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan2@example.com");
+        mockUser.setEmail("jan@example.com");
         mockUser.setTelNumber("123456789");
 
-        when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser));
-        Application mockApplication = new Application();
-        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
-
-
-        Mockito.doThrow(new MailSendException("smtp unavailable"))
+        org.mockito.Mockito.doThrow(new MailSendException("smtp unavailable"))
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
-        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, mockUser.getId()));
+        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, 1L));
 
         verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
