@@ -1,6 +1,5 @@
 package com.example.backend.model.application;
 
-import com.example.backend.model.application.dto.AdmissionDetailsDto;
 import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
@@ -16,6 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
+
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -26,15 +26,6 @@ public class ApplicationService {
         User user = userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
-
-        AdmissionDetailsDto details = admissionRequest.getDetails();
-        long courseId = details.getCourseId();
-        long userId = user.getId();
-
-        List<ApplicationDto> applicationsOfUser = getApplicationsOfUser(userId);
-        if (applicationsOfUser.stream().anyMatch(application -> application.getCourseId() == courseId)) {
-            return null;
-        }
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
@@ -87,12 +78,5 @@ public class ApplicationService {
     public ApplicationDto getApplication(long id) {
         Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
         return applicationMapper.toDto(application);
-    }
-
-    public List<ApplicationDto> getApplicationsOfUser(long userId) {
-        return applicationRepository.findAll().stream()
-                .filter(application -> application.getUser().getId() == userId)
-                .map(applicationMapper::toDto)
-                .toList();
     }
 }

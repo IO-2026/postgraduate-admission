@@ -1,5 +1,6 @@
 package com.example.backend;
 
+import com.example.backend.BackendApplication;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.model.role.Role;
@@ -169,4 +170,5 @@ public class AuthTests {
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());
     }
+
 }

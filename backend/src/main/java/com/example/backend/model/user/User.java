@@ -88,4 +88,5 @@ public class User implements UserDetails {
                 ", role=" + role +
                 '}';
     }
+
 }

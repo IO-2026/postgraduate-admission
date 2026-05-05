@@ -1,5 +1,3 @@
-const APPLICATIONS_BASE_PATH = "/api/applications";
-
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 function getToken() {
@@ -7,7 +5,7 @@ function getToken() {
     const savedAuth = localStorage.getItem("pg-admission-auth");
     if (!savedAuth) return null;
     const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token || null;
+    return parsedAuth?.token;
   } catch {
     return null;
   }
@@ -16,7 +14,6 @@ function getToken() {
 export async function getApplication(applicationId) {
   const token = getToken();
   const response = await fetch(`${API_URL}/applications/${applicationId}`, {
-    method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
@@ -24,21 +21,6 @@ export async function getApplication(applicationId) {
 
   if (!response.ok) {
     throw new Error("Nie udało się pobrać danych aplikacji");
-  }
-  return response.json();
-}
-
-export async function fetchApplicationsOfUser(userId) {
-  const token = getToken();
-  const response = await fetch(`${API_URL}/applications/of/${userId}`, {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Nie udało się pobrać aplikacji użytkownika");
   }
   return response.json();
 }
@@ -80,7 +62,7 @@ export async function updateApplication(applicationDto) {
   });
 
   if (!response.ok) {
-    throw new Error("Nie udało się zaktualizować aplikacji");
+    throw new Error("Nie udało się zaktualizować danych aplikacji");
   }
 
   const responseText = await response.text();

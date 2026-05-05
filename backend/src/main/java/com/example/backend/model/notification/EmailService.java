@@ -67,4 +67,32 @@ public class EmailService {
             System.err.println("CRITICAL: Failed to send email to " + to + " after retries: " + e.getMessage());
         }
     }
+
+
+    @Async
+    @Retryable(
+            retryFor = {MailException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void sendMessageToCandidate(User candidate, String subject, String messageContent) {
+        String fullSubject = "[Wiadomość od koordynatora] " + subject;
+        String body = String.format("""
+                Witaj %s!
+                
+                Otrzymałeś nową wiadomość od koordynatora:
+                
+                Temat: %s
+                Treść:
+                %s
+                
+                Zaloguj się do systemu, aby przeczytać wiadomość.
+                
+                Pozdrawiamy,
+                Zespół rekrutacji
+                """, candidate.getName(), subject, messageContent);
+
+        send(candidate.getEmail(), fullSubject, body);
+    }
+
 }

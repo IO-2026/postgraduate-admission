@@ -16,4 +16,5 @@ public enum ApplicationStatus {
     ApplicationStatus(String description) {
         this.description = description;
     }
+
 }
