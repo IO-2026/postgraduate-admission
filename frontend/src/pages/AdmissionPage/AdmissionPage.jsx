@@ -126,9 +126,6 @@ function validateDraft({ account, draft }) {
   const errors = {};
 
   const requiredFields = [
-    ["name", account.name],
-    ["surname", account.surname],
-    ["telNumber", account.telNumber],
     ["dateOfBirth", account.dateOfBirth],
     ["pesel", account.pesel],
     ["street", draft.street],
@@ -634,7 +631,7 @@ function AdmissionPage() {
               <button
                 type="submit"
                 className="primary-btn"
-                disabled={isSubmitting || hasValidationErrors}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
               </button>
@@ -645,7 +642,7 @@ function AdmissionPage() {
                 Wiadomości
               </Link>
             </div>
-            {!isSubmitting && hasValidationErrors ? (
+            {!isSubmitting && submitAttempted && hasValidationErrors ? (
               <p className="admission-disabled-note">
                 Uzupełnij błędy powyżej, aby wysłać wniosek.
               </p>
