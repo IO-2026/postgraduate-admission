@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw").hasRole("Candidate")
+                        .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw", "/api/applications/of/**").hasRole("Candidate")
                         .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/users/**").hasRole("Admin")
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
