@@ -26,7 +26,7 @@ public class AdmissionDetailsDto {
     @Size(max = 2000, message = "Uwagi są zbyt długie.")
     private String notes;
 
-    @AssertTrue(message = "Wymagana zgoda na prawdziwość danych.")
+    @AssertTrue(message = "Wymagana deklaracja prawdziwości danych.")
     private boolean truthfulnessConsent;
 
     @AssertTrue(message = "Wymagana zgoda RODO.")

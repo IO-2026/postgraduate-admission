@@ -53,5 +53,4 @@ public class AuthService {
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
-
 }
