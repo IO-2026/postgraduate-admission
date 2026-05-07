@@ -4,6 +4,8 @@ import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import org.mapstruct.*;
 
+import java.time.LocalDateTime;
+
 @Mapper(componentModel = "spring")
 public interface ApplicationMapper {
     @Mapping(source = "user.id", target = "userId")
@@ -42,6 +44,9 @@ public interface ApplicationMapper {
         app.setPreviousDegree(edu.getPreviousDegree());
         app.setFieldOfStudy(edu.getFieldOfStudy());
         app.setGraduationYear(edu.getGraduationYear());
+
+
+        app.setSubmissionDateTime(LocalDateTime.now());
 
         return app;
     }
