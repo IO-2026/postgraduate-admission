@@ -1,6 +1,7 @@
 package com.example.backend.model.course;
 
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.user.UserMapper;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.model.user.UserService;
 import com.example.backend.model.user.User;
@@ -24,6 +25,7 @@ public class CourseService {
     private final ApplicationService applicationService;
     private final UserService userService;
     private final CourseMapper courseMapper;
+    private final UserMapper userMapper;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
@@ -95,7 +97,7 @@ public class CourseService {
     public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
         return applicationService.getAllApplications().stream()
                 .filter(a -> Objects.equals(a.getCourseId(), courseId))
-                .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
+                .map(a -> userMapper.toCandidateWithApplicationDto(a.getUser(), a))
                 .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
                 .collect(Collectors.toList());
     }
