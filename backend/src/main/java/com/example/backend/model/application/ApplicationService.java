@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,6 +41,7 @@ public class ApplicationService {
         application.setUser(user);
         application.setIsPaid(false);
         application.setStatus(ApplicationStatus.SUBMITTED);
+        application.setSubmissionDateTime(LocalDateTime.now());
 
         Application savedApplication = applicationRepository.saveAndFlush(application);
 

@@ -1,3 +1,7 @@
+.coordinator-actions {
+  margin-top: 24px;
+}
+
 .coordinator-home-view {
   display: grid;
   gap: 24px;

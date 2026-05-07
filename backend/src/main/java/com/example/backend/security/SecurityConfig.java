@@ -65,6 +65,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw", "/api/applications/of/**").hasRole("Candidate")
                         .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/users/**").hasRole("Admin")
+                        .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
+                        .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
