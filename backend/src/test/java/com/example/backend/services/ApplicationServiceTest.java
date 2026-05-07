@@ -79,6 +79,7 @@ public class ApplicationServiceTest {
     void shouldSuccessfullySaveApplication() {
         // GIVEN
         ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(1L);
 
         User mockUser = createMockUser(1L, "jan@example.com");
         when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
@@ -90,7 +91,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
-        Application result = applicationService.saveApplication(request, 1L);
+        Application result = applicationService.saveApplication(request);
 
         // THEN
         assertNotNull(result);
@@ -106,6 +107,7 @@ public class ApplicationServiceTest {
     @Test
     void shouldSendEmailAfterSavingApplication() {
         ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(3L);
 
         User mockUser = createMockUser(3L, "jan3@example.com");
         when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser));
@@ -114,7 +116,7 @@ public class ApplicationServiceTest {
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        applicationService.saveApplication(request, mockUser.getId());
+        applicationService.saveApplication(request);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
     }
@@ -122,6 +124,7 @@ public class ApplicationServiceTest {
     @Test
     void shouldFailAndInvalidateSubmissionWhenEmailSendingFails() {
         ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(2L);
 
         User mockUser = createMockUser(2L, "jan2@example.com");
 
@@ -134,7 +137,7 @@ public class ApplicationServiceTest {
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
-        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, mockUser.getId()));
+        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request));
 
         verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
@@ -143,6 +146,7 @@ public class ApplicationServiceTest {
     @Test
     void shouldFailWhenUserProfileIsIncomplete() {
         ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(1L);
 
         User incompleteUser = new User();
         incompleteUser.setId(1L);
@@ -153,7 +157,7 @@ public class ApplicationServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(incompleteUser));
 
-        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, 1L));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request));
     }
 
     @Test

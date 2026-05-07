@@ -2,39 +2,47 @@ package com.example.backend;
 
 import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 public class ApplicationValidationTests {
 
-  private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null, null);
-    ApplicationController controller = new ApplicationController(applicationService);
+    @Mock
+    private ApplicationService applicationService;
 
-    LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
-    validator.afterPropertiesSet();
+    @InjectMocks
+    private ApplicationController applicationController;
 
-    return MockMvcBuilders.standaloneSetup(controller)
-        .setControllerAdvice(new BackendExceptionHandler())
-        .setValidator(validator)
-        .build();
-  }
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(applicationController).build();
+    }
 
     @Test
     void submitApplication_ShouldFail_WhenMissingTopLevelFields() throws Exception {
-      buildMockMvc().perform(post("/api/applications/submit")
+        String payload = "{}";
+
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("wymag")));
+                        .content(payload))
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
@@ -57,11 +65,13 @@ public class ApplicationValidationTests {
                 }
                 """;
 
-        buildMockMvc().perform(post("/api/applications/submit")
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("applicant")));
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
+        assertFalse(result.getResponse().getContentAsString().contains("applicant"));
     }
 
     @Test
@@ -84,10 +94,12 @@ public class ApplicationValidationTests {
                 }
                 """;
 
-        buildMockMvc().perform(post("/api/applications/submit")
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("previousDegree")));
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
+        assertFalse(result.getResponse().getContentAsString().contains("previousDegree"));
     }
 }

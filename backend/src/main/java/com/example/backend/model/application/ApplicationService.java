@@ -21,8 +21,8 @@ public class ApplicationService {
     private final ApplicationMapper applicationMapper;
 
     @Transactional
-    public Application saveApplication(ApplicationDto admissionRequest, Long authenticatedUserId) {
-        User user = userRepository.findById(authenticatedUserId)
+    public Application saveApplication(ApplicationDto admissionRequest) {
+        User user = userRepository.findById(admissionRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
 

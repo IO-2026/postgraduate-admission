@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +24,11 @@ public class ApplicationDto {
     private String university;
     private Long courseId;
     private Boolean isPaid;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate applicantDateOfBirth;
+
     private String applicantPesel;
     private String addressStreet;
     private String addressPostalCode;
@@ -33,5 +41,8 @@ public class ApplicationDto {
     private Boolean gdprConsent;
     private Boolean newsletterConsent;
     private ApplicationStatus status;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDateTime submissionDateTime;
 }
