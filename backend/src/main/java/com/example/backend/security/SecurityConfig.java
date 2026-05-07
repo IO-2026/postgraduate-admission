@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
                         .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/declarations/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

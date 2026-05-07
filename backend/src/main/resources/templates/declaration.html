@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<Shtml xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <title>Oświadczenie AGH</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.4;
+            margin: 20px 30px;
+            color: #000;
+            font-size: 12px;
+            text-align: justify;
+        }
+
+        /* Sekcja na logo */
+        .logo-container {
+            width: 100%;
+            margin-bottom: 20px; /* Odstęp pod logotypem */
+        }
+
+        .logo {
+            width: 350px; /* Szerokość logo dopasowana tak, żeby tekst był czytelny */
+            height: auto;
+        }
+
+        /* Centralny tytuł */
+        .title-section {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 30px; /* Odstęp pod tytułem a przed danymi kandydata */
+        }
+
+        .data-section {
+            margin-bottom: 20px;
+        }
+
+        .data-row {
+            margin-bottom: 5px;
+        }
+
+        .dotted-line {
+            border-bottom: 1px dotted #000;
+            display: inline-block;
+            min-width: 300px;
+            font-weight: bold;
+        }
+
+        ol {
+            margin-top: 5px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .signature-table {
+            width: 100%;
+            margin-top: 50px;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        .signature-table td {
+            width: 50%;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 40px auto 5px auto;
+            padding-top: 5px;
+            font-size: 10px;
+        }
+
+        .date-place-block {
+            text-align: left;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="logo-container">
+    <img src="data:image/png;base64,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" class="logo" alt="Logo AGH" />
+</div>
+
+<div class="title-section">
+    OŚWIADCZENIE<br/>
+    O ZAPOZNANIU SIĘ Z REGULAMINEM STUDIÓW PODYPLOMOWYCH<br/>
+    W AKADEMII GÓRNICZO-HUTNICZEJ IM. STANISŁAWA STASZICA W KRAKOWIE<br/>
+    I ZOBOWIĄZANIU SIĘ DO JEGO PRZESTRZEGANIA
+</div>
+
+<div class="data-section">
+    <div class="data-row">Ja niżej podpisany/a: <span class="dotted-line" th:text="${user.name} + ' ' + ${user.surname}"></span></div>
+    <div class="data-row"><span style="font-size: 10px;">Imiona i nazwisko</span></div>
+
+    <div class="data-row" style="margin-top: 10px;">Data i miejsce urodzenia: <span class="dotted-line" th:text="${app.applicantDateOfBirth} + '[DODAĆ MIEJSCE URODZENIA DO TABELI APPLICATIONS]|'"></span></div>
+    <div class="data-row" style="margin-top: 10px;">Adres do korespondencji: <span class="dotted-line" th:text="${app.addressStreet} + ', ' + ${app.addressPostalCode} + ' ' + ${app.addressCity}"></span></div>
+</div>
+
+<div>
+    przyjęty/a na studia podyplomowe w Akademii Górniczo-Hutniczej im. Stanisława Staszica w Krakowie, zwanej dalej Uczelnią lub AGH w roku akademickim <span class="dotted-line" style="min-width: 100px;">[DODAĆ DO TABELI COURSES]</span><br/><br/>
+
+    Wydział: <span class="dotted-line"> Informatyki </span><br/><br/>
+    Nazwa studiów podyplomowych: <span class="dotted-line" th:text="${course.name}"></span><br/><br/>
+
+    oświadczam, że zapoznałem/łam się z Regulaminem studiów podyplomowych Akademii Górniczo-Hutniczej im. Stanisława Staszica, uchwalony Rektora AGH nr 06/2020 z dnia 22 stycznia 2020 r., zwanym dalej Regulaminem studiów podyplomowych;<br/><br/>
+    Treść Regulaminu studiów podyplomowych znajduje się na stronie internetowej Uczelni www.agh.edu.pl oraz na stronie studiów podyplomowych https://www.podyplomowe.agh.edu.pl/
+</div>
+
+<div style="margin-top: 15px; font-weight: bold;">
+    Jednocześnie, zobowiązuję się do:
+</div>
+<ol>
+    <li>przestrzegania wszelkich obowiązków, jakie nakłada na mnie Regulamin studiów podyplomowych;</li>
+    <li>powiadamiania Kierownika studiów podyplomowych o wszelkich zmianach dotyczących danych osobowych zawartych w formularzu zgłoszeniowym. Brak zgłoszenia zmiany danych osobowych, w szczególności adresu zamieszkania oraz adresu do korespondencji powoduje, że wszelką korespondencję doręczaną na adres wskazany w formularzu uznaje się za skutecznie doręczoną;</li>
+    <li>wnoszenia opłat za uczestnictwo w studiach podyplomowych w wysokości ustalonej przez Rektora;</li>
+    <li>wnoszenia opłat za uczestnictwo w studiach podyplomowych w terminach i na zasadach określonych w Regulaminie studiów podyplomowych, na rachunek bankowy wskazany przez Uczelnię.</li>
+</ol>
+
+<div style="margin-top: 15px; font-weight: bold;">
+    Przyjmuję do wiadomości, że:
+</div>
+<ol>
+    <li>opłaty za uczestnictwo w studiach podyplomowych ustalane są na pełny cykl kształcenia i do czasu ich ukończenia Uczelnia nie może zwiększyć wysokości ustalonych dla nich opłat ani wprowadzić nowych opłat;</li>
+    <li>opłaty za uczestnictwo w studiach podyplomowych należy wnosić na wskazany rachunek bankowy; zmiana numeru rachunku bankowego nie wymaga zmiany oświadczenia, a o zmianie numeru rachunku bankowego Uczelnia zawiadamia uczestnika niezwłocznie;</li>
+    <li>za datę uiszczenia opłaty uważa się datę uznania opłaty na wskazanym przez Uczelnię rachunku bankowym;</li>
+    <li>każdorazowe opóźnienie w uiszczeniu opłaty lub jej dokonanie w niepełnej kwocie skutkuje naliczeniem przez Uczelnię odsetek ustawowych za opóźnienie;</li>
+    <li>Uczelnia nie odpowiada za następstwa błędnego zakwalifikowania wpłaty, powstałe na skutek okoliczności leżących po stronie wpłacającego, w szczególności w wyniku wpisania niewłaściwego numeru rachunku bankowego lub innych podobnych powodów;</li>
+    <li>w przypadku niewniesienia opłaty za studia podyplomowe w wyznaczonym terminie, kierownik studiów podyplomowych wzywa uczestnika za pośrednictwem poczty elektronicznej na adres e-mail podany w formularzu zgłoszeniowym do uiszczenia zaległej opłaty w terminie 7 dni od dnia przesłania wezwania pod rygorem niedopuszczenia do zajęć. Po bezskutecznym upływie tego terminu kierownik studiów podyplomowych wzywa uczestnika na piśmie za zwrotnym potwierdzeniem odbioru do uiszczenia zaległej opłaty w terminie 7 dni od dnia doręczenia wezwania pod rygorem niedopuszczenia do zajęć i wyrejestrowania z listy uczestników studiów podyplomowych. Po bezskutecznym upływie tego terminu Uczelnia może wyrejestrować uczestnika z listy uczestników studiów podyplomowych z powodu niewniesienia opłaty za studia podyplomowe. Niezależnie od tych działań, a także w przypadku gdy opłata za studia podyplomowe nie zostanie uregulowana przez zleceniodawcę, partnera albo na podstawie środków z programu unijnego, Uczelnia wszczyna postępowanie windykacyjne, w którym dochodzi od uczestnika należności w wysokości proporcjonalnej do przeprowadzonych zajęć objętych programem studiów podyplomowych i ponoszonych przez Uczelnię kosztów;</li>
+    <li>w uzasadnionych wypadkach losowych mogę ubiegać się o rozłożenie opłaty za studia podyplomowe na raty na zasadach określonych w Regulaminie studiów podyplomowych;</li>
+    <li>opłata za studia podyplomowe zwracana jest w całości, w przypadku nieuruchomienia edycji studiów podyplomowych, w szczególności z powodu niewystarczającej liczby kandydatów;</li>
+    <li>na mój wniosek przysługuje mi zwrot wniesionej opłaty:
+        <ol type="a">
+            <li>w całości w przypadku pisemnej rezygnacji ze studiów podyplomowych przed rozpoczęciem zajęć dydaktycznych, z wyjątkiem opłaty wpisowej, o ile jest przewidziana;</li>
+            <li>w części w przypadku wyrejestrowania z listy uczestników studiów podyplomowych albo złożenia pisemnej rezygnacji ze studiów podyplomowych po rozpoczęciu zajęć dydaktycznych w ramach studiów podyplomowych;</li>
+        </ol>
+    </li>
+    <li>zwrot wpłaconej opłaty w części następuje w wysokości proporcjonalnej do przeprowadzonych zajęć objętych programem studiów podyplomowych i ponoszonych przez Uczelnię kosztów, licząc od dnia, w którym do Uczelni wpłynęła pisemna rezygnacja ze studiów podyplomowych, a w przypadku wyrejestrowania z listy uczestników od dnia doręczenia informacji o wyrejestrowaniu z listy uczestników.</li>
+    <li>przy ustalaniu kwoty do zwrotu Uczelnia uwzględnia naliczone i niezapłacone odsetki ustawowe za opóźnienie oraz inne zaległe opłaty, a także ewentualne koszty prowizji banku związane z realizacją przelewu;</li>
+    <li>w przypadku wyrejestrowania z listy uczestników studiów podyplomowych i niewniesienia wymaganych opłat, Uczelnia wszczyna postępowanie windykacyjne, w którym dochodzi należności w wysokości proporcjonalnej do przeprowadzonych zajęć i ponoszonych przez Uczelnię kosztów.</li>
+</ol>
+
+<div style="margin-top: 20px;">
+    Niniejszym potwierdzam zapoznanie się i akceptuję Regulaminu studiów podyplomowych oraz zobowiązuję się do jego przestrzegania.<br/><br/>
+    Oświadczenie sporządzono w dwóch jednobrzmiących egzemplarzach: jeden dla uczestnika studiów podyplomowych i jeden dla AGH.<br/>
+    Potwierdzam odbiór jednego egzemplarza oświadczenia.
+</div>
+
+<div class="date-place-block">
+    Kraków, dnia <span th:text="${#temporals.format(#temporals.createNow(), 'dd.MM.yyyy')}"></span> r.
+</div>
+
+<table class="signature-table">
+    <tr>
+        <td>
+            <div class="signature-line">
+                czytelny podpis osoby przyjętej na studia podyplomowe
+            </div>
+        </td>
+        <td>
+            <div class="signature-line">
+                podpis i pieczęć pracownika AGH<br/>sporządzającego niniejszy dokument
+            </div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</Shtml>
