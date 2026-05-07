@@ -1,22 +1,19 @@
-FROM gradle:8.13-jdk21-alpine AS builder
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 
-COPY build.gradle settings.gradle gradle.properties ./
+COPY gradlew .
 COPY gradle ./gradle
-COPY gradlew ./
+COPY build.gradle settings.gradle ./
+
 RUN chmod +x gradlew
 
-RUN ./gradlew dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon || return 0
 
 COPY src ./src
-
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
 COPY --from=builder /app/build/libs/*.jar app.jar
-
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
