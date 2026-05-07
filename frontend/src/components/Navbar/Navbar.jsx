@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { fetchUnreadCount } from "../../services/messageApi.js";
 
 function Navbar({ isLoggedIn, user }) {
-
   const isAdmin =
     isLoggedIn &&
     (user?.role === "Admin" ||
