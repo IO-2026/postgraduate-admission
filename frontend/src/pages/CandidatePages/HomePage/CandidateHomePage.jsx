@@ -33,12 +33,12 @@ function CandidateHomePage({ isLoggedIn, user }) {
   const formatDate = (dateString) => {
     if (!dateString) return "Brak daty";
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pl-PL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Intl.DateTimeFormat("pl-PL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
@@ -216,11 +216,14 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       <p>
                         Uczelnia: <strong>{university}</strong>
                         {Number.isNaN(courseId)
-                            ? ""
-                            : ` • ID kierunku: ${courseId}`}
+                          ? ""
+                          : ` • ID kierunku: ${courseId}`}
                       </p>
                       <p className="application-date">
-                        Data złożenia: <strong>{formatDate(application.submissionDateTime)}</strong>
+                        Data złożenia:{" "}
+                        <strong>
+                          {formatDate(application.submissionDateTime)}
+                        </strong>
                       </p>
                     </div>
                     <div className="application-item-meta">
