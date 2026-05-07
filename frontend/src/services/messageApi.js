@@ -71,7 +71,7 @@ export async function getAvailableRecipients(user) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   if (user?.role === "Admin") {
-    const res = await fetch("/api/users", { headers });
+    const res = await fetch(API_URL + "/users", { headers });
     if (!res.ok) throw new Error("Błąd pobierania użytkowników");
     const users = await res.json();
     return users.filter(
