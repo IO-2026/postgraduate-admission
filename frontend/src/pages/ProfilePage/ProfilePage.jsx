@@ -1,6 +1,17 @@
 import { Link } from "react-router-dom";
 import "./ProfilePage.css";
 
+const roleTranslations = {
+  Candidate: "Kandydat",
+  Coordinator: "Koordynator",
+  Admin: "Administrator",
+};
+
+function getRoleLabel(role) {
+  if (!role) return "";
+  return roleTranslations[role] || role;
+}
+
 function ProfilePage({ user, onLogout }) {
   const initials = [user?.name, user?.surname]
     .filter(Boolean)
@@ -39,7 +50,7 @@ function ProfilePage({ user, onLogout }) {
             <h1>
               {user?.name} {user?.surname}
             </h1>
-            <span className="profile-role-tag">{user?.role}</span>
+            <span className="profile-role-tag">{getRoleLabel(user?.role)}</span>
           </div>
         </header>
 
