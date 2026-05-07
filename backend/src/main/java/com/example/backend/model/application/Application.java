@@ -84,6 +84,8 @@ public class Application {
     @Column(name = "gdpr_consent")
     private Boolean gdprConsent;
 
+    private Boolean newsletterConsent;
+
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private ApplicationStatus status;

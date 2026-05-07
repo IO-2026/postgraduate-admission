@@ -31,6 +31,7 @@ public class ApplicationDto {
     private String notes;
     private Boolean truthfulnessConsent;
     private Boolean gdprConsent;
+    private Boolean newsletterConsent;
     private ApplicationStatus status;
     private LocalDateTime submissionDateTime;
 }

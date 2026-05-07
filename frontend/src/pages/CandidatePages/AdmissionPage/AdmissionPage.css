@@ -285,13 +285,13 @@
 
 .admission-checkbox {
   grid-template-columns: 18px 1fr;
-  align-items: start;
+  align-items: center;
 }
 
 .admission-checkbox input {
   width: 18px;
   height: 18px;
-  margin-top: 4px;
+  margin: 0;
   padding: 0;
 }
 
@@ -324,6 +324,10 @@
   margin: 0;
   color: var(--error);
   font-weight: 500;
+}
+
+.required-star {
+  color: var(--error);
 }
 
 .form-info {

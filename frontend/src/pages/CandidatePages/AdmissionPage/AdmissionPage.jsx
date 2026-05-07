@@ -247,6 +247,7 @@ function getDraftDefaults(existingDraft) {
     notes: safeDraft.notes || "",
     truthfulnessConsent: Boolean(safeDraft.truthfulnessConsent),
     gdprConsent: Boolean(safeDraft.gdprConsent),
+    newsletterConsent: Boolean(safeDraft.newsletterConsent),
   };
 }
 
@@ -439,31 +440,24 @@ function AdmissionPage() {
 
       await submitApplication(
         {
-          applicant: {
-            dateOfBirth: String(account.dateOfBirth).trim(),
-            pesel: String(account.pesel).trim(),
-            address: {
-              street: String(draft.street).trim(),
-              postalCode: String(draft.postalCode).trim(),
-              city: String(draft.city).trim(),
-            },
-          },
-          education: {
-            previousDegree: previousDegree || null,
-            fieldOfStudy: fieldOfStudy || null,
-            graduationYear:
-              Number.isFinite(graduationYear) && graduationYear > 0
-                ? graduationYear
-                : null,
-          },
-          details: {
-            courseId,
-            university: String(draft.university).trim(),
-            diplomaUrl: String(draft.diplomaUrl).trim(),
-            notes: notes || null,
-            truthfulnessConsent: Boolean(draft.truthfulnessConsent),
-            gdprConsent: Boolean(draft.gdprConsent),
-          },
+          diplomaUrl: String(draft.diplomaUrl).trim(),
+          university: String(draft.university).trim(),
+          courseId,
+          applicantDateOfBirth: String(account.dateOfBirth).trim(),
+          applicantPesel: String(account.pesel).trim(),
+          addressStreet: String(draft.street).trim(),
+          addressPostalCode: String(draft.postalCode).trim(),
+          addressCity: String(draft.city).trim(),
+          previousDegree: previousDegree || null,
+          fieldOfStudy: fieldOfStudy || null,
+          graduationYear:
+            Number.isFinite(graduationYear) && graduationYear > 0
+              ? graduationYear
+              : null,
+          notes: notes || null,
+          truthfulnessConsent: Boolean(draft.truthfulnessConsent),
+          gdprConsent: Boolean(draft.gdprConsent),
+          newsletterConsent: Boolean(draft.newsletterConsent),
         },
         token,
       );
@@ -637,16 +631,19 @@ function AdmissionPage() {
             </div>
           ) : (
             <form className="admission-form" onSubmit={onSubmit} noValidate>
+              <p className="admission-hint">
+                Pola oznaczone gwiazdką (<span className="required-star">*</span>) są wymagane.
+              </p>
               <section className="admission-section" aria-label="Dane konta">
                 <h2>Dane kandydata</h2>
 
                 <label>
-                  E-mail
+                  <span>E-mail <span className="required-star">*</span></span>
                   <input type="email" value={account.email} readOnly />
                 </label>
 
                 <label>
-                  Data urodzenia
+                  <span>Data urodzenia <span className="required-star">*</span></span>
                   <input
                     type="date"
                     name="dateOfBirth"
@@ -660,7 +657,7 @@ function AdmissionPage() {
                 </label>
 
                 <label>
-                  PESEL
+                  <span>PESEL <span className="required-star">*</span></span>
                   <input
                     type="text"
                     name="pesel"
@@ -681,7 +678,7 @@ function AdmissionPage() {
                 <h2>Informacje o ukończonej uczelni</h2>
 
                 <label>
-                  Uczelnia
+                  <span>Uczelnia <span className="required-star">*</span></span>
                   <input
                     type="text"
                     name="university"
@@ -696,7 +693,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Ulica i numer budynku
+                    <span>Ulica i numer budynku <span className="required-star">*</span></span>
                     <input
                       type="text"
                       name="street"
@@ -710,7 +707,7 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    Kod pocztowy
+                    <span>Kod pocztowy <span className="required-star">*</span></span>
                     <input
                       type="text"
                       name="postalCode"
@@ -725,7 +722,7 @@ function AdmissionPage() {
                 </div>
 
                 <label>
-                  Miasto
+                  <span>Miasto <span className="required-star">*</span></span>
                   <input
                     type="text"
                     name="city"
@@ -740,7 +737,7 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    Otrzymany tytuł
+                    <span>Otrzymany tytuł <span className="required-star">*</span></span>
                     <input
                       type="text"
                       name="previousDegree"
@@ -754,7 +751,7 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    Kierunek
+                    <span>Kierunek <span className="required-star">*</span></span>
                     <input
                       type="text"
                       name="fieldOfStudy"
@@ -769,7 +766,7 @@ function AdmissionPage() {
                 </div>
 
                 <label>
-                  Rok ukończenia
+                  <span>Rok ukończenia <span className="required-star">*</span></span>
                   <input
                     type="text"
                     name="graduationYear"
@@ -787,7 +784,7 @@ function AdmissionPage() {
                 <h2>Dokumenty</h2>
 
                 <label>
-                  Link do dyplomu (PDF)
+                  <span>Link do dyplomu (PDF) <span className="required-star">*</span></span>
                   <input
                     type="url"
                     name="diplomaUrl"
@@ -817,7 +814,7 @@ function AdmissionPage() {
                     disabled={isSubmitting}
                     aria-invalid={getInputAriaInvalid("truthfulnessConsent")}
                   />
-                  <span>Oświadczam, że dane są prawdziwe.</span>
+                  <span>Oświadczam, że dane są prawdziwe. <span className="required-star">*</span></span>
                 </label>
                 {renderFieldError("truthfulnessConsent")}
 
@@ -832,10 +829,25 @@ function AdmissionPage() {
                   />
                   <span>
                     Wyrażam zgodę na przetwarzanie moich danych osobowych w celu
-                    przeprowadzenia rekrutacji (RODO).
+                    przeprowadzenia rekrutacji (RODO). <span className="required-star">*</span>
                   </span>
                 </label>
                 {renderFieldError("gdprConsent")}
+
+                <label className="admission-checkbox">
+                  <input
+                    type="checkbox"
+                    name="newsletterConsent"
+                    checked={draft.newsletterConsent}
+                    onChange={onDraftCheckbox}
+                    disabled={isSubmitting}
+                    aria-invalid={getInputAriaInvalid("newsletterConsent")}
+                  />
+                  <span>
+                    Zgadzam się na otrzymywanie informacji o nowych kierunkach i ofertach edukacyjnych (newsletter).
+                  </span>
+                </label>
+                {renderFieldError("newsletterConsent")}
               </section>
 
               {submitError ? (
@@ -854,11 +866,6 @@ function AdmissionPage() {
                   {isSubmitting ? "Wysyłanie..." : "Wyślij wniosek"}
                 </button>
               </div>
-              {!isSubmitting && hasValidationErrors ? (
-                <p className="admission-disabled-note">
-                  Uzupełnij błędy powyżej, aby wysłać wniosek.
-                </p>
-              ) : null}
             </form>
           )}
         </div>

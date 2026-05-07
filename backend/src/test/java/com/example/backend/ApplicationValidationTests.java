@@ -38,31 +38,22 @@ public class ApplicationValidationTests {
     }
 
     @Test
-    void submitApplication_ShouldFail_WhenMissingNestedApplicantFields() throws Exception {
+    void submitApplication_ShouldFail_WhenMissingApplicantFields() throws Exception {
         String payload = """
                 {
-                  "applicant": {
-                    "dateOfBirth": "2000-01-01",
-                    "pesel": "123",
-                    "address": {
-                      "street": "",
-                      "postalCode": "00-000",
-                      "city": ""
-                    }
-                  },
-                  "education": {
-                    "previousDegree": "Inżynier",
-                    "fieldOfStudy": "Informatyka",
-                    "graduationYear": 2015
-                  },
-                  "details": {
-                    "courseId": 1,
-                    "university": "",
-                    "diplomaUrl": "not-a-url",
-                    "notes": null,
-                    "truthfulnessConsent": false,
-                    "gdprConsent": false
-                  }
+                  "applicantDateOfBirth": "2000-01-01",
+                  "applicantPesel": "123",
+                  "addressStreet": "",
+                  "addressPostalCode": "00-000",
+                  "addressCity": "",
+                  "previousDegree": "Inżynier",
+                  "fieldOfStudy": "Informatyka",
+                  "graduationYear": 2015,
+                  "courseId": 1,
+                  "university": "",
+                  "diplomaUrl": "not-a-url",
+                  "truthfulnessConsent": false,
+                  "gdprConsent": false
                 }
                 """;
 
@@ -77,28 +68,19 @@ public class ApplicationValidationTests {
     void submitApplication_ShouldFail_WhenEducationFieldsAreMissing() throws Exception {
         String payload = """
                 {
-                  "applicant": {
-                    "dateOfBirth": "2000-01-01",
-                    "pesel": "44051401458",
-                    "address": {
-                      "street": "Testowa 1",
-                      "postalCode": "30-059",
-                      "city": "Kraków"
-                    }
-                  },
-                  "education": {
-                    "previousDegree": "",
-                    "fieldOfStudy": "",
-                    "graduationYear": null
-                  },
-                  "details": {
-                    "courseId": 1,
-                    "university": "AGH",
-                    "diplomaUrl": "https://example.com/diploma.pdf",
-                    "notes": null,
-                    "truthfulnessConsent": true,
-                    "gdprConsent": true
-                  }
+                  "applicantDateOfBirth": "2000-01-01",
+                  "applicantPesel": "44051401458",
+                  "addressStreet": "Testowa 1",
+                  "addressPostalCode": "30-059",
+                  "addressCity": "Kraków",
+                  "previousDegree": "",
+                  "fieldOfStudy": "",
+                  "graduationYear": null,
+                  "courseId": 1,
+                  "university": "AGH",
+                  "diplomaUrl": "https://example.com/diploma.pdf",
+                  "truthfulnessConsent": true,
+                  "gdprConsent": true
                 }
                 """;
 
@@ -106,6 +88,6 @@ public class ApplicationValidationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("education")));
+                .andExpect(jsonPath("$.message", containsString("previousDegree")));
     }
 }

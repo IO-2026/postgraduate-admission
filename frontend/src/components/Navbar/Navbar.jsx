@@ -43,36 +43,6 @@ function Navbar({ isLoggedIn, user }) {
       <div className="navbar-logo">
         <Link to="/">AGH Rekrutacja</Link>
       </div>
-      <div className="navbar-links">
-        {!isAdmin && !isCoordinator && (
-          <>
-            <Link to="/courses">Kierunki</Link>
-            <Link to="/messages" className="nav-link">
-              Wiadomości
-              {unreadCount > 0 && (
-                <span className="unread-badge">{unreadCount}</span>
-              )}
-            </Link>
-          </>
-        )}
-
-        {isAdmin && (
-          <>
-            <Link to="/admin/courses" className="nav-link">
-              Kierunki
-            </Link>
-            <Link to="/users" className="nav-link">
-              Użytkownicy
-            </Link>
-          </>
-        )}
-
-        {canSendMessage && (
-          <Link to="/send-message" className="nav-link">
-            Wyślij wiadomość
-          </Link>
-        )}
-      </div>
       <div className="navbar-profile">
         <Link to="/profile" className="profile-link">
           <span>{profileLabel}</span>
