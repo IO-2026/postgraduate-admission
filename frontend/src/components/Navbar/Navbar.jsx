@@ -1,18 +1,9 @@
 import { Link } from "react-router-dom";
 import "./Navbar.css";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { fetchUnreadCount } from "../../services/messageApi.js";
 
 function Navbar({ isLoggedIn, user }) {
-  const isAdmin =
-    isLoggedIn &&
-    (user?.role === "Admin" ||
-      user?.roleId === 2 ||
-      (typeof user?.role === "string" &&
-        user.role.toLowerCase().includes("admin")));
-
-  const isCoordinator = isLoggedIn && user?.role === "Coordinator";
-
   useEffect(() => {
     if (!isLoggedIn) return;
     const loadUnread = async () => {
