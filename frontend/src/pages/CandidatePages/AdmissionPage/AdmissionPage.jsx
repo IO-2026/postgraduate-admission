@@ -632,18 +632,23 @@ function AdmissionPage() {
           ) : (
             <form className="admission-form" onSubmit={onSubmit} noValidate>
               <p className="admission-hint">
-                Pola oznaczone gwiazdką (<span className="required-star">*</span>) są wymagane.
+                Pola oznaczone gwiazdką (
+                <span className="required-star">*</span>) są wymagane.
               </p>
               <section className="admission-section" aria-label="Dane konta">
                 <h2>Dane kandydata</h2>
 
                 <label>
-                  <span>E-mail <span className="required-star">*</span></span>
+                  <span>
+                    E-mail <span className="required-star">*</span>
+                  </span>
                   <input type="email" value={account.email} readOnly />
                 </label>
 
                 <label>
-                  <span>Data urodzenia <span className="required-star">*</span></span>
+                  <span>
+                    Data urodzenia <span className="required-star">*</span>
+                  </span>
                   <input
                     type="date"
                     name="dateOfBirth"
@@ -657,7 +662,9 @@ function AdmissionPage() {
                 </label>
 
                 <label>
-                  <span>PESEL <span className="required-star">*</span></span>
+                  <span>
+                    PESEL <span className="required-star">*</span>
+                  </span>
                   <input
                     type="text"
                     name="pesel"
@@ -678,7 +685,9 @@ function AdmissionPage() {
                 <h2>Informacje o ukończonej uczelni</h2>
 
                 <label>
-                  <span>Uczelnia <span className="required-star">*</span></span>
+                  <span>
+                    Uczelnia <span className="required-star">*</span>
+                  </span>
                   <input
                     type="text"
                     name="university"
@@ -693,7 +702,10 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    <span>Ulica i numer budynku <span className="required-star">*</span></span>
+                    <span>
+                      Ulica i numer budynku{" "}
+                      <span className="required-star">*</span>
+                    </span>
                     <input
                       type="text"
                       name="street"
@@ -707,7 +719,9 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    <span>Kod pocztowy <span className="required-star">*</span></span>
+                    <span>
+                      Kod pocztowy <span className="required-star">*</span>
+                    </span>
                     <input
                       type="text"
                       name="postalCode"
@@ -722,7 +736,9 @@ function AdmissionPage() {
                 </div>
 
                 <label>
-                  <span>Miasto <span className="required-star">*</span></span>
+                  <span>
+                    Miasto <span className="required-star">*</span>
+                  </span>
                   <input
                     type="text"
                     name="city"
@@ -737,7 +753,9 @@ function AdmissionPage() {
 
                 <div className="admission-grid">
                   <label>
-                    <span>Otrzymany tytuł <span className="required-star">*</span></span>
+                    <span>
+                      Otrzymany tytuł <span className="required-star">*</span>
+                    </span>
                     <input
                       type="text"
                       name="previousDegree"
@@ -751,7 +769,9 @@ function AdmissionPage() {
                   </label>
 
                   <label>
-                    <span>Kierunek <span className="required-star">*</span></span>
+                    <span>
+                      Kierunek <span className="required-star">*</span>
+                    </span>
                     <input
                       type="text"
                       name="fieldOfStudy"
@@ -766,7 +786,9 @@ function AdmissionPage() {
                 </div>
 
                 <label>
-                  <span>Rok ukończenia <span className="required-star">*</span></span>
+                  <span>
+                    Rok ukończenia <span className="required-star">*</span>
+                  </span>
                   <input
                     type="text"
                     name="graduationYear"
@@ -784,7 +806,10 @@ function AdmissionPage() {
                 <h2>Dokumenty</h2>
 
                 <label>
-                  <span>Link do dyplomu (PDF) <span className="required-star">*</span></span>
+                  <span>
+                    Link do dyplomu (PDF){" "}
+                    <span className="required-star">*</span>
+                  </span>
                   <input
                     type="url"
                     name="diplomaUrl"
@@ -814,7 +839,10 @@ function AdmissionPage() {
                     disabled={isSubmitting}
                     aria-invalid={getInputAriaInvalid("truthfulnessConsent")}
                   />
-                  <span>Oświadczam, że dane są prawdziwe. <span className="required-star">*</span></span>
+                  <span>
+                    Oświadczam, że dane są prawdziwe.{" "}
+                    <span className="required-star">*</span>
+                  </span>
                 </label>
                 {renderFieldError("truthfulnessConsent")}
 
@@ -829,7 +857,8 @@ function AdmissionPage() {
                   />
                   <span>
                     Wyrażam zgodę na przetwarzanie moich danych osobowych w celu
-                    przeprowadzenia rekrutacji (RODO). <span className="required-star">*</span>
+                    przeprowadzenia rekrutacji (RODO).{" "}
+                    <span className="required-star">*</span>
                   </span>
                 </label>
                 {renderFieldError("gdprConsent")}
@@ -844,7 +873,8 @@ function AdmissionPage() {
                     aria-invalid={getInputAriaInvalid("newsletterConsent")}
                   />
                   <span>
-                    Zgadzam się na otrzymywanie informacji o nowych kierunkach i ofertach edukacyjnych (newsletter).
+                    Zgadzam się na otrzymywanie informacji o nowych kierunkach i
+                    ofertach edukacyjnych (newsletter).
                   </span>
                 </label>
                 {renderFieldError("newsletterConsent")}
