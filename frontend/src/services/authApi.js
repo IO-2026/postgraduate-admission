@@ -1,4 +1,5 @@
-const AUTH_BASE_PATH = "/api/auth";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const AUTH_BASE_PATH = API_URL + "/auth";
 
 function getErrorMessage(payload) {
   if (typeof payload === "string" && payload.trim()) {

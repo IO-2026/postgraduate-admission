@@ -1,7 +1,8 @@
-const API_URL = "/api/users";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const COURSE_API_URL = API_URL + "/users";
 
 export const fetchUsers = async (token) => {
-  const response = await fetch(API_URL, {
+  const response = await fetch(COURSE_API_URL, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -17,7 +18,7 @@ export const fetchUsers = async (token) => {
 };
 
 export const updateUserRole = async (token, userId, roleName) => {
-  const response = await fetch(`${API_URL}/${userId}/role`, {
+  const response = await fetch(`${COURSE_API_URL}/${userId}/role`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
