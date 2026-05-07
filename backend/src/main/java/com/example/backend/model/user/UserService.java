@@ -1,6 +1,5 @@
 package com.example.backend.model.user;
 
-import com.example.backend.model.application.Application;
 import com.example.backend.model.course.Course;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.role.Role;
@@ -87,18 +86,6 @@ public class UserService implements UserDetailsService {
         return userMapper.toDTO(updatedUser);
     }
 
-
-    public CandidateWithApplicationDto mapToCandidateWithApplicationDto(User user, Application application) {
-        return CandidateWithApplicationDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .surname(user.getSurname())
-                .email(user.getEmail())
-                .applicationId(application.getId())
-                .isPaid(application.getIsPaid())
-                .status(application.getStatus().getDescription())
-                .build();
-    }
 
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
