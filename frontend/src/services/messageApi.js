@@ -1,6 +1,7 @@
 import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
 
-const API_BASE = "/api/messages";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE = API_URL + "/messages";
 
 function getToken() {
   try {
