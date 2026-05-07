@@ -1,24 +1,7 @@
 import { Link } from "react-router-dom";
 import "./Navbar.css";
-import { useEffect } from "react";
-import { fetchUnreadCount } from "../../services/messageApi.js";
 
 function Navbar({ isLoggedIn, user }) {
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    const loadUnread = async () => {
-      try {
-        const count = await fetchUnreadCount();
-        setUnreadCount(count);
-      } catch (err) {
-        console.error("Failed to fetch unread count", err);
-      }
-    };
-    loadUnread();
-    const interval = setInterval(loadUnread, 60000);
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
-
   if (!isLoggedIn) return null;
 
   const profileLabel =
