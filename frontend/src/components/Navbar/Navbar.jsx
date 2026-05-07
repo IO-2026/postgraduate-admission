@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { fetchUnreadCount } from "../../services/messageApi.js";
 
 function Navbar({ isLoggedIn, user }) {
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const isAdmin =
     isLoggedIn &&
@@ -14,7 +13,6 @@ function Navbar({ isLoggedIn, user }) {
         user.role.toLowerCase().includes("admin")));
 
   const isCoordinator = isLoggedIn && user?.role === "Coordinator";
-  const canSendMessage = isAdmin || isCoordinator;
 
   useEffect(() => {
     if (!isLoggedIn) return;
