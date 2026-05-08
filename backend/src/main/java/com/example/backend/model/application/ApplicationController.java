@@ -1,12 +1,8 @@
 package com.example.backend.model.application;
 
 import com.example.backend.model.application.dto.ApplicationDto;
-import com.example.backend.model.declaration.DeclarationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationController {
     private final ApplicationService applicationService;
-    private final DeclarationService declarationService;
 
     @GetMapping("/of/{userId}")
     public List<ApplicationDto> getApplicationsOfUser(@PathVariable long userId) {
@@ -60,17 +55,5 @@ public class ApplicationController {
     @GetMapping("/{id}")
     public ApplicationDto getApplication(@PathVariable Long id) {
         return applicationService.getApplication(id);
-    }
-
-    @GetMapping("/{id}/declaration")
-    public ResponseEntity<byte[]> getDeclaration(@PathVariable Long id) {
-        byte[] pdf = declarationService.generateDeclarationPdf(id);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.inline()
-                .filename("oswiadczenie_" + id + ".pdf")
-                .build());
-        return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
 }

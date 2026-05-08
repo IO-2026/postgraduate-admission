@@ -7,7 +7,11 @@ import com.example.backend.model.course.CourseRepository;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,8 +34,7 @@ public class DeclarationService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public byte[] generateDeclarationPdf(Long applicationId) {
-
+    public ResponseEntity<byte[]> generateDeclarationPdf(Long applicationId) {
 
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie znaleziono aplikacji o ID: " + applicationId));
@@ -47,7 +50,6 @@ public class DeclarationService {
 
         String htmlContent = templateEngine.process("declaration", context);
 
-
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFont(new File(Objects.requireNonNull(getClass().getResource("/fonts/Roboto-Regular.ttf")).getFile()), "Roboto");
@@ -56,7 +58,14 @@ public class DeclarationService {
             builder.toStream(os);
             builder.run();
 
-            return os.toByteArray();
+            byte[] pdf = os.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.inline()
+                    .filename("oswiadczenie_" + applicationId + ".pdf")
+                    .build());
+
+            return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException("Wystąpił błąd podczas generowania pliku PDF oświadczenia", e);
         }
