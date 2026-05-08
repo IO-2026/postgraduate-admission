@@ -31,6 +31,7 @@ function SendMessagePage({ user }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [recipientSearch, setRecipientSearch] = useState("");
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -129,7 +130,13 @@ function SendMessagePage({ user }) {
   };
 
   const getDisplayedCandidates = () => {
-    return activeTab === "all" ? recipients : courseCandidates;
+    const base = activeTab === "all" ? recipients : courseCandidates;
+    if (!recipientSearch.trim()) return base;
+    const term = recipientSearch.trim().toLowerCase();
+    return base.filter((c) => {
+      const full = `${c.name || ""} ${c.surname || ""} ${c.email || ""}`.toLowerCase();
+      return full.includes(term);
+    });
   };
 
   const toggleSelectAll = () => {
@@ -209,7 +216,7 @@ function SendMessagePage({ user }) {
                   className={activeTab === "all" ? "primary-btn" : "ghost-btn"}
                   onClick={() => setActiveTab("all")}
                 >
-                  Wszyscy dostępni
+                  Wszyscy
                 </button>
                 <button
                   type="button"
@@ -261,22 +268,49 @@ function SendMessagePage({ user }) {
                   </button>
                 </div>
 
-                <div className="recipients-grid">
+                <input
+                  type="search"
+                  className="recipients-search"
+                  placeholder="Szukaj po imieniu, nazwisku lub e-mailu…"
+                  value={recipientSearch}
+                  onChange={(e) => setRecipientSearch(e.target.value)}
+                />
+
+                <div className="recipients-table-container">
                   {activeTab === "course" && loadingCourseCandidates ? (
-                    <span>Ładowanie kandydatów...</span>
+                    <span className="recipients-empty">Ładowanie kandydatów...</span>
                   ) : getDisplayedCandidates().length > 0 ? (
-                    getDisplayedCandidates().map((candidate) => (
-                      <label key={candidate.id} className="recipient-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(candidate.id)}
-                          onChange={() => toggleRecipient(candidate.id)}
-                        />
-                        {candidate.name} {candidate.surname} ({candidate.email})
-                      </label>
-                    ))
+                    <table className="recipients-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: 40 }}></th>
+                          <th>Imię i nazwisko</th>
+                          <th>Email</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {getDisplayedCandidates().map((candidate) => (
+                          <tr
+                            key={candidate.id}
+                            className={selectedIds.includes(candidate.id) ? "selected" : ""}
+                            onClick={() => toggleRecipient(candidate.id)}
+                          >
+                            <td>
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(candidate.id)}
+                                onChange={() => toggleRecipient(candidate.id)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </td>
+                            <td>{candidate.name} {candidate.surname}</td>
+                            <td>{candidate.email}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
-                    <span>Brak kandydatów do wyświetlenia.</span>
+                    <span className="recipients-empty">Brak kandydatów do wyświetlenia.</span>
                   )}
                 </div>
               </div>

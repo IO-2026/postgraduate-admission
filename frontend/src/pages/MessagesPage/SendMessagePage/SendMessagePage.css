@@ -47,7 +47,7 @@
 .recipients-section>label {
   display: block;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   color: var(--text-strong);
 }
 
@@ -101,22 +101,82 @@
   font-family: var(--font-display);
 }
 
-.recipients-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 4px;
+.recipients-search {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--field-bg);
+  color: var(--text-strong);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.recipient-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.recipients-search:focus {
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+  border-color: var(--field-focus);
+}
+
+.recipients-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+}
+
+.recipients-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.recipients-table th,
+.recipients-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text-strong);
+}
+
+.recipients-table th {
+  background-color: var(--field-bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-strong);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.recipients-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recipients-table tbody tr {
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: normal;
+  transition: background-color 0.15s;
+}
+
+.recipients-table tbody tr:hover {
+  background-color: rgba(15, 127, 115, 0.08);
+}
+
+.recipients-table tbody tr.selected {
+  background-color: rgba(15, 127, 115, 0.12);
+}
+
+.recipients-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.recipients-empty {
+  display: block;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
 }
 
 .form-actions {
@@ -129,8 +189,6 @@
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--panel-border);
-  padding-bottom: 12px;
   align-items: center;
   flex-wrap: wrap;
 }

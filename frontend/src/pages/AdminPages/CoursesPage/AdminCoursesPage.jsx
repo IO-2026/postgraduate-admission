@@ -202,17 +202,17 @@ function AdminCoursesPage() {
 
   return (
     <section className="courses-view">
-      <BackButton />
-      {!isFormOpen && (
-        <div style={{ marginBottom: "16px" }}>
+      <div className="courses-top-bar">
+        <BackButton />
+        {!isFormOpen && (
           <button
-            className="primary-btn add-course-btn add-course-btn--top"
+            className="primary-btn add-course-btn"
             onClick={() => setIsFormOpen(true)}
           >
             + Dodaj kierunek
           </button>
-        </div>
-      )}
+        )}
+      </div>
       <header className="courses-header">
         <p className="courses-tag">Studia podyplomowe AGH</p>
         <h1>Kierunki studiów</h1>
