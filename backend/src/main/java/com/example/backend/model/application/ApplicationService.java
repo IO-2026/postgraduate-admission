@@ -1,7 +1,5 @@
 package com.example.backend.model.application;
 
-import com.example.backend.model.application.dto.AdmissionDetailsDto;
-import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
@@ -21,13 +19,12 @@ public class ApplicationService {
     private final ApplicationMapper applicationMapper;
 
     @Transactional
-    public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
-        User user = userRepository.findById(authenticatedUserId)
+    public Application saveApplication(ApplicationDto admissionRequest) {
+        User user = userRepository.findById(admissionRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
 
-        AdmissionDetailsDto details = admissionRequest.getDetails();
-        long courseId = details.getCourseId();
+        long courseId = admissionRequest.getCourseId();
         long userId = user.getId();
 
         List<ApplicationDto> applicationsOfUser = getApplicationsOfUser(userId);
