@@ -2,6 +2,7 @@ package com.example.backend;
 
 import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.declaration.DeclarationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,9 @@ public class ApplicationValidationTests {
 
     @Mock
     private ApplicationService applicationService;
+
+    @Mock
+    private DeclarationService declarationService;
 
     @InjectMocks
     private ApplicationController applicationController;
