@@ -154,6 +154,13 @@ function validateDraft({ account, draft }) {
     errors.pesel = "Podaj poprawny numer PESEL.";
   }
 
+  const placeOfBirth = String(account.placeOfBirth || "").trim();
+  if (!placeOfBirth) {
+    errors.placeOfBirth = REQUIRED_ERROR;
+  } else if (placeOfBirth.length < 2 || placeOfBirth.length > 100) {
+    errors.placeOfBirth = "Miejsce urodzenia musi mieć od 2 do 100 znaków.";
+  }
+
   const street = String(draft.street || "").trim();
   if (!street) {
     errors.street = REQUIRED_ERROR;
@@ -229,6 +236,7 @@ function getAccountDefaults(user) {
     telNumber: safeUser.telNumber || "",
     dateOfBirth: safeUser.dateOfBirth || "",
     pesel: safeUser.pesel || "",
+    placeOfBirth: safeUser.placeOfBirth || "",
   };
 }
 
@@ -448,6 +456,7 @@ function AdmissionPage() {
           courseId,
           applicantDateOfBirth: String(account.dateOfBirth).trim(),
           applicantPesel: String(account.pesel).trim(),
+          placeOfBirth: String(account.placeOfBirth).trim(),
           addressStreet: String(draft.street).trim(),
           addressPostalCode: String(draft.postalCode).trim(),
           addressCity: String(draft.city).trim(),
@@ -646,21 +655,39 @@ function AdmissionPage() {
                   {renderFieldError("dateOfBirth")}
                 </label>
 
-                <label>
-                  <span>
-                    PESEL <span className="required-star">*</span>
-                  </span>
-                  <input
-                    type="text"
-                    name="pesel"
-                    value={account.pesel}
-                    onChange={onAccountInput}
-                    onBlur={onFieldBlur}
-                    disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("pesel")}
-                  />
-                  {renderFieldError("pesel")}
-                </label>
+                <div className="admission-grid">
+                  <label>
+                    <span>
+                      PESEL <span className="required-star">*</span>
+                    </span>
+                    <input
+                      type="text"
+                      name="pesel"
+                      value={account.pesel}
+                      onChange={onAccountInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("pesel")}
+                    />
+                    {renderFieldError("pesel")}
+                  </label>
+
+                  <label>
+                    <span>
+                      Miejsce urodzenia <span className="required-star">*</span>
+                    </span>
+                    <input
+                      type="text"
+                      name="placeOfBirth"
+                      value={account.placeOfBirth}
+                      onChange={onAccountInput}
+                      onBlur={onFieldBlur}
+                      disabled={isSubmitting}
+                      aria-invalid={getInputAriaInvalid("placeOfBirth")}
+                    />
+                    {renderFieldError("placeOfBirth")}
+                  </label>
+                </div>
               </section>
 
               <section

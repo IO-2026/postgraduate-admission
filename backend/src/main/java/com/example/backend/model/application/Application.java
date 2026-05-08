@@ -51,6 +51,8 @@ public class Application {
     @Column(name = "is_paid")
     private Boolean isPaid;
 
+    private String placeOfBirth;
+
     @Column(name = "applicant_date_of_birth")
     private LocalDate applicantDateOfBirth;
 
