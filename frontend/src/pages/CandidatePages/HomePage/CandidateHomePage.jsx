@@ -227,37 +227,29 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       </p>
                     </div>
                     <div className="application-item-meta">
-                      <span className="application-status">{statusLabel}</span>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span
-                          className={
-                            isPaid
-                              ? "application-payment application-payment-paid"
-                              : "application-payment application-payment-unpaid"
-                          }
-                        >
-                          {isPaid ? "Opłacona" : "Nieopłacona"}
-                        </span>
-                        {!isPaid ? (
+                      {!isPaid ? (
+                        <div className="application-meta-row">
+                          <div className="application-meta-tags">
+                            <span className="application-status">{statusLabel}</span>
+                            <span className="application-payment application-payment-unpaid">
+                              Nieopłacona
+                            </span>
+                          </div>
                           <Link
                             to={`/payment/${application.id}`}
-                            className="primary-btn"
-                            style={{
-                              padding: "0.25rem 0.75rem",
-                              fontSize: "0.875rem",
-                              textDecoration: "none",
-                            }}
+                            className="primary-btn application-pay-btn"
                           >
                             Opłać
                           </Link>
-                        ) : null}
-                      </div>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="application-status">{statusLabel}</span>
+                          <span className="application-payment application-payment-paid">
+                            Opłacona
+                          </span>
+                        </>
+                      )}
                     </div>
                   </article>
                 </li>
