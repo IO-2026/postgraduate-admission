@@ -1,6 +1,7 @@
 import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
 
-const API_BASE = "/api/messages";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE = API_URL + "/messages";
 
 function getToken() {
   try {
@@ -70,7 +71,7 @@ export async function getAvailableRecipients(user) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   if (user?.role === "Admin") {
-    const res = await fetch("/api/users", { headers });
+    const res = await fetch(API_URL + "/users", { headers });
     if (!res.ok) throw new Error("Błąd pobierania użytkowników");
     const users = await res.json();
     return users.filter(
