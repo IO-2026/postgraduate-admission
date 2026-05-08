@@ -2,6 +2,7 @@ package com.example.backend;
 
 import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.declaration.DeclarationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,7 +18,8 @@ public class ApplicationValidationTests {
 
   private MockMvc buildMockMvc() {
     ApplicationService applicationService = new ApplicationService(null, null, null, null);
-    ApplicationController controller = new ApplicationController(applicationService);
+    DeclarationService declarationService = new DeclarationService(null, null, null, null);
+    ApplicationController controller = new ApplicationController(applicationService, declarationService);
 
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();
