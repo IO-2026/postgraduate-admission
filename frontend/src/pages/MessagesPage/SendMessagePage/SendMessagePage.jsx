@@ -9,6 +9,7 @@ import {
   fetchCourses,
   fetchCourseCandidates,
 } from "../../../services/courseApi.js";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./SendMessagePage.css";
 
 function SendMessagePage({ user }) {
@@ -171,24 +172,7 @@ function SendMessagePage({ user }) {
 
   return (
     <section className="send-message-view">
-      <div className="send-message-top-actions">
-        <Link className="ghost-link send-message-back-link" to="/">
-          <svg
-            className="send-message-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do strony głównej
-        </Link>
-      </div>
+      <BackButton />
       <div className="send-message-card">
         <h1>Wyślij wiadomość do kandydatów</h1>
         <form onSubmit={handleSubmit} className="send-message-form">

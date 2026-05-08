@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchInbox, markAsRead } from "../../../services/messageApi";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./InboxPage.css";
 
 function InboxPage() {
@@ -67,20 +68,7 @@ function InboxPage() {
 
   return (
     <section className="inbox-view">
-      <div className="inbox-top-actions">
-        <Link className="ghost-link inbox-back-link" to="/">
-          <svg className="inbox-back-icon" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do strony głównej
-        </Link>
-      </div>
+      <BackButton />
       <div className="inbox-card">
         <h1>Wiadomości od koordynatorów</h1>
         {messages.length === 0 ? (

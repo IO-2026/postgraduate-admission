@@ -7,6 +7,7 @@ import {
   deleteCourse,
 } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./AdminCoursesPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -201,33 +202,17 @@ function AdminCoursesPage() {
 
   return (
     <section className="courses-view">
-      <div className="courses-top-actions">
-        <Link className="ghost-link courses-back-link" to="/">
-          <svg
-            className="courses-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do strony głównej
-        </Link>
-        {!isFormOpen && (
+      <BackButton />
+      {!isFormOpen && (
+        <div style={{ marginBottom: "16px" }}>
           <button
             className="primary-btn add-course-btn add-course-btn--top"
             onClick={() => setIsFormOpen(true)}
           >
             + Dodaj kierunek
           </button>
-        )}
-      </div>
+        </div>
+      )}
       <header className="courses-header">
         <p className="courses-tag">Studia podyplomowe AGH</p>
         <h1>Kierunki studiów</h1>

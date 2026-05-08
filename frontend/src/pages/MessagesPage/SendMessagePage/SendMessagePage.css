@@ -43,8 +43,8 @@
   gap: 20px;
 }
 
-.form-group > label,
-.recipients-section > label {
+.form-group>label,
+.recipients-section>label {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;

@@ -5,6 +5,7 @@ import {
   fetchCourses,
   updateCourse,
 } from "../../../services/courseApi";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./CourseManagementPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -199,23 +200,7 @@ function CourseManagementPage() {
 
   return (
     <section className="course-management-view">
-      <Link className="course-management-back-link" to="/">
-        <svg
-          className="course-management-back-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M15 18l-6-6 6-6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Wróć do strony koordynatora
-      </Link>
+      <BackButton label="Wróć do strony koordynatora" />
 
       <header className="course-management-header">
         <h1>Zarządzanie kierunkiem</h1>

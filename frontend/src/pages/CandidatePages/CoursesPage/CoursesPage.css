@@ -1,6 +1,5 @@
 .courses-view {
   display: grid;
-  gap: 16px;
   min-height: calc(100svh - 64px);
   align-content: start;
   width: 100%;
@@ -26,6 +25,7 @@
 }
 
 .courses-header {
+  margin-top: 0;
   border-radius: 28px;
   border: 1px solid var(--panel-border);
   background: linear-gradient(
@@ -71,6 +71,7 @@
 
 /* Form Styles */
 .course-form-container {
+  margin-top: 16px;
   border-radius: 24px;
   border: 1px solid var(--panel-border);
   background: var(--panel-bg);
@@ -144,6 +145,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+  margin-top: 16px;
 }
 
 .course-card {
@@ -262,6 +264,7 @@
   border-radius: 24px;
   border: 1px solid var(--panel-border);
   box-shadow: var(--shadow-soft);
+  margin-top: 16px;
 }
 
 .error-state {

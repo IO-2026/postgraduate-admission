@@ -1,6 +1,7 @@
 import "./AdmissionPage.css";
 import "../CoursesPage/CoursesPage.css";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import BackButton from "../../../components/BackButton/BackButton";
 import { useEffect, useMemo, useState } from "react";
 import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
@@ -430,6 +431,7 @@ function AdmissionPage() {
     setIsSubmitting(true);
 
     try {
+      const userId = resolveUserId(user);
       const previousDegree = String(draft.previousDegree || "").trim();
       const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
       const notes = String(draft.notes || "").trim();
@@ -440,6 +442,7 @@ function AdmissionPage() {
 
       await submitApplication(
         {
+          userId,
           diplomaUrl: String(draft.diplomaUrl).trim(),
           university: String(draft.university).trim(),
           courseId,
@@ -488,28 +491,10 @@ function AdmissionPage() {
 
   return (
     <section className="admission-view" aria-label="Strona rekrutacji">
-      <div className="admission-top-actions">
-        <Link
-          className="ghost-link admission-back-link"
-          to={courseId ? "/admission" : "/"}
-        >
-          <svg
-            className="admission-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {courseId ? "Wróć do wyboru kierunku" : "Wróć do strony głównej"}
-        </Link>
-      </div>
+      <BackButton
+        to={courseId ? "/admission" : "/"}
+        label={courseId ? "Wróć do wyboru kierunku" : "Wróć do strony głównej"}
+      />
       <header className="admission-header">
         <p className="admission-tag">Studia podyplomowe AGH</p>
         <h1>Wniosek rekrutacyjny</h1>
