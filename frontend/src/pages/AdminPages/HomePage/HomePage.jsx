@@ -5,7 +5,6 @@ function AdminHomePage() {
   const quickActions = [
     { label: "Kierunki studiów", to: "/admin/courses" },
     { label: "Użytkownicy", to: "/users" },
-    { label: "Wyślij wiadomość", to: "/send-message" },
   ];
 
   return (
@@ -22,6 +21,9 @@ function AdminHomePage() {
               {action.label}
             </Link>
           ))}
+          <Link className="ghost-link" to="/send-message">
+            Wyślij wiadomość
+          </Link>
         </div>
       </header>
 

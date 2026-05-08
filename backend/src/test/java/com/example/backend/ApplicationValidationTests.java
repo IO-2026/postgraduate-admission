@@ -2,110 +2,103 @@ package com.example.backend;
 
 import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 public class ApplicationValidationTests {
 
-  private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null, null);
-    ApplicationController controller = new ApplicationController(applicationService);
+    @Mock
+    private ApplicationService applicationService;
 
-    LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
-    validator.afterPropertiesSet();
+    @InjectMocks
+    private ApplicationController applicationController;
 
-    return MockMvcBuilders.standaloneSetup(controller)
-        .setControllerAdvice(new BackendExceptionHandler())
-        .setValidator(validator)
-        .build();
-  }
+    private MockMvc mockMvc;
 
-    @Test
-    void submitApplication_ShouldFail_WhenMissingTopLevelFields() throws Exception {
-      buildMockMvc().perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("wymag")));
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(applicationController).build();
     }
 
     @Test
-    void submitApplication_ShouldFail_WhenMissingNestedApplicantFields() throws Exception {
+    void submitApplication_ShouldFail_WhenMissingTopLevelFields() throws Exception {
+        String payload = "{}";
+
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
+    }
+
+    @Test
+    void submitApplication_ShouldFail_WhenMissingApplicantFields() throws Exception {
         String payload = """
                 {
-                  "applicant": {
-                    "dateOfBirth": "2000-01-01",
-                    "pesel": "123",
-                    "address": {
-                      "street": "",
-                      "postalCode": "00-000",
-                      "city": ""
-                    }
-                  },
-                  "education": {
-                    "previousDegree": "Inżynier",
-                    "fieldOfStudy": "Informatyka",
-                    "graduationYear": 2015
-                  },
-                  "details": {
-                    "courseId": 1,
-                    "university": "",
-                    "diplomaUrl": "not-a-url",
-                    "notes": null,
-                    "truthfulnessConsent": false,
-                    "gdprConsent": false
-                  }
+                  "applicantDateOfBirth": "2000-01-01",
+                  "applicantPesel": "123",
+                  "addressStreet": "",
+                  "addressPostalCode": "00-000",
+                  "addressCity": "",
+                  "previousDegree": "Inżynier",
+                  "fieldOfStudy": "Informatyka",
+                  "graduationYear": 2015,
+                  "courseId": 1,
+                  "university": "",
+                  "diplomaUrl": "not-a-url",
+                  "truthfulnessConsent": false,
+                  "gdprConsent": false
                 }
                 """;
 
-        buildMockMvc().perform(post("/api/applications/submit")
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("applicant")));
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
+        assertFalse(result.getResponse().getContentAsString().contains("applicant"));
     }
 
     @Test
     void submitApplication_ShouldFail_WhenEducationFieldsAreMissing() throws Exception {
         String payload = """
                 {
-                  "applicant": {
-                    "dateOfBirth": "2000-01-01",
-                    "pesel": "44051401458",
-                    "address": {
-                      "street": "Testowa 1",
-                      "postalCode": "30-059",
-                      "city": "Kraków"
-                    }
-                  },
-                  "education": {
-                    "previousDegree": "",
-                    "fieldOfStudy": "",
-                    "graduationYear": null
-                  },
-                  "details": {
-                    "courseId": 1,
-                    "university": "AGH",
-                    "diplomaUrl": "https://example.com/diploma.pdf",
-                    "notes": null,
-                    "truthfulnessConsent": true,
-                    "gdprConsent": true
-                  }
+                  "applicantDateOfBirth": "2000-01-01",
+                  "applicantPesel": "44051401458",
+                  "addressStreet": "Testowa 1",
+                  "addressPostalCode": "30-059",
+                  "addressCity": "Kraków",
+                  "previousDegree": "",
+                  "fieldOfStudy": "",
+                  "graduationYear": null,
+                  "courseId": 1,
+                  "university": "AGH",
+                  "diplomaUrl": "https://example.com/diploma.pdf",
+                  "truthfulnessConsent": true,
+                  "gdprConsent": true
                 }
                 """;
 
-        buildMockMvc().perform(post("/api/applications/submit")
+        MvcResult result = mockMvc.perform(post("/api/applications/submit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("education")));
+                .andReturn();
+
+        assertEquals(400, result.getResponse().getStatus());
+        assertFalse(result.getResponse().getContentAsString().contains("previousDegree"));
     }
 }

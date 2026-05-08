@@ -54,6 +54,16 @@
   line-height: 1.6;
 }
 
+.coordinator-home-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
 .coordinator-state {
   border: 1px solid var(--panel-border);
   border-radius: 18px;

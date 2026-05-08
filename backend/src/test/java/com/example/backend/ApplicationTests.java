@@ -3,6 +3,7 @@ package com.example.backend;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.example.backend.model.application.ApplicationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,9 @@ public class ApplicationTests {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private ApplicationMapper applicationMapper;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User testUser;
@@ -98,31 +102,21 @@ public class ApplicationTests {
     void submitApplication_ShouldSucceed_WhenCandidateRole() throws Exception {
         String token = jwtUtil.generateToken(testUser);
 
-        Map<String, Object> applicant = new HashMap<>();
-        applicant.put("dateOfBirth", "2000-01-01");
-        applicant.put("pesel", "44051401458");
-        Map<String, String> address = new HashMap<>();
-        address.put("street", "Testowa 1");
-        address.put("postalCode", "30-059");
-        address.put("city", "Kraków");
-        applicant.put("address", address);
-
-        Map<String, Object> education = new HashMap<>();
-        education.put("previousDegree", "Inżynier");
-        education.put("fieldOfStudy", "Informatyka");
-        education.put("graduationYear", 2020);
-
-        Map<String, Object> details = new HashMap<>();
-        details.put("courseId", testCourse.getId());
-        details.put("university", "Test University");
-        details.put("diplomaUrl", "http://example.com/diploma.pdf");
-        details.put("truthfulnessConsent", true);
-        details.put("gdprConsent", true);
-
         Map<String, Object> request = new HashMap<>();
-        request.put("applicant", applicant);
-        request.put("education", education);
-        request.put("details", details);
+        request.put("applicantDateOfBirth", "1990-01-01");
+        request.put("userId", testUser.getId());
+        request.put("applicantPesel", "90010101234");
+        request.put("addressStreet", "Adminowa 1");
+        request.put("addressPostalCode", "00-001");
+        request.put("addressCity", "Warszawa");
+        request.put("previousDegree", "Magister");
+        request.put("fieldOfStudy", "Zarządzanie");
+        request.put("graduationYear", 2015);
+        request.put("courseId", testCourse.getId());
+        request.put("university", "Test University");
+        request.put("diplomaUrl", "http://example.com/diploma.pdf");
+        request.put("truthfulnessConsent", true);
+        request.put("gdprConsent", true);
 
         mockMvc.perform(post("/api/applications/submit")
                         .header("Authorization", "Bearer " + token)
@@ -150,31 +144,20 @@ public class ApplicationTests {
 
         String token = jwtUtil.generateToken(adminUser);
 
-        Map<String, Object> applicant = new HashMap<>();
-        applicant.put("dateOfBirth", "1990-01-01");
-        applicant.put("pesel", "90010101234");
-        Map<String, String> address = new HashMap<>();
-        address.put("street", "Adminowa 1");
-        address.put("postalCode", "00-001");
-        address.put("city", "Warszawa");
-        applicant.put("address", address);
-
-        Map<String, Object> education = new HashMap<>();
-        education.put("previousDegree", "Magister");
-        education.put("fieldOfStudy", "Zarządzanie");
-        education.put("graduationYear", 2015);
-
-        Map<String, Object> details = new HashMap<>();
-        details.put("courseId", testCourse.getId());
-        details.put("university", "Test University");
-        details.put("diplomaUrl", "http://example.com/diploma.pdf");
-        details.put("truthfulnessConsent", true);
-        details.put("gdprConsent", true);
-
         Map<String, Object> request = new HashMap<>();
-        request.put("applicant", applicant);
-        request.put("education", education);
-        request.put("details", details);
+        request.put("applicantDateOfBirth", "1990-01-01");
+        request.put("applicantPesel", "90010101234");
+        request.put("addressStreet", "Adminowa 1");
+        request.put("addressPostalCode", "00-001");
+        request.put("addressCity", "Warszawa");
+        request.put("previousDegree", "Magister");
+        request.put("fieldOfStudy", "Zarządzanie");
+        request.put("graduationYear", 2015);
+        request.put("courseId", testCourse.getId());
+        request.put("university", "Test University");
+        request.put("diplomaUrl", "http://example.com/diploma.pdf");
+        request.put("truthfulnessConsent", true);
+        request.put("gdprConsent", true);
 
         mockMvc.perform(post("/api/applications/submit")
                         .header("Authorization", "Bearer " + token)
@@ -187,31 +170,21 @@ public class ApplicationTests {
     void submitApplication_ShouldFail_WhenCandidateAlreadyApplied() throws Exception {
         String token = jwtUtil.generateToken(testUser);
 
-        Map<String, Object> applicant = new HashMap<>();
-        applicant.put("dateOfBirth", "2000-01-01");
-        applicant.put("pesel", "44051401458");
-        Map<String, String> address = new HashMap<>();
-        address.put("street", "Testowa 1");
-        address.put("postalCode", "30-059");
-        address.put("city", "Kraków");
-        applicant.put("address", address);
-
-        Map<String, Object> education = new HashMap<>();
-        education.put("previousDegree", "Inżynier");
-        education.put("fieldOfStudy", "Informatyka");
-        education.put("graduationYear", 2020);
-
-        Map<String, Object> details = new HashMap<>();
-        details.put("courseId", testCourse.getId());
-        details.put("university", "Test University");
-        details.put("diplomaUrl", "http://example.com/diploma.pdf");
-        details.put("truthfulnessConsent", true);
-        details.put("gdprConsent", true);
-
         Map<String, Object> request = new HashMap<>();
-        request.put("applicant", applicant);
-        request.put("education", education);
-        request.put("details", details);
+        request.put("applicantDateOfBirth", "2000-01-01");
+        request.put("userId", testUser.getId());
+        request.put("applicantPesel", "44051401458");
+        request.put("addressStreet", "Testowa 1");
+        request.put("addressPostalCode", "30-059");
+        request.put("addressCity", "Kraków");
+        request.put("previousDegree", "Inżynier");
+        request.put("fieldOfStudy", "Informatyka");
+        request.put("graduationYear", 2020);
+        request.put("courseId", testCourse.getId());
+        request.put("university", "Test University");
+        request.put("diplomaUrl", "http://example.com/diploma.pdf");
+        request.put("truthfulnessConsent", true);
+        request.put("gdprConsent", true);
 
         String jsonRequest = objectMapper.writeValueAsString(request);
 
