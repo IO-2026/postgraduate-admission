@@ -87,7 +87,7 @@ export async function createCourse(courseData) {
 export async function updateCourse(id, courseData) {
   const token = getToken();
   const response = await fetch(`${API_URL}/courses/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -98,7 +98,9 @@ export async function updateCourse(id, courseData) {
   if (!response.ok) {
     throw new Error("Nie udało się zaktualizować kierunku");
   }
-  return response.json();
+
+  // Backend returns empty body for update; fetch and return the updated course
+  return fetchCourseById(id);
 }
 
 export async function deleteCourse(id) {

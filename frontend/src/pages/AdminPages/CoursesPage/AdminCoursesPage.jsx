@@ -14,6 +14,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
+  academicYear: "",
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
@@ -125,6 +126,7 @@ function AdminCoursesPage() {
       name: course.name || "",
       description: course.description || "",
       price: course.price || "",
+      academicYear: course.academicYear || "",
       recruitmentStart: course.recruitmentStart || "",
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
@@ -175,6 +177,7 @@ function AdminCoursesPage() {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        ...(formData.academicYear && { academicYear: formData.academicYear }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -246,6 +249,16 @@ function AdminCoursesPage() {
                 onChange={handleInputChange}
                 required
                 placeholder="np. 4500"
+              />
+            </div>
+            <div className="form-group">
+              <label>Rok akademicki</label>
+              <input
+                type="text"
+                name="academicYear"
+                value={formData.academicYear}
+                onChange={handleInputChange}
+                placeholder="np. 2024/2025"
               />
             </div>
             <div className="form-group">

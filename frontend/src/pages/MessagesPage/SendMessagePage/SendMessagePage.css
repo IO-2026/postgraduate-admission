@@ -43,8 +43,8 @@
   gap: 20px;
 }
 
-.form-group>label,
-.recipients-section>label {
+.form-group > label,
+.recipients-section > label {
   display: block;
   font-weight: 600;
   margin-bottom: 16px;
@@ -111,7 +111,9 @@
   font-size: 0.9rem;
   background: var(--field-bg);
   color: var(--text-strong);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .recipients-search:focus {

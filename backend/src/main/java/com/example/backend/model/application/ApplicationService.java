@@ -75,7 +75,7 @@ public class ApplicationService {
         long id = dto.getId();
 
         Application existingApplication = applicationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Application not found"));
         applicationMapper.updateEntityFromDTO(dto, existingApplication);
         applicationMapper.toDto(applicationRepository.save(existingApplication));
     }

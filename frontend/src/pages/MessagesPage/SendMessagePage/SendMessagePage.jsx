@@ -134,7 +134,8 @@ function SendMessagePage({ user }) {
     if (!recipientSearch.trim()) return base;
     const term = recipientSearch.trim().toLowerCase();
     return base.filter((c) => {
-      const full = `${c.name || ""} ${c.surname || ""} ${c.email || ""}`.toLowerCase();
+      const full =
+        `${c.name || ""} ${c.surname || ""} ${c.email || ""}`.toLowerCase();
       return full.includes(term);
     });
   };
@@ -278,7 +279,9 @@ function SendMessagePage({ user }) {
 
                 <div className="recipients-table-container">
                   {activeTab === "course" && loadingCourseCandidates ? (
-                    <span className="recipients-empty">Ładowanie kandydatów...</span>
+                    <span className="recipients-empty">
+                      Ładowanie kandydatów...
+                    </span>
                   ) : getDisplayedCandidates().length > 0 ? (
                     <table className="recipients-table">
                       <thead>
@@ -292,7 +295,11 @@ function SendMessagePage({ user }) {
                         {getDisplayedCandidates().map((candidate) => (
                           <tr
                             key={candidate.id}
-                            className={selectedIds.includes(candidate.id) ? "selected" : ""}
+                            className={
+                              selectedIds.includes(candidate.id)
+                                ? "selected"
+                                : ""
+                            }
                             onClick={() => toggleRecipient(candidate.id)}
                           >
                             <td>
@@ -303,14 +310,18 @@ function SendMessagePage({ user }) {
                                 onClick={(e) => e.stopPropagation()}
                               />
                             </td>
-                            <td>{candidate.name} {candidate.surname}</td>
+                            <td>
+                              {candidate.name} {candidate.surname}
+                            </td>
                             <td>{candidate.email}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   ) : (
-                    <span className="recipients-empty">Brak kandydatów do wyświetlenia.</span>
+                    <span className="recipients-empty">
+                      Brak kandydatów do wyświetlenia.
+                    </span>
                   )}
                 </div>
               </div>

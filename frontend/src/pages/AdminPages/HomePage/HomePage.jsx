@@ -26,7 +26,6 @@ function AdminHomePage() {
           </Link>
         </div>
       </header>
-
     </section>
   );
 }

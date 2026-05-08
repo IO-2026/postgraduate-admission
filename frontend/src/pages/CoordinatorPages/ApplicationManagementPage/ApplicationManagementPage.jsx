@@ -553,9 +553,7 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field application-management-field-checkbox">
-              <label htmlFor="newsletterConsent">
-                Zgoda na newsletter
-              </label>
+              <label htmlFor="newsletterConsent">Zgoda na newsletter</label>
               {isEditMode ? (
                 <input
                   id="newsletterConsent"

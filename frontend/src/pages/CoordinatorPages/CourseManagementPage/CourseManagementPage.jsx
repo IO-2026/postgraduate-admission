@@ -13,6 +13,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
+  academicYear: "",
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorId: "",
@@ -54,6 +55,7 @@ function CourseManagementPage() {
             name: course.name || "",
             description: course.description || "",
             price: course.price ?? "",
+            academicYear: course.academicYear || "",
             recruitmentStart: course.recruitmentStart || "",
             recruitmentEnd: course.recruitmentEnd || "",
             coordinatorId: course.coordinatorId ?? "",
@@ -165,6 +167,7 @@ function CourseManagementPage() {
         name: formData.name.trim(),
         description: formData.description,
         price: parseFloat(formData.price),
+        ...(formData.academicYear && { academicYear: formData.academicYear }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -182,7 +185,8 @@ function CourseManagementPage() {
         id: updatedCourse.id ?? prev.id,
         name: updatedCourse.name || "",
         description: updatedCourse.description || "",
-        price: updatedCourse.price ?? "",
+        price: updatedCourse.price ?? prev.price,
+        academicYear: updatedCourse.academicYear || prev.academicYear,
         recruitmentStart: updatedCourse.recruitmentStart || "",
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
         coordinatorId: updatedCourse.coordinatorId ?? prev.coordinatorId,
@@ -255,6 +259,18 @@ function CourseManagementPage() {
                 value={formData.price}
                 onChange={handleInputChange}
                 required
+              />
+            </div>
+
+            <div className="course-management-field">
+              <label htmlFor="course-academic-year">Rok akademicki</label>
+              <input
+                id="course-academic-year"
+                name="academicYear"
+                type="text"
+                value={formData.academicYear}
+                onChange={handleInputChange}
+                placeholder="np. 2024/2025"
               />
             </div>
 

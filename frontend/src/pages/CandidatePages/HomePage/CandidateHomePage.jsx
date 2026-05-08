@@ -230,7 +230,9 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       {!isPaid ? (
                         <div className="application-meta-row">
                           <div className="application-meta-tags">
-                            <span className="application-status">{statusLabel}</span>
+                            <span className="application-status">
+                              {statusLabel}
+                            </span>
                             <span className="application-payment application-payment-unpaid">
                               Nieopłacona
                             </span>
@@ -244,7 +246,9 @@ function CandidateHomePage({ isLoggedIn, user }) {
                         </div>
                       ) : (
                         <>
-                          <span className="application-status">{statusLabel}</span>
+                          <span className="application-status">
+                            {statusLabel}
+                          </span>
                           <span className="application-payment application-payment-paid">
                             Opłacona
                           </span>
