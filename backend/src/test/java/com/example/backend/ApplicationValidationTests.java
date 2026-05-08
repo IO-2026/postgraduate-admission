@@ -3,6 +3,7 @@ package com.example.backend;
 import com.example.backend.model.application.ApplicationController;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.declaration.DeclarationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,10 +20,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ExtendWith(MockitoExtension.class)
 public class ApplicationValidationTests {
 
-  private MockMvc buildMockMvc() {
-    ApplicationService applicationService = new ApplicationService(null, null, null, null);
-    DeclarationService declarationService = new DeclarationService(null, null, null, null);
-    ApplicationController controller = new ApplicationController(applicationService, declarationService);
+    @Mock
+    private ApplicationService applicationService;
+
+    @Mock
+    private DeclarationService declarationService;
 
     @InjectMocks
     private ApplicationController applicationController;
