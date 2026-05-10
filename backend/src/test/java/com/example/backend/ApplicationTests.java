@@ -3,7 +3,6 @@ package com.example.backend;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.backend.model.application.ApplicationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
