@@ -814,8 +814,7 @@ function AdmissionPage() {
 
                 <label>
                   <span>
-                    Dyplom (PDF){" "}
-                    <span className="required-star">*</span>
+                    Dyplom (PDF) <span className="required-star">*</span>
                   </span>
                   <input
                     type="file"

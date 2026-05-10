@@ -470,7 +470,6 @@ function ApplicationManagementPage() {
               </div>
             </div>
           </div>
-
         </div>
 
         <div className="application-management-section">
