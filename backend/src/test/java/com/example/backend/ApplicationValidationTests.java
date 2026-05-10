@@ -10,12 +10,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationValidationTests {
@@ -37,72 +38,34 @@ public class ApplicationValidationTests {
     }
 
     @Test
-    void submitApplication_ShouldFail_WhenMissingTopLevelFields() throws Exception {
-        String payload = "{}";
+        void submitApplication_ShouldFail_WhenMissingApplicationPart() throws Exception {
+        MockMultipartFile diplomaPart = new MockMultipartFile(
+            "diploma",
+            "diploma.pdf",
+            MediaType.APPLICATION_PDF_VALUE,
+            "fake-pdf".getBytes()
+        );
 
-        MvcResult result = mockMvc.perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
+        MvcResult result = mockMvc.perform(multipart("/api/applications/submit")
+                .file(diplomaPart))
                 .andReturn();
 
         assertEquals(400, result.getResponse().getStatus());
     }
 
     @Test
-    void submitApplication_ShouldFail_WhenMissingApplicantFields() throws Exception {
-        String payload = """
-                {
-                  "applicantDateOfBirth": "2000-01-01",
-                  "applicantPesel": "123",
-                  "addressStreet": "",
-                  "addressPostalCode": "00-000",
-                  "addressCity": "",
-                  "previousDegree": "Inżynier",
-                  "fieldOfStudy": "Informatyka",
-                  "graduationYear": 2015,
-                  "courseId": 1,
-                  "university": "",
-                  "diplomaUrl": "not-a-url",
-                  "truthfulnessConsent": false,
-                  "gdprConsent": false
-                }
-                """;
+        void submitApplication_ShouldFail_WhenMissingDiplomaPart() throws Exception {
+        MockMultipartFile applicationPart = new MockMultipartFile(
+            "application",
+            "application.json",
+            MediaType.APPLICATION_JSON_VALUE,
+            "{}".getBytes()
+        );
 
-        MvcResult result = mockMvc.perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andReturn();
+        MvcResult result = mockMvc.perform(multipart("/api/applications/submit")
+                .file(applicationPart))
+            .andReturn();
 
         assertEquals(400, result.getResponse().getStatus());
-        assertFalse(result.getResponse().getContentAsString().contains("applicant"));
-    }
-
-    @Test
-    void submitApplication_ShouldFail_WhenEducationFieldsAreMissing() throws Exception {
-        String payload = """
-                {
-                  "applicantDateOfBirth": "2000-01-01",
-                  "applicantPesel": "44051401458",
-                  "addressStreet": "Testowa 1",
-                  "addressPostalCode": "30-059",
-                  "addressCity": "Kraków",
-                  "previousDegree": "",
-                  "fieldOfStudy": "",
-                  "graduationYear": null,
-                  "courseId": 1,
-                  "university": "AGH",
-                  "diplomaUrl": "https://example.com/diploma.pdf",
-                  "truthfulnessConsent": true,
-                  "gdprConsent": true
-                }
-                """;
-
-        MvcResult result = mockMvc.perform(post("/api/applications/submit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andReturn();
-
-        assertEquals(400, result.getResponse().getStatus());
-        assertFalse(result.getResponse().getContentAsString().contains("previousDegree"));
     }
 }

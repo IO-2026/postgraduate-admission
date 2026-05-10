@@ -2,9 +2,9 @@ package com.example.backend;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.context.TestConfiguration;
 
-@Configuration
+@TestConfiguration
 public class TestDynamicProperties {
 
     @DynamicPropertySource
@@ -23,5 +23,13 @@ public class TestDynamicProperties {
         registry.add("spring.mail.password", () -> "");
         registry.add("spring.datasource.hikari.maximum-pool-size", () -> "1");
         registry.add("spring.datasource.hikari.minimum-idle", () -> "1");
+        // Supabase properties (tests mock storage, so dummy values are safe)
+        registry.add("supabase.url", () -> "http://localhost:54321");
+        registry.add("supabase.service-role-key", () -> "test-dummy-key");
+        registry.add("supabase.storage.diplomas-bucket", () -> "diplomas");
+        registry.add("supabase.storage.diploma-max-bytes", () -> "10485760");
+        registry.add("supabase.storage.signed-url-ttl-seconds", () -> "900");
+        // Frontend URL used by SecurityConfig and other beans
+        registry.add("frontend.url", () -> "http://localhost:5173");
     }
 }
