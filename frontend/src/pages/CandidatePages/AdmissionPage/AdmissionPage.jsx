@@ -19,6 +19,8 @@ function resolveUserId(user) {
 }
 const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
+const MAX_DIPLOMA_BYTES = 10 * 1024 * 1024;
+const PDF_MIME_TYPE = "application/pdf";
 const CONSENT_ERROR_MESSAGES = {
   truthfulnessConsent: "Wymagana zgoda na prawdziwość danych.",
   gdprConsent: "Wymagana zgoda RODO.",
@@ -108,18 +110,6 @@ function isPastDate(value) {
   return parsed < today;
 }
 
-function isValidHttpUrl(value) {
-  try {
-    const url = new URL(String(value || "").trim());
-    if (!url.hostname) {
-      return false;
-    }
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function validateYear(value) {
   const raw = String(value || "").trim();
   if (!raw) {
@@ -138,7 +128,7 @@ function validateYear(value) {
   return "";
 }
 
-function validateDraft({ account, draft }) {
+function validateDraft({ account, draft, diplomaFile }) {
   const errors = {};
 
   if (isBlank(account.dateOfBirth)) {
@@ -200,11 +190,12 @@ function validateDraft({ account, draft }) {
     errors.university = "Nazwa uczelni musi mieć od 2 do 200 znaków.";
   }
 
-  const diplomaUrl = String(draft.diplomaUrl || "").trim();
-  if (!diplomaUrl) {
-    errors.diplomaUrl = REQUIRED_ERROR;
-  } else if (!isValidHttpUrl(diplomaUrl)) {
-    errors.diplomaUrl = "Podaj poprawny link do dyplomu (http/https).";
+  if (!diplomaFile) {
+    errors.diplomaFile = REQUIRED_ERROR;
+  } else if (diplomaFile.type !== PDF_MIME_TYPE) {
+    errors.diplomaFile = "Dozwolony jest wyłącznie plik PDF.";
+  } else if (diplomaFile.size > MAX_DIPLOMA_BYTES) {
+    errors.diplomaFile = "Plik PDF nie może przekraczać 10 MB.";
   }
 
   if (!draft.truthfulnessConsent) {
@@ -243,7 +234,6 @@ function getDraftDefaults(existingDraft) {
     previousDegree: safeDraft.previousDegree || "",
     fieldOfStudy: safeDraft.fieldOfStudy || "",
     graduationYear: safeDraft.graduationYear || "",
-    diplomaUrl: safeDraft.diplomaUrl || "",
     notes: safeDraft.notes || "",
     truthfulnessConsent: Boolean(safeDraft.truthfulnessConsent),
     gdprConsent: Boolean(safeDraft.gdprConsent),
@@ -283,6 +273,7 @@ function AdmissionPage() {
   const [draft, setDraft] = useState(() =>
     getDraftDefaults(loadDraft(courseId)),
   );
+  const [diplomaFile, setDiplomaFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -305,6 +296,7 @@ function AdmissionPage() {
   useEffect(() => {
     if (courseId) {
       setDraft(getDraftDefaults(loadDraft(courseId)));
+      setDiplomaFile(null);
     }
   }, [courseId]);
 
@@ -374,8 +366,8 @@ function AdmissionPage() {
   }, [courseId, draft]);
 
   useEffect(() => {
-    setErrors(validateDraft({ account, draft }));
-  }, [account, draft]);
+    setErrors(validateDraft({ account, draft, diplomaFile }));
+  }, [account, draft, diplomaFile]);
 
   const onFieldBlur = (event) => {
     const { name } = event.target;
@@ -403,6 +395,12 @@ function AdmissionPage() {
     setDraft((prev) => ({ ...prev, [name]: checked }));
   };
 
+  const onDiplomaChange = (event) => {
+    const file = event.target.files && event.target.files[0];
+    setDiplomaFile(file || null);
+    setTouched((prev) => ({ ...prev, diplomaFile: true }));
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     setSubmitAttempted(true);
@@ -414,7 +412,7 @@ function AdmissionPage() {
       return;
     }
 
-    const validationErrors = validateDraft({ account, draft });
+    const validationErrors = validateDraft({ account, draft, diplomaFile });
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -438,31 +436,30 @@ function AdmissionPage() {
         ? Number.parseInt(graduationYearRaw, 10)
         : null;
 
-      await submitApplication(
-        {
-          diplomaUrl: String(draft.diplomaUrl).trim(),
-          university: String(draft.university).trim(),
-          courseId,
-          applicantDateOfBirth: String(account.dateOfBirth).trim(),
-          applicantPesel: String(account.pesel).trim(),
-          addressStreet: String(draft.street).trim(),
-          addressPostalCode: String(draft.postalCode).trim(),
-          addressCity: String(draft.city).trim(),
-          previousDegree: previousDegree || null,
-          fieldOfStudy: fieldOfStudy || null,
-          graduationYear:
-            Number.isFinite(graduationYear) && graduationYear > 0
-              ? graduationYear
-              : null,
-          notes: notes || null,
-          truthfulnessConsent: Boolean(draft.truthfulnessConsent),
-          gdprConsent: Boolean(draft.gdprConsent),
-          newsletterConsent: Boolean(draft.newsletterConsent),
-        },
-        token,
-      );
+      const payload = {
+        university: String(draft.university).trim(),
+        courseId,
+        applicantDateOfBirth: String(account.dateOfBirth).trim(),
+        applicantPesel: String(account.pesel).trim(),
+        addressStreet: String(draft.street).trim(),
+        addressPostalCode: String(draft.postalCode).trim(),
+        addressCity: String(draft.city).trim(),
+        previousDegree: previousDegree || null,
+        fieldOfStudy: fieldOfStudy || null,
+        graduationYear:
+          Number.isFinite(graduationYear) && graduationYear > 0
+            ? graduationYear
+            : null,
+        notes: notes || null,
+        truthfulnessConsent: Boolean(draft.truthfulnessConsent),
+        gdprConsent: Boolean(draft.gdprConsent),
+        newsletterConsent: Boolean(draft.newsletterConsent),
+      };
+
+      await submitApplication({ payload, diplomaFile }, token);
 
       clearDraft(courseId);
+      setDiplomaFile(null);
       navigate("/admission/success");
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
@@ -807,23 +804,21 @@ function AdmissionPage() {
 
                 <label>
                   <span>
-                    Link do dyplomu (PDF){" "}
+                    Dyplom (PDF){" "}
                     <span className="required-star">*</span>
                   </span>
                   <input
-                    type="url"
-                    name="diplomaUrl"
-                    value={draft.diplomaUrl}
-                    onChange={onDraftInput}
-                    onBlur={onFieldBlur}
+                    type="file"
+                    name="diplomaFile"
+                    accept="application/pdf"
+                    onChange={onDiplomaChange}
                     disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("diplomaUrl")}
+                    aria-invalid={getInputAriaInvalid("diplomaFile")}
                   />
-                  {renderFieldError("diplomaUrl")}
+                  {renderFieldError("diplomaFile")}
                 </label>
                 <p className="admission-hint">
-                  Na tym etapie wystarczy link. Przesyłanie plików zostanie
-                  dodane później.
+                  Dodaj skan dyplomu w formacie PDF (maksymalnie 10 MB).
                 </p>
               </section>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   getApplication,
+  getApplicationDiplomaUrl,
   updateApplicationStatus,
   updateApplication,
 } from "../../../services/applicationApi";
@@ -23,7 +24,6 @@ function ApplicationManagementPage() {
     fieldOfStudy: "",
     university: "",
     graduationYear: "",
-    diplomaUrl: "",
     notes: "",
     truthfulnessConsent: false,
     gdprConsent: false,
@@ -35,6 +35,7 @@ function ApplicationManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [diplomaLoading, setDiplomaLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -62,7 +63,6 @@ function ApplicationManagementPage() {
             fieldOfStudy: data.fieldOfStudy || "",
             university: data.university || "",
             graduationYear: data.graduationYear || "",
-            diplomaUrl: data.diplomaUrl || "",
             notes: data.notes || "",
             truthfulnessConsent: data.truthfulnessConsent || false,
             gdprConsent: data.gdprConsent || false,
@@ -140,6 +140,25 @@ function ApplicationManagementPage() {
       setError(err.message || "Nie udało się zapisać zmian.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDiplomaDownload = async () => {
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      setDiplomaLoading(true);
+      const response = await getApplicationDiplomaUrl(applicationId);
+      const url = response?.url;
+      if (!url) {
+        throw new Error("Brak linku do dyplomu");
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setError(err.message || "Nie udało się pobrać dyplomu.");
+    } finally {
+      setDiplomaLoading(false);
     }
   };
 
@@ -446,54 +465,20 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field application-management-field-wide">
-              <label htmlFor="diplomaUrl">Link do dyplomu (URL)</label>
-              {isEditMode ? (
-                <input
-                  id="diplomaUrl"
-                  type="url"
-                  name="diplomaUrl"
-                  value={applicationData.diplomaUrl}
-                  onChange={handleChange}
-                  className="application-management-input"
-                />
-              ) : (
-                <div className="application-management-readonly">
-                  {applicationData.diplomaUrl ? (
-                    <a
-                      href={applicationData.diplomaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {applicationData.diplomaUrl}
-                    </a>
-                  ) : (
-                    "Brak danych"
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="application-management-section">
-            <h3>Zdjęcie dyplomu</h3>
-            <div className="application-management-diploma-placeholder">
-              <div className="application-management-diploma-placeholder-content">
-                <svg
-                  className="application-management-diploma-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
+              <label>Dyplom (PDF)</label>
+              <div className="application-management-readonly">
+                <button
+                  type="button"
+                  className="application-management-edit"
+                  onClick={handleDiplomaDownload}
+                  disabled={diplomaLoading}
                 >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                <p>Zdjęcie dyplomu</p>
-                <span>Zdjęcie dyplomu będzie wyświetlane tutaj</span>
+                  {diplomaLoading ? "Pobieranie..." : "Pobierz dyplom"}
+                </button>
               </div>
             </div>
           </div>
+
         </div>
 
         <div className="application-management-section">

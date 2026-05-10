@@ -28,6 +28,25 @@ export async function getApplication(applicationId) {
   return response.json();
 }
 
+export async function getApplicationDiplomaUrl(applicationId) {
+  const token = getToken();
+  const response = await fetch(
+    `${API_URL}/applications/${applicationId}/diploma-url`,
+    {
+      method: "GET",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać linku do dyplomu");
+  }
+
+  return response.json();
+}
+
 export async function fetchApplicationsOfUser(userId) {
   const token = getToken();
   const response = await fetch(`${API_URL}/applications/of/${userId}`, {
