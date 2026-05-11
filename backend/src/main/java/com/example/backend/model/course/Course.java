@@ -47,6 +47,8 @@ public class Course {
     @JoinColumn(name = "coordinator_id", nullable = true)
     private User coordinator;
 
+    private String academicYear;
+
     public Course(Long id, String name) {
         this.id = id;
         this.name = name;

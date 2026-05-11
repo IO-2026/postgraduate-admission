@@ -1,0 +1,18 @@
+.back-button-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 48px;
+  margin: 8px 0 16px;
+}
+
+.back-button-link {
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.back-button-icon {
+  width: 16px;
+  height: 16px;
+}

@@ -5,6 +5,7 @@ import {
   updateApplicationStatus,
   updateApplication,
 } from "../../../services/applicationApi";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./ApplicationManagementPage.css";
 
 function ApplicationManagementPage() {
@@ -12,6 +13,8 @@ function ApplicationManagementPage() {
 
   const [applicationData, setApplicationData] = useState({
     id: applicationId,
+    userId: null,
+    courseId: null,
     status: "SUBMITTED",
     isPaid: false,
     applicantPesel: "",
@@ -27,6 +30,8 @@ function ApplicationManagementPage() {
     notes: "",
     truthfulnessConsent: false,
     gdprConsent: false,
+    newsletterConsent: false,
+    submissionDateTime: "",
     userName: "",
     userSurname: "",
     userEmail: "",
@@ -51,6 +56,8 @@ function ApplicationManagementPage() {
         if (isMounted) {
           setApplicationData({
             id: data.id || data.applicationId || applicationId,
+            userId: data.userId || null,
+            courseId: data.courseId || null,
             status: data.status || "SUBMITTED",
             isPaid: data.isPaid || false,
             applicantPesel: data.applicantPesel || "",
@@ -66,6 +73,8 @@ function ApplicationManagementPage() {
             notes: data.notes || "",
             truthfulnessConsent: data.truthfulnessConsent || false,
             gdprConsent: data.gdprConsent || false,
+            newsletterConsent: data.newsletterConsent || false,
+            submissionDateTime: data.submissionDateTime || "",
             userName: data.user?.name || "",
             userSurname: data.user?.surname || "",
             userEmail: data.user?.email || "",
@@ -156,26 +165,10 @@ function ApplicationManagementPage() {
   if (error && !applicationData.userName) {
     return (
       <section className="application-management-view">
-        <Link
-          className="application-management-back-link"
+        <BackButton
           to={`/coordinator/courses/${courseId}/manage`}
-        >
-          <svg
-            className="application-management-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do zarządzania kierunkiem
-        </Link>
+          label="Wróć do zarządzania kierunkiem"
+        />
         <div className="application-management-state application-management-error">
           {error}
         </div>
@@ -185,26 +178,10 @@ function ApplicationManagementPage() {
 
   return (
     <section className="application-management-view">
-      <Link
-        className="application-management-back-link"
+      <BackButton
         to={`/coordinator/courses/${courseId}/manage`}
-      >
-        <svg
-          className="application-management-back-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M15 18l-6-6 6-6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Wróć do zarządzania kierunkiem
-      </Link>
+        label="Wróć do zarządzania kierunkiem"
+      />
 
       <header className="application-management-header">
         <h1>Zarządzanie aplikacją</h1>
@@ -244,6 +221,21 @@ function ApplicationManagementPage() {
               <label>Opłacone</label>
               <div className="application-management-readonly">
                 {applicationData.isPaid ? "Tak" : "Nie"}
+              </div>
+            </div>
+
+            <div className="application-management-field">
+              <label>Data złożenia</label>
+              <div className="application-management-readonly">
+                {applicationData.submissionDateTime
+                  ? new Intl.DateTimeFormat("pl-PL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(new Date(applicationData.submissionDateTime))
+                  : "Brak danych"}
               </div>
             </div>
           </div>
@@ -556,6 +548,23 @@ function ApplicationManagementPage() {
               ) : (
                 <div className="application-management-readonly">
                   {applicationData.gdprConsent ? "Tak" : "Nie"}
+                </div>
+              )}
+            </div>
+
+            <div className="application-management-field application-management-field-checkbox">
+              <label htmlFor="newsletterConsent">Zgoda na newsletter</label>
+              {isEditMode ? (
+                <input
+                  id="newsletterConsent"
+                  type="checkbox"
+                  name="newsletterConsent"
+                  checked={applicationData.newsletterConsent}
+                  onChange={handleChange}
+                />
+              ) : (
+                <div className="application-management-readonly">
+                  {applicationData.newsletterConsent ? "Tak" : "Nie"}
                 </div>
               )}
             </div>

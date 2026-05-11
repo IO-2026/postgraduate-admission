@@ -5,6 +5,7 @@ import {
   fetchCourses,
   updateCourse,
 } from "../../../services/courseApi";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./CourseManagementPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -12,6 +13,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
+  academicYear: "",
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorId: "",
@@ -53,6 +55,7 @@ function CourseManagementPage() {
             name: course.name || "",
             description: course.description || "",
             price: course.price ?? "",
+            academicYear: course.academicYear || "",
             recruitmentStart: course.recruitmentStart || "",
             recruitmentEnd: course.recruitmentEnd || "",
             coordinatorId: course.coordinatorId ?? "",
@@ -164,6 +167,7 @@ function CourseManagementPage() {
         name: formData.name.trim(),
         description: formData.description,
         price: parseFloat(formData.price),
+        ...(formData.academicYear && { academicYear: formData.academicYear }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -181,7 +185,8 @@ function CourseManagementPage() {
         id: updatedCourse.id ?? prev.id,
         name: updatedCourse.name || "",
         description: updatedCourse.description || "",
-        price: updatedCourse.price ?? "",
+        price: updatedCourse.price ?? prev.price,
+        academicYear: updatedCourse.academicYear || prev.academicYear,
         recruitmentStart: updatedCourse.recruitmentStart || "",
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
         coordinatorId: updatedCourse.coordinatorId ?? prev.coordinatorId,
@@ -199,23 +204,7 @@ function CourseManagementPage() {
 
   return (
     <section className="course-management-view">
-      <Link className="course-management-back-link" to="/">
-        <svg
-          className="course-management-back-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M15 18l-6-6 6-6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Wróć do strony koordynatora
-      </Link>
+      <BackButton label="Wróć do strony koordynatora" />
 
       <header className="course-management-header">
         <h1>Zarządzanie kierunkiem</h1>
@@ -270,6 +259,18 @@ function CourseManagementPage() {
                 value={formData.price}
                 onChange={handleInputChange}
                 required
+              />
+            </div>
+
+            <div className="course-management-field">
+              <label htmlFor="course-academic-year">Rok akademicki</label>
+              <input
+                id="course-academic-year"
+                name="academicYear"
+                type="text"
+                value={formData.academicYear}
+                onChange={handleInputChange}
+                placeholder="np. 2024/2025"
               />
             </div>
 

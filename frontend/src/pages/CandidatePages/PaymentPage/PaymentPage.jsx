@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import BackButton from "../../../components/BackButton/BackButton";
 
 function PaymentPage() {
   const { id } = useParams();
@@ -12,13 +13,9 @@ function PaymentPage() {
       <p style={{ marginTop: "1rem", color: "var(--text-secondary)" }}>
         Płatność za aplikację nr {id} (moduł w budowie).
       </p>
-      <Link
-        to="/"
-        className="primary-btn"
-        style={{ marginTop: "2rem", display: "inline-block" }}
-      >
-        Wróć do strony głównej
-      </Link>
+      <div style={{ marginTop: "2rem" }}>
+        <BackButton />
+      </div>
     </section>
   );
 }

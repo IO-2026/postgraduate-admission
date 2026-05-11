@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BackButton from "../../components/BackButton/BackButton";
 import "./ProfilePage.css";
 
 const roleTranslations = {
@@ -24,25 +25,7 @@ function ProfilePage({ user, onLogout }) {
 
   return (
     <section className="profile-view">
-      <div className="profile-top-actions">
-        <Link className="ghost-link profile-back-link" to="/">
-          <svg
-            className="profile-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do strony głównej
-        </Link>
-      </div>
+      <BackButton />
       <div className="profile-card">
         <header className="profile-header">
           <div className="profile-avatar">{avatarLabel}</div>

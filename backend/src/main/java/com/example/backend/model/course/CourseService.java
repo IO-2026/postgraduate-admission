@@ -59,23 +59,12 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
+    public void updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        course.setName(courseDTO.getName());
-        course.setDescription(courseDTO.getDescription());
-        course.setPrice(courseDTO.getPrice());
-        course.setRecruitmentStart(courseDTO.getRecruitmentStart());
-        course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
-
-        if (courseDTO.getCoordinatorId() != null) {
-            User u = userRepository.findById(courseDTO.getCoordinatorId())
-                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
-            course.setCoordinator(u);
-        }
-
-        return courseMapper.toDTO(courseRepository.save(course));
+        courseMapper.updateEntityFromDTO(courseDTO, course);
+        courseMapper.toDTO(courseRepository.save(course));
     }
 
 
