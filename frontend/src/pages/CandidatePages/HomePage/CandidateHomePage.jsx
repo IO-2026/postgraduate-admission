@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchApplicationsOfUser, withdrawApplication } from "../../../services/applicationApi";
+import {
+  fetchApplicationsOfUser,
+  withdrawApplication,
+} from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
 
@@ -259,21 +262,37 @@ function CandidateHomePage({ isLoggedIn, user }) {
                             </span>
                           )}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                          {!isPaid && status !== "WITHDRAWN" && status !== "REJECTED" && (
-                            <Link
-                              to={`/payment/${application.id}`}
-                              className="primary-btn application-pay-btn"
-                            >
-                              Opłać
-                            </Link>
-                          )}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "6px",
+                          }}
+                        >
+                          {!isPaid &&
+                            status !== "WITHDRAWN" &&
+                            status !== "REJECTED" && (
+                              <Link
+                                to={`/payment/${application.id}`}
+                                className="primary-btn application-pay-btn"
+                              >
+                                Opłać
+                              </Link>
+                            )}
                           {status !== "WITHDRAWN" && status !== "REJECTED" && (
                             <button
                               type="button"
                               className="ghost-btn application-withdraw-btn"
                               onClick={() => handleWithdraw(application.id)}
-                              style={{ padding: "8px 20px", fontSize: "0.8rem", borderRadius: "10px", width: "100%", border: "1px solid #e11d48", color: "#e11d48", background: "transparent" }}
+                              style={{
+                                padding: "8px 20px",
+                                fontSize: "0.8rem",
+                                borderRadius: "10px",
+                                width: "100%",
+                                border: "1px solid #e11d48",
+                                color: "#e11d48",
+                                background: "transparent",
+                              }}
                             >
                               Zrezygnuj
                             </button>
@@ -289,8 +308,8 @@ function CandidateHomePage({ isLoggedIn, user }) {
         ) : null}
 
         {!loadingApplications &&
-          !applicationsError &&
-          applications.length === 0 ? (
+        !applicationsError &&
+        applications.length === 0 ? (
           <p className="applications-empty">Brak bieżących aplikacji.</p>
         ) : null}
       </section>

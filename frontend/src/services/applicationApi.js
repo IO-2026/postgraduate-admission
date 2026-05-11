@@ -89,12 +89,15 @@ export async function updateApplication(applicationDto) {
 
 export async function withdrawApplication(applicationId) {
   const token = getToken();
-  const response = await fetch(`${API_URL}/applications/${applicationId}/withdraw`, {
-    method: "PATCH",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  const response = await fetch(
+    `${API_URL}/applications/${applicationId}/withdraw`,
+    {
+      method: "PATCH",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     },
-  });
+  );
 
   if (!response.ok) {
     throw new Error("Nie udało się zrezygnować ze zgłoszenia");
