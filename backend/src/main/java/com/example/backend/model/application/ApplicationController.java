@@ -1,21 +1,18 @@
 package com.example.backend.model.application;
 
-import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
-import com.example.backend.model.user.User;
 import lombok.RequiredArgsConstructor;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -23,16 +20,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ApplicationController {
     private final ApplicationService applicationService;
 
-    @PostMapping("/submit")
-    public ResponseEntity<Void> submit(
-            @Valid @RequestBody AdmissionSubmitRequest request,
-            @AuthenticationPrincipal User authenticatedUser
-    ) {
-        if (authenticatedUser == null || authenticatedUser.getId() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    @GetMapping("/of/{userId}")
+    public List<ApplicationDto> getApplicationsOfUser(@PathVariable long userId) {
+        return applicationService.getApplicationsOfUser(userId);
+    }
 
-        applicationService.saveApplication(request, authenticatedUser.getId());
+    @PostMapping("/submit")
+    public ResponseEntity<?> submit(@RequestBody ApplicationDto request) {
+        Application savedApplication = applicationService.saveApplication(request);
+        if (savedApplication == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

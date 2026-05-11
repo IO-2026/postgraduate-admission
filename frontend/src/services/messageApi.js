@@ -1,0 +1,95 @@
+import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
+
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const API_BASE = API_URL + "/messages";
+
+function getToken() {
+  try {
+    const savedAuth = localStorage.getItem("pg-admission-auth");
+    if (!savedAuth) return null;
+    const parsed = JSON.parse(savedAuth);
+    return parsed?.token || null;
+  } catch {
+    return null;
+  }
+}
+
+async function request(endpoint, options = {}) {
+  const token = getToken();
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const data = await response.json();
+      errorMessage = data.message || errorMessage;
+    } catch {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
+  }
+
+  if (response.status === 204 || response.status === 201) {
+    return null;
+  }
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
+export async function sendMessage(payload) {
+  return request("/send", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function fetchInbox() {
+  return request("/inbox");
+}
+
+export async function fetchUnreadCount() {
+  return request("/unread-count");
+}
+
+export async function markAsRead(recipientId) {
+  return request(`/${recipientId}/read`, {
+    method: "PATCH",
+  });
+}
+
+export async function getAvailableRecipients(user) {
+  const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+  if (user?.role === "Admin") {
+    const res = await fetch(API_URL + "/users", { headers });
+    if (!res.ok) throw new Error("Błąd pobierania użytkowników");
+    const users = await res.json();
+    return users.filter(
+      (u) => u.roleName === "Candidate" || u.role === "Candidate",
+    );
+  }
+
+  if (user?.role === "Coordinator") {
+    const myCourses = await fetchCoursesOfCoordinator(user.id);
+
+    const candidatesPromises = myCourses.map((course) =>
+      fetchCourseCandidates(course.id),
+    );
+    const results = await Promise.all(candidatesPromises);
+
+    const allCandidates = results.flat();
+    return Array.from(new Map(allCandidates.map((c) => [c.id, c])).values());
+  }
+
+  return [];
+}

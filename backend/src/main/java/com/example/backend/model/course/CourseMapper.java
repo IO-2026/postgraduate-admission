@@ -1,40 +1,20 @@
 package com.example.backend.model.course;
 
 import com.example.backend.model.course.dto.CourseDTO;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class CourseMapper {
-    public CourseDTO toDTO(Course course) {
-        if (course == null) return null;
+@Mapper(componentModel = "spring")
+public interface CourseMapper {
 
-        Long coordId = course.getCoordinator() != null ? course.getCoordinator().getId() : null;
+    @Mapping(source = "coordinator.id", target = "coordinatorId")
+    @Mapping(source = "coordinator.name", target = "coordinatorName")
+    @Mapping(source = "coordinator.email", target = "coordinatorEmail")
+    CourseDTO toDTO(Course course);
 
-        return CourseDTO.builder()
-                .id(course.getId())
-                .name(course.getName())
-                .description(course.getDescription())
-                .price(course.getPrice())
-                .placesLimit(course.getPlacesLimit())
-                .recruitmentStart(course.getRecruitmentStart())
-                .recruitmentEnd(course.getRecruitmentEnd())
-                .coordinatorId(coordId)
-                .build();
-    }
+    @Mapping(target = "coordinator", ignore = true)
+    @Mapping(target = "placesLimit", source = "placesLimit", defaultValue = "30")
+    Course toEntity(CourseDTO dto);
 
-    public Course toEntity(CourseDTO dto) {
-        if (dto == null) return null;
-
-        Course course = new Course();
-        course.setId(dto.getId());
-        course.setName(dto.getName());
-        course.setDescription(dto.getDescription());
-        course.setPrice(dto.getPrice());
-        if (dto.getPlacesLimit() != null) {
-            course.setPlacesLimit(dto.getPlacesLimit());
-        }
-        course.setRecruitmentStart(dto.getRecruitmentStart());
-        course.setRecruitmentEnd(dto.getRecruitmentEnd());
-        return course;
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDTO(CourseDTO dto, @MappingTarget Course entity);
 }

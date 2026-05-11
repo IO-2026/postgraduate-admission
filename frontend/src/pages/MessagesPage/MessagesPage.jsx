@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BackButton from "../../components/BackButton/BackButton";
 import "./MessagesPage.css";
 
 function MessagesPage() {
@@ -11,9 +12,7 @@ function MessagesPage() {
         </p>
         <p className="messages-empty">Brak wiadomości.</p>
 
-        <Link className="ghost-link" to="/">
-          Wróć do strony głównej
-        </Link>
+        <BackButton />
       </div>
     </section>
   );

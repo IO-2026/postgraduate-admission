@@ -1,3 +1,7 @@
+.coordinator-actions {
+  margin-top: 24px;
+}
+
 .coordinator-home-view {
   display: grid;
   gap: 24px;
@@ -48,6 +52,16 @@
   max-width: 560px;
   font-size: 1.05rem;
   line-height: 1.6;
+}
+
+.coordinator-home-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .coordinator-state {

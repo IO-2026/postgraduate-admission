@@ -18,8 +18,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "applications")
@@ -48,6 +50,8 @@ public class Application {
 
     @Column(name = "is_paid")
     private Boolean isPaid;
+
+    private String placeOfBirth;
 
     @Column(name = "applicant_date_of_birth")
     private LocalDate applicantDateOfBirth;
@@ -82,8 +86,13 @@ public class Application {
     @Column(name = "gdpr_consent")
     private Boolean gdprConsent;
 
+    private Boolean newsletterConsent;
+
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private ApplicationStatus status;
 
+    @CreationTimestamp
+    @Column(name = "submission_date")
+    private LocalDateTime submissionDateTime;
 }

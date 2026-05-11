@@ -7,6 +7,7 @@ import {
   deleteCourse,
 } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./AdminCoursesPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -14,6 +15,7 @@ const INITIAL_FORM_STATE = {
   description: "",
   price: "",
   placesLimit: "",
+  academicYear: "",
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
@@ -126,6 +128,7 @@ function AdminCoursesPage() {
       description: course.description || "",
       price: course.price || "",
       placesLimit: course.placesLimit ?? "",
+      academicYear: course.academicYear || "",
       recruitmentStart: course.recruitmentStart || "",
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
@@ -187,6 +190,7 @@ function AdminCoursesPage() {
         description: formData.description,
         price: parseFloat(formData.price),
         placesLimit: parseInt(formData.placesLimit, 10),
+        ...(formData.academicYear && { academicYear: formData.academicYear }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -214,27 +218,11 @@ function AdminCoursesPage() {
 
   return (
     <section className="courses-view">
-      <div className="courses-top-actions">
-        <Link className="ghost-link courses-back-link" to="/">
-          <svg
-            className="courses-back-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Wróć do strony głównej
-        </Link>
+      <div className="courses-top-bar">
+        <BackButton />
         {!isFormOpen && (
           <button
-            className="primary-btn add-course-btn add-course-btn--top"
+            className="primary-btn add-course-btn"
             onClick={() => setIsFormOpen(true)}
           >
             + Dodaj kierunek
@@ -287,6 +275,16 @@ function AdminCoursesPage() {
                 onChange={handleInputChange}
                 required
                 placeholder="np. 40"
+              />
+            </div>
+            <div className="form-group">
+              <label>Rok akademicki</label>
+              <input
+                type="text"
+                name="academicYear"
+                value={formData.academicYear}
+                onChange={handleInputChange}
+                placeholder="np. 2024/2025"
               />
             </div>
             <div className="form-group">

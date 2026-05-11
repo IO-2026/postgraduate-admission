@@ -1,6 +1,7 @@
 package com.example.backend.model.course;
 
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.user.UserMapper;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.model.user.UserService;
 import com.example.backend.model.user.User;
@@ -24,11 +25,17 @@ public class CourseService {
     private final ApplicationService applicationService;
     private final UserService userService;
     private final CourseMapper courseMapper;
+    private final UserMapper userMapper;
 
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
                 .map(courseMapper::toDTO)
+                .sorted(Comparator.comparing(CourseDTO::getName))
                 .collect(Collectors.toList());
+    }
+
+    public CourseDTO getCourseById(Long id) {
+        return courseRepository.findById(id).map(courseMapper::toDTO).orElse(null);
     }
 
     public CourseDTO saveCourse(CourseDTO courseDTO) {
@@ -52,26 +59,17 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    public CourseDTO updateCourse(Long id, CourseDTO courseDTO) {
+    public void updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        course.setName(courseDTO.getName());
-        course.setDescription(courseDTO.getDescription());
-        course.setPrice(courseDTO.getPrice());
-        if (courseDTO.getPlacesLimit() != null) {
-            course.setPlacesLimit(courseDTO.getPlacesLimit());
-        }
-        course.setRecruitmentStart(courseDTO.getRecruitmentStart());
-        course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
 
         if (courseDTO.getCoordinatorId() != null) {
             User u = userRepository.findById(courseDTO.getCoordinatorId())
                     .orElseThrow(() -> new RuntimeException("Coordinator not found"));
             course.setCoordinator(u);
         }
-
-        return courseMapper.toDTO(courseRepository.save(course));
+        courseMapper.updateEntityFromDTO(courseDTO, course);
+        courseMapper.toDTO(courseRepository.save(course));
     }
 
 
@@ -93,7 +91,7 @@ public class CourseService {
     public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
         return applicationService.getAllApplications().stream()
                 .filter(a -> Objects.equals(a.getCourseId(), courseId))
-                .map(a -> userService.mapToCandidateWithApplicationDto(a.getUser(), a))
+                .map(a -> userMapper.toCandidateWithApplicationDto(a.getUser(), a))
                 .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
                 .collect(Collectors.toList());
     }

@@ -1,16 +1,11 @@
 package com.example.backend.services;
 
-
-import com.example.backend.model.application.ApplicationMapper;
-import com.example.backend.model.application.dto.AdmissionAddressDto;
-import com.example.backend.model.application.dto.AdmissionApplicantDto;
-import com.example.backend.model.application.dto.AdmissionDetailsDto;
-import com.example.backend.model.application.dto.AdmissionEducationDto;
-import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.Application;
+import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.application.ApplicationStatus;
+import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -18,10 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.MailSendException;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,56 +41,59 @@ public class ApplicationServiceTest {
     @Mock
     private EmailService emailService;
 
-    @Spy
+    @Mock
     private ApplicationMapper applicationMapper;
 
     @InjectMocks
     private ApplicationService applicationService;
 
+    private ApplicationDto createDefaultApplicationDto() {
+        return ApplicationDto.builder()
+                .university("Test University")
+                .courseId(100L)
+                .diplomaUrl("https://example.com/diploma.pdf")
+                .applicantPesel("44051401458")
+                .applicantDateOfBirth(LocalDate.of(1990, 1, 1))
+                .addressStreet("Testowa 1")
+                .addressPostalCode("30-059")
+                .addressCity("Kraków")
+                .previousDegree("Inżynier")
+                .fieldOfStudy("Informatyka")
+                .graduationYear(2015)
+                .truthfulnessConsent(true)
+                .gdprConsent(true)
+                .build();
+    }
+
+    private User createMockUser(Long id, String email) {
+        User user = new User();
+        user.setId(id);
+        user.setName("Jan");
+        user.setSurname("Kowalski");
+        user.setEmail(email);
+        user.setTelNumber("123456789");
+        return user;
+    }
+
     @Test
     void shouldSuccessfullySaveApplication() {
-        // GIVEN: Przygotowujemy dane wejściowe
-        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
+        // GIVEN
+        ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(1L);
 
-        AdmissionAddressDto address = new AdmissionAddressDto();
-        address.setStreet("Testowa 1");
-        address.setPostalCode("30-059");
-        address.setCity("Kraków");
-
-        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setPesel("44051401458");
-        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
-        applicant.setAddress(address);
-
-        AdmissionEducationDto education = new AdmissionEducationDto();
-        education.setPreviousDegree("Inżynier");
-        education.setFieldOfStudy("Informatyka");
-        education.setGraduationYear(2015);
-
-        AdmissionDetailsDto details = new AdmissionDetailsDto();
-        details.setUniversity("Test University");
-        details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
-        details.setTruthfulnessConsent(true);
-        details.setGdprConsent(true);
-
-        request.setApplicant(applicant);
-        request.setEducation(education);
-        request.setDetails(details);
-
-        User mockUser = new User();
-        mockUser.setId(1L);
-        mockUser.setName("Jan");
-        mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan@example.com");
-        mockUser.setTelNumber("123456789");
+        User mockUser = createMockUser(1L, "jan@example.com");
+        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        Application mockApplication = new Application();
+        mockApplication.setUniversity("Test University");
+        mockApplication.setCourseId(100L);
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // WHEN
-        Application result = applicationService.saveApplication(request, 1L);
+        Application result = applicationService.saveApplication(request);
 
-        // THEN:
+        // THEN
         assertNotNull(result);
         assertEquals("Test University", result.getUniversity());
         assertEquals(100L, result.getCourseId());
@@ -106,94 +106,38 @@ public class ApplicationServiceTest {
 
     @Test
     void shouldSendEmailAfterSavingApplication() {
-        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
+        ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(3L);
 
-        AdmissionAddressDto address = new AdmissionAddressDto();
-        address.setStreet("Testowa 1");
-        address.setPostalCode("30-059");
-        address.setCity("Kraków");
-
-        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setPesel("44051401458");
-        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
-        applicant.setAddress(address);
-
-        AdmissionEducationDto education = new AdmissionEducationDto();
-        education.setPreviousDegree("Inżynier");
-        education.setFieldOfStudy("Informatyka");
-        education.setGraduationYear(2015);
-
-        AdmissionDetailsDto details = new AdmissionDetailsDto();
-        details.setUniversity("Test University");
-        details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
-        details.setTruthfulnessConsent(true);
-        details.setGdprConsent(true);
-
-        request.setApplicant(applicant);
-        request.setEducation(education);
-        request.setDetails(details);
-
-        User mockUser = new User();
-        mockUser.setId(1L);
-        mockUser.setName("Jan");
-        mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan@example.com");
-        mockUser.setTelNumber("123456789");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        User mockUser = createMockUser(3L, "jan3@example.com");
+        when(userRepository.findById(3L)).thenReturn(Optional.of(mockUser));
+        when(applicationRepository.findAll()).thenReturn(Collections.emptyList());
+        Application mockApplication = new Application();
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        applicationService.saveApplication(request, 1L);
+        applicationService.saveApplication(request);
 
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
-
-
     }
 
     @Test
     void shouldFailAndInvalidateSubmissionWhenEmailSendingFails() {
-        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
+        ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(2L);
 
-        AdmissionAddressDto address = new AdmissionAddressDto();
-        address.setStreet("Testowa 1");
-        address.setPostalCode("30-059");
-        address.setCity("Kraków");
+        User mockUser = createMockUser(2L, "jan2@example.com");
 
-        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setPesel("44051401458");
-        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
-        applicant.setAddress(address);
-
-        AdmissionEducationDto education = new AdmissionEducationDto();
-        education.setPreviousDegree("Inżynier");
-        education.setFieldOfStudy("Informatyka");
-        education.setGraduationYear(2015);
-
-        AdmissionDetailsDto details = new AdmissionDetailsDto();
-        details.setUniversity("Test University");
-        details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
-        details.setTruthfulnessConsent(true);
-        details.setGdprConsent(true);
-
-        request.setApplicant(applicant);
-        request.setEducation(education);
-        request.setDetails(details);
-
-        User mockUser = new User();
-        mockUser.setId(1L);
-        mockUser.setName("Jan");
-        mockUser.setSurname("Kowalski");
-        mockUser.setEmail("jan@example.com");
-        mockUser.setTelNumber("123456789");
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(mockUser));
+        Application mockApplication = new Application();
+        when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
-        org.mockito.Mockito.doThrow(new MailSendException("smtp unavailable"))
+
+        Mockito.doThrow(new MailSendException("smtp unavailable"))
                 .when(emailService)
                 .sendApplicationStatusChange(eq(mockUser), any(Application.class));
 
-        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request, 1L));
+        assertThrows(MailSendException.class, () -> applicationService.saveApplication(request));
 
         verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
         verify(emailService, times(1)).sendApplicationStatusChange(eq(mockUser), any(Application.class));
@@ -201,29 +145,8 @@ public class ApplicationServiceTest {
 
     @Test
     void shouldFailWhenUserProfileIsIncomplete() {
-        AdmissionSubmitRequest request = new AdmissionSubmitRequest();
-
-        AdmissionAddressDto address = new AdmissionAddressDto();
-        address.setStreet("Testowa 1");
-        address.setPostalCode("30-059");
-        address.setCity("Kraków");
-
-        AdmissionApplicantDto applicant = new AdmissionApplicantDto();
-        applicant.setPesel("44051401458");
-        applicant.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
-        applicant.setAddress(address);
-
-        AdmissionEducationDto education = new AdmissionEducationDto();
-        AdmissionDetailsDto details = new AdmissionDetailsDto();
-        details.setUniversity("Test University");
-        details.setCourseId(100L);
-        details.setDiplomaUrl("https://example.com/diploma.pdf");
-        details.setTruthfulnessConsent(true);
-        details.setGdprConsent(true);
-
-        request.setApplicant(applicant);
-        request.setEducation(education);
-        request.setDetails(details);
+        ApplicationDto request = createDefaultApplicationDto();
+        request.setUserId(1L);
 
         User incompleteUser = new User();
         incompleteUser.setId(1L);
@@ -234,11 +157,11 @@ public class ApplicationServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(incompleteUser));
 
-        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, 1L));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request));
     }
 
     @Test
-    void shouldChangeStatusToWithdrawn(){
+    void shouldChangeStatusToWithdrawn() {
         Long id = 1L;
         Application application = new Application();
         application.setId(id);

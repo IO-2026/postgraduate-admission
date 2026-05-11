@@ -22,4 +22,5 @@ public class CourseDTO {
     private Long coordinatorId;
     private String coordinatorName;
     private String coordinatorEmail;
+    private String academicYear;
 }

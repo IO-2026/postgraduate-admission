@@ -21,18 +21,11 @@ function AdminHomePage() {
               {action.label}
             </Link>
           ))}
+          <Link className="ghost-link" to="/send-message">
+            Wyślij wiadomość
+          </Link>
         </div>
       </header>
-
-      <section className="admin-tools-section">
-        <div className="admin-tools-header">
-          <h2>Narzędzia administracyjne</h2>
-          <span className="admin-tools-count">{quickActions.length}</span>
-        </div>
-        <p className="admin-tools-empty">
-          Wybierz jedną z akcji powyżej, aby rozpocząć zarządzanie systemem.
-        </p>
-      </section>
     </section>
   );
 }

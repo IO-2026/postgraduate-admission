@@ -1,6 +1,5 @@
 package com.example.backend.model.application;
 
-import com.example.backend.model.application.dto.AdmissionSubmitRequest;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
@@ -9,23 +8,29 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
-
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final ApplicationMapper applicationMapper;
 
     @Transactional
-    public Application saveApplication(AdmissionSubmitRequest admissionRequest, Long authenticatedUserId) {
-        User user = userRepository.findById(authenticatedUserId)
+    public Application saveApplication(ApplicationDto admissionRequest) {
+        User user = userRepository.findById(admissionRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
         validateProfileCompleteness(user);
+
+        long courseId = admissionRequest.getCourseId();
+        long userId = user.getId();
+
+        List<ApplicationDto> applicationsOfUser = getApplicationsOfUser(userId);
+        if (applicationsOfUser.stream().anyMatch(application -> application.getCourseId() == courseId)) {
+            return null;
+        }
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
@@ -70,7 +75,7 @@ public class ApplicationService {
         long id = dto.getId();
 
         Application existingApplication = applicationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Application not found"));
         applicationMapper.updateEntityFromDTO(dto, existingApplication);
         applicationMapper.toDto(applicationRepository.save(existingApplication));
     }
@@ -78,5 +83,12 @@ public class ApplicationService {
     public ApplicationDto getApplication(long id) {
         Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
         return applicationMapper.toDto(application);
+    }
+
+    public List<ApplicationDto> getApplicationsOfUser(long userId) {
+        return applicationRepository.findAll().stream()
+                .filter(application -> application.getUser().getId() == userId)
+                .map(applicationMapper::toDto)
+                .toList();
     }
 }

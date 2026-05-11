@@ -4,9 +4,10 @@
   min-height: 0;
 }
 
-.courses-top-actions {
+.courses-top-bar {
+  display: flex;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
 }
 
 .add-course-btn--top {

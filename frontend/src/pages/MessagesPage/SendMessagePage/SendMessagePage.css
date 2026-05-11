@@ -1,0 +1,225 @@
+.send-message-view {
+  display: grid;
+  align-items: start;
+  padding: 0 0 40px;
+}
+
+.send-message-top-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 48px;
+  margin: 8px 0 16px;
+}
+
+.send-message-back-link {
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.send-message-back-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.send-message-card {
+  border-radius: 24px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+  padding: 28px;
+}
+
+.send-message-card h1 {
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  color: var(--text-strong);
+}
+
+.send-message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group > label,
+.recipients-section > label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-strong);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+  border-color: var(--field-focus);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.recipients-list {
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.recipients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ghost-btn-small {
+  background: var(--ghost-bg);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+}
+
+.recipients-search {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: var(--field-bg);
+  color: var(--text-strong);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.recipients-search:focus {
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+  border-color: var(--field-focus);
+}
+
+.recipients-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+}
+
+.recipients-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.recipients-table th,
+.recipients-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text-strong);
+}
+
+.recipients-table th {
+  background-color: var(--field-bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-strong);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.recipients-table tr:last-child td {
+  border-bottom: none;
+}
+
+.recipients-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.recipients-table tbody tr:hover {
+  background-color: rgba(15, 127, 115, 0.08);
+}
+
+.recipients-table tbody tr.selected {
+  background-color: rgba(15, 127, 115, 0.12);
+}
+
+.recipients-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.recipients-empty {
+  display: block;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.recipients-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.course-selector {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-strong);
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: 3px solid rgba(15, 127, 115, 0.18);
+  border-color: var(--field-focus);
+}
+
+@media (max-width: 640px) {
+  .send-message-card {
+    padding: 20px;
+  }
+}

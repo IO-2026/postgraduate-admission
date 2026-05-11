@@ -29,8 +29,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -145,11 +145,10 @@ public class AdminControllerIntegrationTest {
         payload.put("recruitmentStart", "2026-05-01");
         payload.put("recruitmentEnd", "2026-08-01");
 
-        mockMvc.perform(put("/api/courses/" + course.getId())
+        mockMvc.perform(patch("/api/courses/" + course.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.placesLimit").value(55));
+                .andExpect(status().isOk());
 
         Course updatedCourse = courseRepository.findById(course.getId()).orElseThrow();
         assertEquals(55, updatedCourse.getPlacesLimit());
