@@ -4,20 +4,8 @@ import { Link } from "react-router-dom";
 import { fetchCourses } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import BackButton from "../../../components/BackButton/BackButton";
+import { getToken } from "../../../config/auth";
 import "./CoursesPage.css";
-
-const AUTH_STORAGE_KEY = "pg-admission-auth";
-
-function getAuthToken() {
-  try {
-    const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!savedAuth) return null;
-    const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token || null;
-  } catch {
-    return null;
-  }
-}
 
 function getCoordinatorDetails(course) {
   const coordinator = course.coordinator || {};
@@ -41,7 +29,7 @@ function CoursesPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = getAuthToken();
+  const token = getToken();
 
   const { data: coordinators = [] } = useQuery(
     ["coordinatorsWithCourses", token],

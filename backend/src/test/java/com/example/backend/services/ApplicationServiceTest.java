@@ -6,7 +6,6 @@ import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.ApplicationDto;
-import com.example.backend.model.application.ApplicationDiplomaRepository;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.storage.SupabaseStorageService;
@@ -48,9 +47,6 @@ public class ApplicationServiceTest {
 
     @Mock
     private ApplicationMapper applicationMapper;
-
-    @Mock
-    private ApplicationDiplomaRepository applicationDiplomaRepository;
 
     @Mock
     private SupabaseStorageService storageService;

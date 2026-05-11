@@ -7,8 +7,7 @@ import { submitApplication } from "./admissionApi";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-
-const AUTH_STORAGE_KEY = "pg-admission-auth";
+import { AUTH_STORAGE_KEY } from "../../../config/auth";
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;

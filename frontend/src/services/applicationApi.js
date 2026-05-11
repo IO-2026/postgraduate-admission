@@ -1,17 +1,7 @@
+import { API_URL } from "../config/api";
+import { getToken } from "../config/auth";
+
 const APPLICATIONS_BASE_PATH = "/api/applications";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
-
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token || null;
-  } catch {
-    return null;
-  }
-}
 
 export async function getApplication(applicationId) {
   const token = getToken();

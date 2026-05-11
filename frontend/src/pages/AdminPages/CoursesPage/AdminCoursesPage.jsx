@@ -8,6 +8,7 @@ import {
 } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import BackButton from "../../../components/BackButton/BackButton";
+import { getToken } from "../../../config/auth";
 import "./AdminCoursesPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -19,17 +20,6 @@ const INITIAL_FORM_STATE = {
   recruitmentEnd: "",
   coordinatorEmail: "",
 };
-
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token || null;
-  } catch {
-    return null;
-  }
-}
 
 function AdminCoursesPage() {
   const [courses, setCourses] = useState([]);

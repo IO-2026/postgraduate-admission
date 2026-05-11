@@ -1,18 +1,7 @@
 import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL } from "../config/api";
+import { getToken } from "../config/auth";
 const API_BASE = API_URL + "/messages";
-
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsed = JSON.parse(savedAuth);
-    return parsed?.token || null;
-  } catch {
-    return null;
-  }
-}
 
 async function request(endpoint, options = {}) {
   const token = getToken();
@@ -67,7 +56,7 @@ export async function markAsRead(recipientId) {
 }
 
 export async function getAvailableRecipients(user) {
-  const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
+  const token = getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   if (user?.role === "Admin") {
