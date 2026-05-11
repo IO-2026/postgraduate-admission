@@ -127,6 +127,21 @@ public class AdminControllerIntegrationTest {
     }
 
     @Test
+    public void testCreateCourseWithoutPlacesLimitShouldFail() throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("name", "Analityka danych");
+        payload.put("description", "Program testowy");
+        payload.put("price", 4500.0);
+        payload.put("recruitmentStart", "2026-06-01");
+        payload.put("recruitmentEnd", "2026-07-31");
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testUpdateCourseWithPlacesLimit() throws Exception {
         Course course = new Course();
         course.setName("Kierunek testowy");

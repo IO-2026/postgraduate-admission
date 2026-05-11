@@ -12,7 +12,6 @@ public interface CourseMapper {
     CourseDTO toDTO(Course course);
 
     @Mapping(target = "coordinator", ignore = true)
-    @Mapping(target = "placesLimit", source = "placesLimit", defaultValue = "30")
     Course toEntity(CourseDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
