@@ -116,5 +116,4 @@ public class EmailService {
 
         send("jakiś_mail_wspólny@xyzabccbazyx.com", fullSubject, body);
     }
-
 }

@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import BackButton from "../../components/BackButton/BackButton";
 import { sendContactForm } from "../../services/contactApi";
 import "./ContactFormPage.css";
 
 function ContactFormPage() {
-  const navigate = useNavigate();
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);

@@ -16,5 +16,4 @@ public class FormSendRequest {
     @NotBlank(message = "Treść jest wymagana")
     @Size(max = 4000, message = "Treść może mieć maksymalnie 4000 znaków")
     private String content;
-
 }

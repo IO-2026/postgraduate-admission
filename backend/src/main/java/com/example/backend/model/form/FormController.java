@@ -1,7 +1,6 @@
 package com.example.backend.model.form;
 
 import com.example.backend.model.form.dto.FormSendRequest;
-import com.example.backend.model.message.dto.MessageSendRequest;
 import com.example.backend.model.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
