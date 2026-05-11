@@ -86,3 +86,20 @@ export async function updateApplication(applicationDto) {
   const responseText = await response.text();
   return responseText ? JSON.parse(responseText) : null;
 }
+
+export async function withdrawApplication(applicationId) {
+  const token = getToken();
+  const response = await fetch(`${API_URL}/applications/${applicationId}/withdraw`, {
+    method: "PATCH",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się zrezygnować ze zgłoszenia");
+  }
+
+  const responseText = await response.text();
+  return responseText ? JSON.parse(responseText) : null;
+}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchApplicationsOfUser } from "../../../services/applicationApi";
+import { fetchApplicationsOfUser, withdrawApplication } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
 
@@ -29,6 +29,23 @@ function CandidateHomePage({ isLoggedIn, user }) {
   const [applicationsError, setApplicationsError] = useState("");
 
   const userId = useMemo(() => resolveUserId(user), [user]);
+
+  const handleWithdraw = async (applicationId) => {
+    if (!window.confirm("Czy na pewno chcesz zrezygnować z tego zgłoszenia?")) {
+      return;
+    }
+
+    try {
+      setLoadingApplications(true);
+      await withdrawApplication(applicationId);
+      const data = await fetchApplicationsOfUser(userId);
+      setApplications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas rezygnacji.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "Brak daty";
@@ -227,33 +244,42 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       </p>
                     </div>
                     <div className="application-item-meta">
-                      {!isPaid ? (
-                        <div className="application-meta-row">
-                          <div className="application-meta-tags">
-                            <span className="application-status">
-                              {statusLabel}
-                            </span>
-                            <span className="application-payment application-payment-unpaid">
-                              Nieopłacona
-                            </span>
-                          </div>
-                          <Link
-                            to={`/payment/${application.id}`}
-                            className="primary-btn application-pay-btn"
-                          >
-                            Opłać
-                          </Link>
-                        </div>
-                      ) : (
-                        <>
+                      <div className="application-meta-row">
+                        <div className="application-meta-tags">
                           <span className="application-status">
                             {statusLabel}
                           </span>
-                          <span className="application-payment application-payment-paid">
-                            Opłacona
-                          </span>
-                        </>
-                      )}
+                          {!isPaid ? (
+                            <span className="application-payment application-payment-unpaid">
+                              Nieopłacona
+                            </span>
+                          ) : (
+                            <span className="application-payment application-payment-paid">
+                              Opłacona
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {!isPaid && status !== "WITHDRAWN" && status !== "REJECTED" && (
+                            <Link
+                              to={`/payment/${application.id}`}
+                              className="primary-btn application-pay-btn"
+                            >
+                              Opłać
+                            </Link>
+                          )}
+                          {status !== "WITHDRAWN" && status !== "REJECTED" && (
+                            <button
+                              type="button"
+                              className="ghost-btn application-withdraw-btn"
+                              onClick={() => handleWithdraw(application.id)}
+                              style={{ padding: "8px 20px", fontSize: "0.8rem", borderRadius: "10px", width: "100%", border: "1px solid #e11d48", color: "#e11d48", background: "transparent" }}
+                            >
+                              Zrezygnuj
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </article>
                 </li>
@@ -263,8 +289,8 @@ function CandidateHomePage({ isLoggedIn, user }) {
         ) : null}
 
         {!loadingApplications &&
-        !applicationsError &&
-        applications.length === 0 ? (
+          !applicationsError &&
+          applications.length === 0 ? (
           <p className="applications-empty">Brak bieżących aplikacji.</p>
         ) : null}
       </section>
