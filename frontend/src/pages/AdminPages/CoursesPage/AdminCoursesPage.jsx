@@ -13,6 +13,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
+  placesLimit: "",
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
@@ -124,6 +125,7 @@ function AdminCoursesPage() {
       name: course.name || "",
       description: course.description || "",
       price: course.price || "",
+      placesLimit: course.placesLimit ?? "",
       recruitmentStart: course.recruitmentStart || "",
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
@@ -156,6 +158,16 @@ function AdminCoursesPage() {
       return;
     }
 
+    if (
+      !formData.placesLimit ||
+      isNaN(formData.placesLimit) ||
+      parseInt(formData.placesLimit, 10) < 1
+    ) {
+      setFormError("Wypelnij poprawnie limit miejsc (minimum 1).");
+      setFormSubmitting(false);
+      return;
+    }
+
     const normalizedEmail = formData.coordinatorEmail
       ? formData.coordinatorEmail.trim().toLowerCase()
       : "";
@@ -174,6 +186,7 @@ function AdminCoursesPage() {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
+        placesLimit: parseInt(formData.placesLimit, 10),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -261,6 +274,19 @@ function AdminCoursesPage() {
                 onChange={handleInputChange}
                 required
                 placeholder="np. 4500"
+              />
+            </div>
+            <div className="form-group">
+              <label>Limit miejsc</label>
+              <input
+                type="number"
+                name="placesLimit"
+                min="1"
+                step="1"
+                value={formData.placesLimit}
+                onChange={handleInputChange}
+                required
+                placeholder="np. 40"
               />
             </div>
             <div className="form-group">
@@ -365,6 +391,11 @@ function AdminCoursesPage() {
                     <span className="meta-tag">
                       Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
                       {formatDisplayDate(course.recruitmentEnd)}
+                    </span>
+                  )}
+                  {course.placesLimit != null && (
+                    <span className="meta-tag">
+                      Limit miejsc: {course.placesLimit}
                     </span>
                   )}
                   {course.coordinatorId ? (

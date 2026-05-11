@@ -16,6 +16,7 @@ public class CourseDTO {
     private String name;
     private String description;
     private Double price;
+    private Integer placesLimit;
     private LocalDate recruitmentStart;
     private LocalDate recruitmentEnd;
     private Long coordinatorId;

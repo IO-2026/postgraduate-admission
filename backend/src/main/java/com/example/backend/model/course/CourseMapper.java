@@ -15,6 +15,7 @@ public class CourseMapper {
                 .name(course.getName())
                 .description(course.getDescription())
                 .price(course.getPrice())
+                .placesLimit(course.getPlacesLimit())
                 .recruitmentStart(course.getRecruitmentStart())
                 .recruitmentEnd(course.getRecruitmentEnd())
                 .coordinatorId(coordId)
@@ -29,6 +30,9 @@ public class CourseMapper {
         course.setName(dto.getName());
         course.setDescription(dto.getDescription());
         course.setPrice(dto.getPrice());
+        if (dto.getPlacesLimit() != null) {
+            course.setPlacesLimit(dto.getPlacesLimit());
+        }
         course.setRecruitmentStart(dto.getRecruitmentStart());
         course.setRecruitmentEnd(dto.getRecruitmentEnd());
         return course;

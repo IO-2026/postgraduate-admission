@@ -59,6 +59,9 @@ public class CourseService {
         course.setName(courseDTO.getName());
         course.setDescription(courseDTO.getDescription());
         course.setPrice(courseDTO.getPrice());
+        if (courseDTO.getPlacesLimit() != null) {
+            course.setPlacesLimit(courseDTO.getPlacesLimit());
+        }
         course.setRecruitmentStart(courseDTO.getRecruitmentStart());
         course.setRecruitmentEnd(courseDTO.getRecruitmentEnd());
 
