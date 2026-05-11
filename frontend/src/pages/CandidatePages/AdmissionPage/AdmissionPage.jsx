@@ -436,7 +436,6 @@ function AdmissionPage() {
     setIsSubmitting(true);
 
     try {
-      const userId = resolveUserId(user);
       const previousDegree = String(draft.previousDegree || "").trim();
       const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
       const notes = String(draft.notes || "").trim();
