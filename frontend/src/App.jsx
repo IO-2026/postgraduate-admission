@@ -19,6 +19,7 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
+import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
 
 const AUTH_STORAGE_KEY = "pg-admission-auth";
 
@@ -337,6 +338,7 @@ function App() {
             )
           }
         />
+        <Route path="/contact" element={<ContactFormPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
