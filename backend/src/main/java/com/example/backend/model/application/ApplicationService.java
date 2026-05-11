@@ -19,7 +19,6 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final EmailService emailService;
     private final ApplicationMapper applicationMapper;
-    private final ApplicationDiplomaRepository applicationDiplomaRepository;
     private final SupabaseStorageService storageService;
 
     @Transactional
@@ -48,17 +47,9 @@ public class ApplicationService {
         String objectKey = buildDiplomaObjectKey(savedApplication.getId());
         storageService.uploadDiploma(objectKey, diplomaFile.getResource());
 
-        ApplicationDiploma diploma = new ApplicationDiploma();
-        diploma.setApplication(savedApplication);
-        diploma.setObjectKey(objectKey);
-        diploma.setBucket(storageService.getDiplomasBucket());
-        diploma.setOriginalName(diplomaFile.getOriginalFilename());
-        diploma.setMimeType(diplomaFile.getContentType());
-        diploma.setSizeBytes(diplomaFile.getSize());
-        applicationDiplomaRepository.save(diploma);
-        savedApplication.setDiploma(diploma);
+        savedApplication.setDiplomaBucketKey(objectKey);
 
-        registerRollbackCleanup(diploma.getBucket(), objectKey);
+        registerRollbackCleanup(storageService.getDiplomasBucket(), objectKey);
 
         emailService.sendApplicationStatusChange(user, savedApplication);
 
@@ -76,12 +67,12 @@ public class ApplicationService {
             throw new SecurityException("Access denied");
         }
 
-        ApplicationDiploma diploma = application.getDiploma();
-        if (diploma == null) {
+        String objectKey = application.getDiplomaBucketKey();
+        if (objectKey == null || objectKey.isBlank()) {
             throw new EntityNotFoundException("Diploma not found");
         }
 
-        return storageService.createSignedUrl(diploma.getBucket(), diploma.getObjectKey());
+        return storageService.createSignedUrl(storageService.getDiplomasBucket(), objectKey);
     }
 
     private void validateProfileCompleteness(User user) {
