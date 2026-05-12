@@ -2,6 +2,7 @@ package com.example.backend.model.course;
 
 import com.example.backend.model.user.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +28,12 @@ public class CourseController {
     }
 
     @PostMapping("/courses")
-    public ResponseEntity<?> createCourse(@RequestBody CourseDTO courseDTO) {
+    public ResponseEntity<?> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO savedCourse = courseService.saveCourse(courseDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: " + e.getMessage() + (e.getCause() != null ? " Cause: " + e.getCause().getMessage() : ""));
         }
@@ -47,7 +50,7 @@ public class CourseController {
     }
 
     @PatchMapping("/courses/{id}")
-    public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody CourseDTO courseDTO) {
+    public ResponseEntity<?> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseDTO courseDTO) {
         courseService.updateCourse(id, courseDTO);
         return ResponseEntity.ok().build();
     }

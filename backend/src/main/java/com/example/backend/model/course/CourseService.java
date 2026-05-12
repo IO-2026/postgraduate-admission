@@ -63,6 +63,11 @@ public class CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
+        if (courseDTO.getCoordinatorId() != null) {
+            User u = userRepository.findById(courseDTO.getCoordinatorId())
+                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+            course.setCoordinator(u);
+        }
         courseMapper.updateEntityFromDTO(courseDTO, course);
         courseMapper.toDTO(courseRepository.save(course));
     }

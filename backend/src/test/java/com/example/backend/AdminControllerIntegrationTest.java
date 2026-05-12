@@ -20,12 +20,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -88,5 +93,65 @@ public class AdminControllerIntegrationTest {
         Optional<Course> maybe = courseRepository.findById(course.getId());
         assertTrue(maybe.isPresent());
         assertEquals(user.getId(), maybe.get().getCoordinator().getId());
+    }
+
+    @Test
+    public void testCreateCourseWithPlacesLimit() throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("name", "Analityka danych");
+        payload.put("description", "Program testowy");
+        payload.put("price", 4500.0);
+        payload.put("placesLimit", 40);
+        payload.put("recruitmentStart", "2026-06-01");
+        payload.put("recruitmentEnd", "2026-07-31");
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.placesLimit").value(40));
+    }
+
+    @Test
+    public void testCreateCourseWithoutPlacesLimitShouldFail() throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("name", "Analityka danych");
+        payload.put("description", "Program testowy");
+        payload.put("price", 4500.0);
+        payload.put("recruitmentStart", "2026-06-01");
+        payload.put("recruitmentEnd", "2026-07-31");
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateCourseWithPlacesLimit() throws Exception {
+        Course course = new Course();
+        course.setName("Kierunek testowy");
+        course.setDescription("Opis");
+        course.setPrice(1000.0);
+        course.setRecruitmentStart(LocalDate.of(2026, 5, 1));
+        course.setRecruitmentEnd(LocalDate.of(2026, 8, 1));
+        course.setPlacesLimit(25);
+        course = courseRepository.save(course);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("name", "Kierunek testowy");
+        payload.put("description", "Zmieniony opis");
+        payload.put("price", 1200.0);
+        payload.put("placesLimit", 55);
+        payload.put("recruitmentStart", "2026-05-01");
+        payload.put("recruitmentEnd", "2026-08-01");
+
+        mockMvc.perform(patch("/api/courses/" + course.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(payload)))
+                .andExpect(status().isOk());
+
+        Course updatedCourse = courseRepository.findById(course.getId()).orElseThrow();
+        assertEquals(55, updatedCourse.getPlacesLimit());
     }
 }
