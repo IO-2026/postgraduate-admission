@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -17,4 +19,8 @@ public class CandidateWithApplicationDto {
     private long applicationId;
     private boolean isPaid;
     private String status;
+    private String telNumber;
+    private String pesel;
+    private LocalDate dateOfBirth;
+    private LocalDateTime submissionDateTime;
 }

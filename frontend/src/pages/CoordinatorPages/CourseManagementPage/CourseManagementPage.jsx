@@ -202,6 +202,78 @@ function CourseManagementPage() {
     }
   };
 
+  const handleExportCsv = () => {
+    const acceptedAndPaid = candidates.filter(
+      (c) => c.status === "ACCEPTED" && (c.isPaid === true || c.paid === true),
+    );
+
+    if (acceptedAndPaid.length === 0) {
+      alert(
+        "Brak kandydatów spełniających kryteria (zaakceptowany i opłacony).",
+      );
+      return;
+    }
+
+    const headers = [
+      "Imię i nazwisko",
+      "Data urodzenia",
+      "PESEL",
+      "Nr telefonu",
+      "Email",
+      "Data zgłoszenia",
+    ];
+
+    const escapeCsv = (str) => {
+      if (!str) return "";
+      const stringified = String(str);
+      if (
+        stringified.includes(",") ||
+        stringified.includes('"') ||
+        stringified.includes("\n")
+      ) {
+        return `"${stringified.replace(/"/g, '""')}"`;
+      }
+      return stringified;
+    };
+
+    const formatDate = (isoString) => {
+      if (!isoString) return "";
+      const date = new Date(isoString);
+      return date.toLocaleString("pl-PL");
+    };
+
+    const formatShortDate = (isoString) => {
+      if (!isoString) return "";
+      const date = new Date(isoString);
+      return date.toLocaleDateString("pl-PL");
+    };
+
+    const rows = acceptedAndPaid.map((c) => {
+      const fullName = [c.name, c.surname].filter(Boolean).join(" ");
+      return [
+        escapeCsv(fullName),
+        escapeCsv(formatShortDate(c.dateOfBirth)),
+        escapeCsv(c.pesel),
+        escapeCsv(c.telNumber),
+        escapeCsv(c.email),
+        escapeCsv(formatDate(c.submissionDateTime)),
+      ].join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+    const blob = new Blob([bom, csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `kierunek_${courseId}_przyjeci.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <section className="course-management-view">
       <BackButton label="Wróć do strony koordynatora" />
@@ -341,7 +413,23 @@ function CourseManagementPage() {
             <h2>Kandydaci</h2>
             <p>Lista osób zapisanych na ten kierunek.</p>
           </div>
-          <span className="course-candidates-count">{candidates.length}</span>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={handleExportCsv}
+            >
+              Eksportuj przyjętych (CSV)
+            </button>
+            <span className="course-candidates-count">{candidates.length}</span>
+          </div>
         </div>
 
         {candidatesLoading ? (
