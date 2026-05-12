@@ -22,7 +22,6 @@ import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePag
 import { AUTH_STORAGE_KEY } from "./config/auth";
 import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
 
-
 function getInitialAuthState() {
   try {
     const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
