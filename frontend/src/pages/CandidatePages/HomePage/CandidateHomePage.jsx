@@ -197,6 +197,9 @@ function CandidateHomePage({ isLoggedIn, user }) {
           <Link className="ghost-link" to="/messages">
             Wiadomości
           </Link>
+          <Link className="ghost-link" to="/contact">
+            Formularz kontaktowy
+          </Link>
         </div>
       </header>
 

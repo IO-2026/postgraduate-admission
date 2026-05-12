@@ -20,6 +20,8 @@ import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
 import { AUTH_STORAGE_KEY } from "./config/auth";
+import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
+
 
 function getInitialAuthState() {
   try {
@@ -336,6 +338,7 @@ function App() {
             )
           }
         />
+        <Route path="/contact" element={<ContactFormPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

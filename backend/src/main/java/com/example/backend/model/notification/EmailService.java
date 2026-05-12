@@ -93,4 +93,27 @@ public class EmailService {
 
         send(candidate.getEmail(), fullSubject, body);
     }
+
+    @Async
+    @Retryable(
+            retryFor = {MailException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void sendMessageFromForm(User candidate, String subject, String messageContent) {
+        String fullSubject = "[Wiadomość od kandydata] " + subject;
+        String body = String.format("""
+                Otrzymałeś nową wiadomość od kandydata na studia
+                Użytkownik %s przesłał wiadomość:
+                
+                Temat: %s
+                Treść:
+                %s
+                
+                
+                odpowiedź w systemie bądź przez maila: %s
+                """, candidate.getName(), subject, messageContent, candidate.getEmail());
+
+        send("jakiś_mail_wspólny@xyzabccbazyx.com", fullSubject, body);
+    }
 }
