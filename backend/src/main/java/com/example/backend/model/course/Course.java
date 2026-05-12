@@ -37,6 +37,9 @@ public class Course {
     @Column(nullable = false)
     private Double price;
 
+    @Column(name = "places_limit", nullable = false)
+    private Integer placesLimit = 30;
+
     @Column(name = "recruitment_start", nullable = false)
     private LocalDate recruitmentStart = LocalDate.now();
 
