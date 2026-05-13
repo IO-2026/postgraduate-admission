@@ -7,15 +7,6 @@ import {
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
 
-const STATUS_LABELS = {
-  SUBMITTED: "Wniosek przyjęty",
-  VERIFIED: "Wniosek zweryfikowany",
-  WAITING_LIST: "Wniosek na liście rezerwowej",
-  ACCEPTED: "Wniosek zaakceptowany",
-  REJECTED: "Wniosek odrzucony",
-  WITHDRAWN: "Wniosek wycofany",
-};
-
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
   if (typeof user.id === "number") return user.id;
