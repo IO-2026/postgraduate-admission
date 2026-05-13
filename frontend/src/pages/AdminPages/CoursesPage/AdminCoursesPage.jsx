@@ -58,9 +58,12 @@ function AdminCoursesPage() {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
       const token = getToken();
-      const response = await fetch(`${API_URL}/admin/coordinators-with-courses`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const response = await fetch(
+        `${API_URL}/admin/coordinators-with-courses`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        },
+      );
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");
       }
