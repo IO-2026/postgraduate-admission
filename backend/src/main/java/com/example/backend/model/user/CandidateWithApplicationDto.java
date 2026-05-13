@@ -15,6 +15,4 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
-    private boolean isPaid;
-    private String status;
 }

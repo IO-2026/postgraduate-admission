@@ -14,11 +14,11 @@ public interface ApplicationMapper {
     ApplicationDto toDto(Application application);
 
     @Mapping(source = "userId", target = "user.id")
-    @Mapping(target = "isPaid", ignore = true)
-    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "diplomaBucketKey", ignore = true)
     Application toEntity(ApplicationDto applicationDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "userId", target = "user.id")
+    @Mapping(target = "diplomaBucketKey", ignore = true)
     void updateEntityFromDTO(ApplicationDto dto, @MappingTarget Application entity);
 }

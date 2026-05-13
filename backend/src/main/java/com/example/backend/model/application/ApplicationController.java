@@ -54,15 +54,40 @@ public class ApplicationController {
 
     @PatchMapping("/{id}/withdraw")
     public ResponseEntity<?> withdraw(@PathVariable Long id) {
-        applicationService.updateStatus(id, ApplicationStatus.WITHDRAWN);
+        applicationService.withdrawApplication(id);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody ApplicationStatus newStatus) {
-        applicationService.updateStatus(id, newStatus);
+    @PatchMapping("/{id}/verify-diploma")
+    public ResponseEntity<?> verifyDiploma(@PathVariable Long id) {
+        applicationService.markDiplomaAsVerified(id);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{id}/verify-declaration")
+    public ResponseEntity<?> verifyDeclaration(@PathVariable Long id) {
+        applicationService.markDeclarationAsVerified(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/pay-entry-fee")
+    public ResponseEntity<?> payEntryFee(@PathVariable Long id) {
+        applicationService.payEntryFee(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/pay-semester")
+    public ResponseEntity<?> paySemester(@PathVariable Long id) {
+        applicationService.paySemester(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/accept")
+    public ResponseEntity<?> acceptApplication(@PathVariable Long id) {
+        applicationService.acceptApplication(id);
+        return ResponseEntity.ok().build();
+    }
+
 
     @PatchMapping("/")
     public ResponseEntity<?> updateApplication(@RequestBody ApplicationDto applicationDto) {
