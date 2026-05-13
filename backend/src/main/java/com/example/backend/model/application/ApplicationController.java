@@ -53,7 +53,7 @@ public class ApplicationController {
     }
 
     @PatchMapping("/{id}/withdraw")
-    public ResponseEntity<?> withdraw(@PathVariable Long id) {
+    public ResponseEntity<Void> withdraw(@PathVariable Long id) {
         applicationService.withdrawApplication(id);
         return ResponseEntity.ok().build();
     }

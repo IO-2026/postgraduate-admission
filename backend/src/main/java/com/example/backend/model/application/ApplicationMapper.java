@@ -15,6 +15,12 @@ public interface ApplicationMapper {
 
     @Mapping(source = "userId", target = "user.id")
     @Mapping(target = "diplomaBucketKey", ignore = true)
+    @Mapping(target = "isWithdrawn", ignore = true)
+    @Mapping(target = "isAccepted", ignore = true)
+    @Mapping(target = "isEntryFeePaid", ignore = true)
+    @Mapping(target = "isDiplomaVerified", ignore = true)
+    @Mapping(target = "isDeclarationVerified", ignore = true)
+    @Mapping(target = "isSemesterPaid", ignore = true)
     Application toEntity(ApplicationDto applicationDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
