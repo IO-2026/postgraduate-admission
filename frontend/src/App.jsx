@@ -1,3 +1,4 @@
+import { API_URL } from "./config/api.js";
 import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
@@ -170,9 +171,12 @@ function App() {
           queryClient.prefetchQuery(
             ["coordinatorsWithCourses", token],
             async () => {
-              const r = await fetch("/api/admin/coordinators-with-courses", {
-                headers,
-              });
+              const r = await fetch(
+                `${API_URL}/admin/coordinators-with-courses`,
+                {
+                  headers,
+                },
+              );
               if (!r.ok) throw new Error("Failed to fetch coordinators");
               return r.json();
             },
@@ -226,9 +230,12 @@ function App() {
         queryClient.prefetchQuery(
           ["coordinatorsWithCourses", token],
           async () => {
-            const r = await fetch("/api/admin/coordinators-with-courses", {
-              headers,
-            });
+            const r = await fetch(
+              `${API_URL}/admin/coordinators-with-courses`,
+              {
+                headers,
+              },
+            );
             if (!r.ok) throw new Error("Failed to fetch coordinators");
             return r.json();
           },

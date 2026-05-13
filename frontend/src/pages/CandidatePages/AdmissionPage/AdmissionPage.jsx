@@ -3,7 +3,7 @@ import "../CoursesPage/CoursesPage.css";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import BackButton from "../../../components/BackButton/BackButton";
 import { useEffect, useMemo, useState } from "react";
-import { submitApplication } from "./admissionApi";
+import { submitApplication } from "../../../services/admissionApi.js";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";

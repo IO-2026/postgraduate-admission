@@ -1,6 +1,6 @@
+import { API_URL } from "../../../config/api";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { fetchCourses } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import BackButton from "../../../components/BackButton/BackButton";
@@ -34,9 +34,12 @@ function CoursesPage() {
   const { data: coordinators = [] } = useQuery(
     ["coordinatorsWithCourses", token],
     async () => {
-      const response = await fetch("/api/admin/coordinators-with-courses", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const response = await fetch(
+        `${API_URL}/admin/coordinators-with-courses`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        },
+      );
       if (!response.ok) {
         throw new Error("Nie udało się pobrać koordynatorów");
       }
