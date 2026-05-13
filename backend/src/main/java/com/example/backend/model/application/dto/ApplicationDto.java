@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 public class ApplicationDto {
     private Long id;
     private Long userId;
-    private String diplomaUrl;
     private String university;
     private Long courseId;
     private Boolean isPaid;

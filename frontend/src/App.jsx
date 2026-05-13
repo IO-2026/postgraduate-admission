@@ -19,9 +19,8 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
+import { AUTH_STORAGE_KEY } from "./config/auth";
 import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
-
-const AUTH_STORAGE_KEY = "pg-admission-auth";
 
 function getInitialAuthState() {
   try {

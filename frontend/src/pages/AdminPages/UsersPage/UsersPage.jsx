@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchUsers, updateUserRole } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import BackButton from "../../../components/BackButton/BackButton";
+import { getToken } from "../../../config/auth";
 import "./UsersPage.css";
 
 const ROLE_FILTERS = [
@@ -18,7 +19,7 @@ function UsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
+  const token = getToken();
 
   useEffect(() => {
     const loadUsers = async () => {

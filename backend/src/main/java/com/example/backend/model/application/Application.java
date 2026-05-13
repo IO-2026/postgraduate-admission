@@ -39,8 +39,8 @@ public class Application {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "diploma_url")
-    private String diplomaUrl;
+    @Column(name = "diploma_bucket_key")
+    private String diplomaBucketKey;
 
     @Column(name = "university")
     private String university;

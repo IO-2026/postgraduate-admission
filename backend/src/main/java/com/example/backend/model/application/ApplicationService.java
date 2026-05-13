@@ -3,9 +3,12 @@ package com.example.backend.model.application;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
-import com.example.backend.model.user.UserRepository;
+import com.example.backend.storage.SupabaseStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -14,15 +17,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
-    private final UserRepository userRepository;
     private final EmailService emailService;
     private final ApplicationMapper applicationMapper;
+    private final SupabaseStorageService storageService;
 
     @Transactional
-    public Application saveApplication(ApplicationDto admissionRequest) {
-        User user = userRepository.findById(admissionRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+    public Application saveApplication(ApplicationDto admissionRequest, MultipartFile diplomaFile, User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Authenticated user not found");
+        }
         validateProfileCompleteness(user);
+        validateDiplomaFile(diplomaFile);
 
         long courseId = admissionRequest.getCourseId();
         long userId = user.getId();
@@ -39,9 +44,35 @@ public class ApplicationService {
 
         Application savedApplication = applicationRepository.saveAndFlush(application);
 
+        String objectKey = buildDiplomaObjectKey(savedApplication.getId());
+        storageService.uploadDiploma(objectKey, diplomaFile.getResource());
+
+        savedApplication.setDiplomaBucketKey(objectKey);
+
+        registerRollbackCleanup(storageService.getDiplomasBucket(), objectKey);
+
         emailService.sendApplicationStatusChange(user, savedApplication);
 
         return savedApplication;
+    }
+
+    public String getSignedDiplomaUrl(Long applicationId, User requester) {
+        if (requester == null) {
+            throw new IllegalArgumentException("Authenticated user not found");
+        }
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if (isCandidate(requester) && !application.getUser().getId().equals(requester.getId())) {
+            throw new SecurityException("Access denied");
+        }
+
+        String objectKey = application.getDiplomaBucketKey();
+        if (objectKey == null || objectKey.isBlank()) {
+            throw new EntityNotFoundException("Diploma not found");
+        }
+
+        return storageService.createSignedUrl(storageService.getDiplomasBucket(), objectKey);
     }
 
     private void validateProfileCompleteness(User user) {
@@ -86,9 +117,45 @@ public class ApplicationService {
     }
 
     public List<ApplicationDto> getApplicationsOfUser(long userId) {
-        return applicationRepository.findAll().stream()
-                .filter(application -> application.getUser().getId() == userId)
+        return applicationRepository.findByUserId(userId).stream()
                 .map(applicationMapper::toDto)
                 .toList();
+    }
+
+    private void validateDiplomaFile(MultipartFile diplomaFile) {
+        if (diplomaFile == null || diplomaFile.isEmpty()) {
+            throw new IllegalArgumentException("Plik dyplomu jest wymagany.");
+        }
+        if (!"application/pdf".equalsIgnoreCase(diplomaFile.getContentType())) {
+            throw new IllegalArgumentException("Dozwolony jest wyłącznie plik PDF.");
+        }
+        if (diplomaFile.getSize() > storageService.getMaxDiplomaBytes()) {
+            throw new IllegalArgumentException("Plik PDF przekracza dopuszczalny rozmiar.");
+        }
+    }
+
+    private void registerRollbackCleanup(String bucket, String objectKey) {
+        // Only register synchronization when a transaction is active.
+        // In unit tests (Mockito-only) there may be no active transaction,
+        // calling registerSynchronization then throws IllegalStateException.
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_ROLLED_BACK) {
+                        storageService.deleteObject(bucket, objectKey);
+                    }
+                }
+            });
+        }
+    }
+
+    private String buildDiplomaObjectKey(Long applicationId) {
+        return "applications/" + applicationId + "/diploma.pdf";
+    }
+
+    private boolean isCandidate(User user) {
+        String roleName = user.getRole() != null ? user.getRole().getName() : "";
+        return "Candidate".equalsIgnoreCase(roleName) || "ROLE_Candidate".equalsIgnoreCase(roleName);
     }
 }

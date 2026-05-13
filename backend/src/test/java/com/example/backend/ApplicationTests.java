@@ -3,17 +3,15 @@ package com.example.backend;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.backend.model.application.ApplicationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +25,13 @@ import com.example.backend.model.course.CourseRepository;
 import com.example.backend.security.JwtUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.mock.web.MockMultipartFile;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestWebClientConfig.class)
 public class ApplicationTests {
 
     @org.springframework.test.context.DynamicPropertySource
@@ -59,9 +60,6 @@ public class ApplicationTests {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private ApplicationMapper applicationMapper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -102,26 +100,39 @@ public class ApplicationTests {
     void submitApplication_ShouldSucceed_WhenCandidateRole() throws Exception {
         String token = jwtUtil.generateToken(testUser);
 
-        Map<String, Object> request = new HashMap<>();
-        request.put("applicantDateOfBirth", "1990-01-01");
-        request.put("userId", testUser.getId());
-        request.put("applicantPesel", "90010101234");
-        request.put("addressStreet", "Adminowa 1");
-        request.put("addressPostalCode", "00-001");
-        request.put("addressCity", "Warszawa");
-        request.put("previousDegree", "Magister");
-        request.put("fieldOfStudy", "Zarządzanie");
-        request.put("graduationYear", 2015);
-        request.put("courseId", testCourse.getId());
-        request.put("university", "Test University");
-        request.put("diplomaUrl", "http://example.com/diploma.pdf");
-        request.put("truthfulnessConsent", true);
-        request.put("gdprConsent", true);
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("applicantDateOfBirth", "1990-01-01");
+        applicationData.put("userId", testUser.getId());
+        applicationData.put("applicantPesel", "90010101234");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
 
-        mockMvc.perform(post("/api/applications/submit")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF test content".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isCreated());
     }
 
@@ -144,25 +155,38 @@ public class ApplicationTests {
 
         String token = jwtUtil.generateToken(adminUser);
 
-        Map<String, Object> request = new HashMap<>();
-        request.put("applicantDateOfBirth", "1990-01-01");
-        request.put("applicantPesel", "90010101234");
-        request.put("addressStreet", "Adminowa 1");
-        request.put("addressPostalCode", "00-001");
-        request.put("addressCity", "Warszawa");
-        request.put("previousDegree", "Magister");
-        request.put("fieldOfStudy", "Zarządzanie");
-        request.put("graduationYear", 2015);
-        request.put("courseId", testCourse.getId());
-        request.put("university", "Test University");
-        request.put("diplomaUrl", "http://example.com/diploma.pdf");
-        request.put("truthfulnessConsent", true);
-        request.put("gdprConsent", true);
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("applicantDateOfBirth", "1990-01-01");
+        applicationData.put("applicantPesel", "90010101234");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
 
-        mockMvc.perform(post("/api/applications/submit")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF test content".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden());
     }
 
@@ -170,34 +194,61 @@ public class ApplicationTests {
     void submitApplication_ShouldFail_WhenCandidateAlreadyApplied() throws Exception {
         String token = jwtUtil.generateToken(testUser);
 
-        Map<String, Object> request = new HashMap<>();
-        request.put("applicantDateOfBirth", "2000-01-01");
-        request.put("userId", testUser.getId());
-        request.put("applicantPesel", "44051401458");
-        request.put("addressStreet", "Testowa 1");
-        request.put("addressPostalCode", "30-059");
-        request.put("addressCity", "Kraków");
-        request.put("previousDegree", "Inżynier");
-        request.put("fieldOfStudy", "Informatyka");
-        request.put("graduationYear", 2020);
-        request.put("courseId", testCourse.getId());
-        request.put("university", "Test University");
-        request.put("diplomaUrl", "http://example.com/diploma.pdf");
-        request.put("truthfulnessConsent", true);
-        request.put("gdprConsent", true);
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("applicantDateOfBirth", "2000-01-01");
+        applicationData.put("userId", testUser.getId());
+        applicationData.put("applicantPesel", "44051401458");
+        applicationData.put("addressStreet", "Testowa 1");
+        applicationData.put("addressPostalCode", "30-059");
+        applicationData.put("addressCity", "Kraków");
+        applicationData.put("previousDegree", "Inżynier");
+        applicationData.put("fieldOfStudy", "Informatyka");
+        applicationData.put("graduationYear", 2020);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
 
-        String jsonRequest = objectMapper.writeValueAsString(request);
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF test content".getBytes()
+        );
 
-        mockMvc.perform(post("/api/applications/submit")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        // First submission should succeed
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/applications/submit")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
+        // Second submission with same user should fail
+        diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma2.pdf",
+                "application/pdf",
+                "PDF test content 2".getBytes()
+        );
+
+        applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/applications/*/declaration").permitAll()
                         .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw", "/api/applications/of/**").hasRole("Candidate")
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/applications/*/diploma-url").hasAnyRole("Candidate", "Admin", "Coordinator")
                         .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers("/api/users/**").hasRole("Admin")
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")

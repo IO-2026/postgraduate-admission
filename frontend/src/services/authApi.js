@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL } from "../config/api";
 const AUTH_BASE_PATH = API_URL + "/auth";
 
 function getErrorMessage(payload) {

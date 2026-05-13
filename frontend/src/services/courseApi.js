@@ -1,15 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || "/api";
-
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token;
-  } catch {
-    return null;
-  }
-}
+import { API_URL } from "../config/api";
+import { getToken } from "../config/auth";
 
 export async function fetchCourses() {
   const response = await fetch(`${API_URL}/courses`);
