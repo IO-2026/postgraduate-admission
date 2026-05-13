@@ -7,14 +7,14 @@ function getErrorMessage(payload) {
   }
 
   if (!payload || typeof payload !== "object") {
-    return "Authentication request failed.";
+    return "Żądanie uwierzytelnienia nie powiodło się.";
   }
 
   return (
     payload.message ||
     payload.error ||
     payload.details ||
-    "Authentication request failed."
+    "Żądanie uwierzytelnienia nie powiodło się."
   );
 }
 

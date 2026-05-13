@@ -33,7 +33,7 @@ public class BackendExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         if (message.isBlank()) {
-            message = "Validation failed.";
+            message = "Walidacja nie powiodła się.";
         }
 
         return ResponseEntity.badRequest().body(Map.of("message", message));
@@ -46,7 +46,7 @@ public class BackendExceptionHandler {
 
         logger.error("Database operation failed: {}: {}", root.getClass().getName(), message);
 
-        String responseMessage = "Application submission failed: " +
+        String responseMessage = "Złożenie podania nie powiodło się: " +
                 (message == null ? root.getClass().getSimpleName() : message);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -58,7 +58,7 @@ public class BackendExceptionHandler {
         logger.error("Email delivery failed: {}", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "Application submission failed: email delivery failed."));
+                .body(Map.of("message", "Złożenie podania nie powiodło się: błąd dostarczenia e-maila."));
     }
 
     private static Throwable rootCause(Throwable throwable) {

@@ -30,7 +30,7 @@ public class TestMailConfig {
                 try {
                     return new MimeMessage(session, contentStream);
                 } catch (Exception e) {
-                    throw new MailException("Failed to create MimeMessage from stream") {};
+                    throw new MailException("Nie udało się utworzyć MimeMessage ze strumienia") {};
                 }
             }
 

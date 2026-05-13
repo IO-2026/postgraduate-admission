@@ -24,7 +24,7 @@ public class ApplicationService {
     @Transactional
     public Application saveApplication(ApplicationDto admissionRequest, MultipartFile diplomaFile, User user) {
         if (user == null) {
-            throw new IllegalArgumentException("Authenticated user not found");
+            throw new IllegalArgumentException("Zalogowany użytkownik nie znaleziony");
         }
         validateProfileCompleteness(user);
         validateDiplomaFile(diplomaFile);
@@ -58,18 +58,18 @@ public class ApplicationService {
 
     public String getSignedDiplomaUrl(Long applicationId, User requester) {
         if (requester == null) {
-            throw new IllegalArgumentException("Authenticated user not found");
+            throw new IllegalArgumentException("Zalogowany użytkownik nie znaleziony");
         }
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if (isCandidate(requester) && !application.getUser().getId().equals(requester.getId())) {
-            throw new SecurityException("Access denied");
+            throw new SecurityException("Odmowa dostępu");
         }
 
         String objectKey = application.getDiplomaBucketKey();
         if (objectKey == null || objectKey.isBlank()) {
-            throw new EntityNotFoundException("Diploma not found");
+            throw new EntityNotFoundException("Dyplom nie znaleziony");
         }
 
         return storageService.createSignedUrl(storageService.getDiplomasBucket(), objectKey);
@@ -87,7 +87,7 @@ public class ApplicationService {
 
     @Transactional
     public void updateStatus(Long applicationId, ApplicationStatus newStatus) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
         User user = application.getUser();
 
         if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
@@ -106,13 +106,13 @@ public class ApplicationService {
         long id = dto.getId();
 
         Application existingApplication = applicationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Application not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Wniosek nie znaleziony"));
         applicationMapper.updateEntityFromDTO(dto, existingApplication);
         applicationMapper.toDto(applicationRepository.save(existingApplication));
     }
 
     public ApplicationDto getApplication(long id) {
-        Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(id).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
         return applicationMapper.toDto(application);
     }
 

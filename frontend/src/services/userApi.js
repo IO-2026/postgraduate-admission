@@ -11,7 +11,7 @@ export const fetchUsers = async (token) => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch users");
+    throw new Error("Nie udało się pobrać użytkowników");
   }
 
   return response.json();
@@ -28,7 +28,7 @@ export const updateUserRole = async (token, userId, roleName) => {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update user role");
+    throw new Error("Nie udało się zaktualizować roli użytkownika");
   }
 
   return response.json();

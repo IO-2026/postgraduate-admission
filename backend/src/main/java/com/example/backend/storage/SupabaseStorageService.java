@@ -57,7 +57,7 @@ public class SupabaseStorageService {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException ex) {
-            throw new IllegalStateException("Failed to upload diploma: " + ex.getStatusCode(), ex);
+            throw new IllegalStateException("Nie udało się przesłać dyplomu: " + ex.getStatusCode(), ex);
         }
     }
 
@@ -71,7 +71,7 @@ public class SupabaseStorageService {
                     .toBodilessEntity()
                     .block();
         } catch (WebClientResponseException ex) {
-            throw new IllegalStateException("Failed to delete diploma: " + ex.getStatusCode(), ex);
+            throw new IllegalStateException("Nie udało się usunąć dyplomu: " + ex.getStatusCode(), ex);
         }
     }
 
@@ -88,7 +88,7 @@ public class SupabaseStorageService {
 
         SignedUrlResponse body = response != null ? response.getBody() : null;
         if (body == null || !StringUtils.hasText(body.signedURL())) {
-            throw new IllegalStateException("Supabase did not return a signed URL");
+            throw new IllegalStateException("Supabase nie zwrócił podpisanego adresu URL");
         }
 
         String signedUrl = body.signedURL();
@@ -105,7 +105,7 @@ public class SupabaseStorageService {
 
     private String normalizeBaseUrl(String value) {
         if (!StringUtils.hasText(value)) {
-            throw new IllegalStateException("Supabase URL is required");
+            throw new IllegalStateException("Wymagany jest adres URL Supabase");
         }
         return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
