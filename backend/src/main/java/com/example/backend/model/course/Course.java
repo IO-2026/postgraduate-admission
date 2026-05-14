@@ -50,7 +50,7 @@ public class Course {
     @JoinColumn(name = "coordinator_id", nullable = true)
     private User coordinator;
 
-    private String academicYear;
+    private Integer academicYear;
 
     public Course(Long id, String name) {
         this.id = id;

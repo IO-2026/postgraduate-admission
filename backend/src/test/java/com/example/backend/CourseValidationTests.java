@@ -23,6 +23,16 @@ public class CourseValidationTests {
         validator = factory.getValidator();
     }
 
+    private int getValidAcademicYear() {
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        if (today.isBefore(LocalDate.of(currentYear, 10, 1))) {
+            return currentYear;
+        } else {
+            return currentYear + 1;
+        }
+    }
+
     @Test
     void testCourseDTO_ShouldPass_WhenEndDateIsAfterStartDate() {
         CourseDTO courseDTO = CourseDTO.builder()
@@ -31,6 +41,7 @@ public class CourseValidationTests {
             .placesLimit(30)
             .recruitmentStart(LocalDate.of(2024, 1, 1))
             .recruitmentEnd(LocalDate.of(2024, 3, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -45,6 +56,7 @@ public class CourseValidationTests {
             .placesLimit(30)
             .recruitmentStart(LocalDate.of(2024, 1, 1))
             .recruitmentEnd(LocalDate.of(2024, 1, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -59,6 +71,7 @@ public class CourseValidationTests {
             .placesLimit(30)
             .recruitmentStart(LocalDate.of(2024, 3, 1))
             .recruitmentEnd(LocalDate.of(2024, 1, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -76,6 +89,7 @@ public class CourseValidationTests {
             .price(1000.0)
             .placesLimit(30)
             .recruitmentStart(LocalDate.of(2024, 1, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -89,6 +103,7 @@ public class CourseValidationTests {
             .price(1000.0)
             .placesLimit(30)
             .recruitmentEnd(LocalDate.of(2024, 3, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -101,6 +116,7 @@ public class CourseValidationTests {
             .name("Test Course")
             .price(1000.0)
             .placesLimit(30)
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
@@ -115,6 +131,7 @@ public class CourseValidationTests {
             .placesLimit(0)
             .recruitmentStart(LocalDate.of(2024, 1, 1))
             .recruitmentEnd(LocalDate.of(2024, 3, 1))
+            .academicYear(getValidAcademicYear())
             .build();
 
         Set<ConstraintViolation<CourseDTO>> violations = validator.validate(courseDTO);
