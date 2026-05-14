@@ -1,7 +1,6 @@
 import { API_URL } from "../config/api";
 import { getToken } from "../config/auth";
 
-const APPLICATIONS_BASE_PATH = "/api/applications";
 
 export async function getApplication(applicationId) {
   const token = getToken();
@@ -123,7 +122,7 @@ async function patchApplicationAction(
         errorMessage = errorData.message;
       }
     } catch (e) {
-      // Jeśli serwer nie zwrócił JSON-a, zostawiamy domyślny komunikat
+      console.error("Szczegóły błędu płatności:", e);
     }
     throw new Error(errorMessage);
   }
