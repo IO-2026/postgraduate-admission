@@ -85,7 +85,7 @@ public class ApplicationService {
 
     @Transactional
     public void withdrawApplication(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest już wycofany.");
@@ -96,7 +96,7 @@ public class ApplicationService {
 
     @Transactional
     public void markDiplomaAsVerified(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if(application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
@@ -106,7 +106,7 @@ public class ApplicationService {
 
     @Transactional
     public void markDeclarationAsVerified(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if(application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
@@ -116,7 +116,7 @@ public class ApplicationService {
 
     @Transactional
     public void payEntryFee(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
@@ -126,7 +126,7 @@ public class ApplicationService {
 
     @Transactional
     public void paySemester(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
@@ -138,7 +138,7 @@ public class ApplicationService {
 
     @Transactional
     public void acceptApplication(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
         if(!application.getIsDiplomaVerified() || !application.getIsEntryFeePaid()){
             throw new IllegalStateException("Nie można zaakceptować: brakuje opłaty lub dyplomu.");
