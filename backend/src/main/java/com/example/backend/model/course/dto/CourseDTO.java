@@ -1,5 +1,6 @@
 package com.example.backend.model.course.dto;
 
+import com.example.backend.validation.ValidDateRange;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@ValidDateRange(message = "Data zakończenia rekrutacji nie może być wcześniejsza niż data rozpoczęcia rekrutacji.")
 @Data
 @Builder
 @NoArgsConstructor

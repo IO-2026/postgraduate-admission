@@ -27,7 +27,7 @@ public class MessageService {
     public void sendMessage(User sender, MessageSendRequest request) {
         String roleName = sender.getRole().getName();
         if (!roleName.equals("Coordinator") && !roleName.equals("Admin")) {
-            throw new SecurityException("Only coordinators or admin can send messages");
+            throw new SecurityException("Tylko koordynatorzy lub administratorzy mogą wysyłać wiadomości");
         }
 
         List<User> recipients = new ArrayList<>();
@@ -36,15 +36,15 @@ public class MessageService {
                     .filter(u -> u.getRole() != null && u.getRole().getId() == 1)
                     .collect(Collectors.toList());
             if (recipients.isEmpty()) {
-                throw new IllegalArgumentException("No candidates found");
+                throw new IllegalArgumentException("Nie znaleziono kandydatów");
             }
         } else if (request.getRecipientIds() != null && !request.getRecipientIds().isEmpty()) {
             recipients = userRepository.findAllById(request.getRecipientIds());
             if (recipients.size() != request.getRecipientIds().size()) {
-                throw new IllegalArgumentException("Some recipients do not exist");
+                throw new IllegalArgumentException("Niektórzy odbiorcy nie istnieją");
             }
         } else {
-            throw new IllegalArgumentException("No recipients specified");
+            throw new IllegalArgumentException("Nie określono odbiorców");
         }
 
         Message message = new Message();
@@ -83,7 +83,7 @@ public class MessageService {
     public void markAsRead(Long recipientId, Long userId) {
         int updated = recipientRepository.markAsRead(recipientId, userId);
         if (updated == 0) {
-            throw new IllegalArgumentException("Message recipient not found or already read");
+            throw new IllegalArgumentException("Odbiorca wiadomości nie znaleziony lub już przeczytany");
         }
     }
 

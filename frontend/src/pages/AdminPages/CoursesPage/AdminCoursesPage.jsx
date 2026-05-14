@@ -164,6 +164,18 @@ function AdminCoursesPage() {
       return;
     }
 
+    if (
+      formData.recruitmentStart &&
+      formData.recruitmentEnd &&
+      formData.recruitmentStart > formData.recruitmentEnd
+    ) {
+      setFormError(
+        "Data rozpoczęcia rekrutacji nie może być późniejsza od daty zakończenia.",
+      );
+      setFormSubmitting(false);
+      return;
+    }
+
     const normalizedEmail = formData.coordinatorEmail
       ? formData.coordinatorEmail.trim().toLowerCase()
       : "";

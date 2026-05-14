@@ -42,7 +42,7 @@ public class CourseService {
         Course course = courseMapper.toEntity(courseDTO);
         if (courseDTO.getCoordinatorId() != null) {
             User u = userRepository.findById(courseDTO.getCoordinatorId())
-                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+                    .orElseThrow(() -> new RuntimeException("Koordynator nie znaleziony"));
             course.setCoordinator(u);
         }
         return courseMapper.toDTO(courseRepository.save(course));
@@ -61,11 +61,11 @@ public class CourseService {
 
     public void updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
 
         if (courseDTO.getCoordinatorId() != null) {
             User u = userRepository.findById(courseDTO.getCoordinatorId())
-                    .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+                    .orElseThrow(() -> new RuntimeException("Koordynator nie znaleziony"));
             course.setCoordinator(u);
         }
         courseMapper.updateEntityFromDTO(courseDTO, course);
@@ -76,13 +76,13 @@ public class CourseService {
     @Transactional
     public Course assignCoordinator(Long courseId, Long coordinatorId) {
         if (coordinatorId == null) {
-            throw new IllegalArgumentException("Coordinator id cannot be null");
+            throw new IllegalArgumentException("Identyfikator koordynatora nie może być pusty");
         }
 
         User coordinator = userRepository.findById(coordinatorId)
-                .orElseThrow(() -> new RuntimeException("Coordinator not found"));
+                .orElseThrow(() -> new RuntimeException("Koordynator nie znaleziony"));
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
 
         course.setCoordinator(coordinator);
         return courseRepository.save(course);

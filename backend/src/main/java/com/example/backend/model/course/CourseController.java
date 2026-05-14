@@ -35,7 +35,7 @@ public class CourseController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage() + (e.getCause() != null ? " Cause: " + e.getCause().getMessage() : ""));
+            return ResponseEntity.status(500).body("Błąd: " + e.getMessage() + (e.getCause() != null ? " Przyczyna: " + e.getCause().getMessage() : ""));
         }
     }
 
@@ -45,7 +45,7 @@ public class CourseController {
             courseService.deleteCourse(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Błąd: " + e.getMessage());
         }
     }
 

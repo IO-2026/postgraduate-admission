@@ -37,12 +37,12 @@ public class UserService implements UserDetailsService {
         String email = normalizeEmail(registerRequest.getEmail());
 
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already taken!");
+            throw new IllegalArgumentException("E-mail jest już zajęty!");
         }
         User user = userMapper.toEntity(registerRequest);
 
         Role userRole = roleRepository.findByName("Candidate")
-                .orElseThrow(() -> new IllegalArgumentException("Role Candidate not found!"));
+                .orElseThrow(() -> new IllegalArgumentException("Rola Candidate nie znaleziona!"));
 
         user.setRole(userRole);
         user.setEmail(email);
@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(normalizeEmail(email))
-                .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("E-mail nie znaleziony: " + email));
     }
 
     public List<UserDTO> getAllUsers() {
@@ -66,10 +66,10 @@ public class UserService implements UserDetailsService {
 
     public UserDTO updateUserRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie znaleziony!"));
 
         Role newRole = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " not found!"));
+                .orElseThrow(() -> new IllegalArgumentException("Rola " + roleName + " nie znaleziona!"));
 
         // if user is currently a coordinator and new role is not coordinator, prevent demotion while courses assigned
         boolean isCurrentlyCoordinator = user.getRole() != null && Integer.valueOf(3).equals(user.getRole().getId());
@@ -77,7 +77,7 @@ public class UserService implements UserDetailsService {
         if (isCurrentlyCoordinator && !willBeCoordinator) {
             java.util.List<com.example.backend.model.course.Course> assigned = courseRepository.findByCoordinatorId(userId);
             if (assigned != null && !assigned.isEmpty()) {
-                throw new IllegalArgumentException("Cannot demote user while they have assigned courses. Reassign courses first.");
+                throw new IllegalArgumentException("Nie można zdegradować użytkownika, który ma przypisane kursy. Najpierw przełóż kursy.");
             }
         }
 
@@ -100,9 +100,9 @@ public class UserService implements UserDetailsService {
     @Transactional
     public AdminUserDto promoteToCoordinator(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie znaleziony"));
         Role coord = roleRepository.findById(3)
-                .orElseThrow(() -> new IllegalArgumentException("Coordinator role not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Rola koordynatora nie znaleziona"));
 
         user.setRole(coord);
         User savedUser = userRepository.save(user);
@@ -112,15 +112,15 @@ public class UserService implements UserDetailsService {
     @Transactional
     public AdminUserDto demoteToApplicant(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nie znaleziony"));
 
         List<Course> assigned = courseRepository.findByCoordinatorId(user.getId());
         if (assigned != null && !assigned.isEmpty()) {
-            throw new IllegalStateException("Cannot demote user while they have assigned courses.");
+            throw new IllegalStateException("Nie można zdegradować użytkownika, który ma przypisane kursy.");
         }
 
         Role applicant = roleRepository.findById(1)
-                .orElseThrow(() -> new IllegalArgumentException("Applicant role not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Rola Candidate nie znaleziona"));
 
         user.setRole(applicant);
         User savedUser = userRepository.save(user);

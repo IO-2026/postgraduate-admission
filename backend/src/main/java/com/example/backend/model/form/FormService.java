@@ -16,7 +16,7 @@ public class FormService {
 
     public void sendMessage(User sender, FormSendRequest request) {
         if (sender == null) {
-            throw new IllegalArgumentException("Cannot send message with unauthorised user");
+            throw new IllegalArgumentException("Nie można wysłać wiadomości z nieautoryzowanego użytkownika");
         }
 
         Form form = new Form();

@@ -7,14 +7,14 @@ function getErrorMessage(payload) {
   }
 
   if (!payload || typeof payload !== "object") {
-    return "Application request failed.";
+    return "Żądanie dotyczące aplikacji nie powiodło się.";
   }
 
   return (
     payload.message ||
     payload.error ||
     payload.details ||
-    "Application request failed."
+    "Żądanie dotyczące aplikacji nie powiodło się."
   );
 }
 
