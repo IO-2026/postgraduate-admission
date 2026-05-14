@@ -96,22 +96,94 @@ export async function updateApplication(applicationDto) {
   return responseText ? JSON.parse(responseText) : null;
 }
 
-export async function withdrawApplication(applicationId) {
+// --- FUNKCJA POMOCNICZA (żeby nie pisać tego samego w kółko) ---
+async function patchApplicationAction(
+  applicationId,
+  actionPath,
+  defaultErrorMessage,
+) {
   const token = getToken();
   const response = await fetch(
-    `${API_URL}/applications/${applicationId}/withdraw`,
+    `${API_URL}/applications/${applicationId}/${actionPath}`,
     {
       method: "PATCH",
       headers: {
+        "Content-Type": "application/json", // Bardzo ważne dla Springa!
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     },
   );
 
   if (!response.ok) {
-    throw new Error("Nie udało się zrezygnować ze zgłoszenia");
+    let errorMessage = defaultErrorMessage;
+    try {
+      // Próbujemy wyciągnąć ładny błąd z naszego GlobalExceptionHandlera
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      }
+    } catch (e) {
+      // Jeśli serwer nie zwrócił JSON-a, zostawiamy domyślny komunikat
+    }
+    throw new Error(errorMessage);
   }
 
-  const responseText = await response.text();
-  return responseText ? JSON.parse(responseText) : null;
+  // Skoro backend zwraca 200 OK bez ciała, po prostu zwracamy sukces
+  return true;
+}
+
+// ==========================================
+// 1. AKCJE DLA KANDYDATA
+// ==========================================
+
+export async function withdrawApplication(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "withdraw",
+    "Nie udało się zrezygnować ze zgłoszenia.",
+  );
+}
+
+export async function payEntryFee(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "pay-entry-fee",
+    "Nie udało się opłacić wpisowego.",
+  );
+}
+
+export async function paySemester(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "pay-semester",
+    "Nie udało się opłacić semestru. Upewnij się, że wniosek jest zaakceptowany.",
+  );
+}
+
+// ==========================================
+// 2. AKCJE DLA KOORDYNATORA / ADMINA
+// ==========================================
+
+export async function verifyDiploma(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "verify-diploma",
+    "Nie udało się zweryfikować dyplomu.",
+  );
+}
+
+export async function verifyDeclaration(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "verify-declaration",
+    "Nie udało się zweryfikować oświadczenia.",
+  );
+}
+
+export async function acceptApplication(applicationId) {
+  return patchApplicationAction(
+    applicationId,
+    "accept",
+    "Nie udało się zaakceptować wniosku. Sprawdź, czy dyplom i wpisowe są odhaczone.",
+  );
 }

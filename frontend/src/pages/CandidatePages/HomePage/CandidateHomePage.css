@@ -332,4 +332,77 @@
     align-items: center;
     flex-wrap: wrap;
   }
+  .app-action-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid transparent; /* Rezerwujemy miejsce na ramkę */
+    font-family: inherit;
+  }
+
+  /* Przycisk Główny (Opłać wpisowe) */
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Przycisk Sukcesu (Opłać Semestr) */
+  .btn-success {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+  }
+
+  .btn-success:hover {
+    background-color: #15803d;
+  }
+
+  /* Przycisk Rezygnacji (Outline) */
+  .btn-danger-outline {
+    background-color: white;
+    border: 2px solid #e11d48;
+    color: #e11d48;
+  }
+
+  .btn-danger-outline:hover {
+    background-color: #fff1f2;
+    border-color: #be123c;
+    color: #be123c;
+  }
+
+  /* Przyciski Nieaktywne (Już opłacone) */
+  .btn-paid-status {
+    background-color: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  .btn-semester-paid {
+    background-color: #f0fdf4;
+    border: 2px solid #bbf7d0;
+    color: #16a34a;
+    cursor: not-allowed;
+  }
+
+  /* Tekst informacyjny */
+  .status-info-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    margin: 5px 0;
+    font-style: italic;
+  }
 }

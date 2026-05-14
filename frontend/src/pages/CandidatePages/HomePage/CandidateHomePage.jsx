@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import {
   fetchApplicationsOfUser,
   withdrawApplication,
+  payEntryFee,
+  paySemester,
 } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
@@ -36,6 +38,44 @@ function CandidateHomePage({ isLoggedIn, user }) {
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
       alert(error.message || "Wystąpił błąd podczas rezygnacji.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handlePayEntryFee = async (applicationId) => {
+    if (!window.confirm("Czy chcesz potwierdzić dokonanie opłaty wpisowej?")) {
+      return;
+    }
+
+    try {
+      setLoadingApplications(true);
+      await payEntryFee(applicationId); // Twoja nowa funkcja z API
+      const data = await fetchApplicationsOfUser(userId);
+      setApplications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas opłacania wpisowego.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handlePaySemester = async (applicationId) => {
+    if (
+      !window.confirm(
+        "Czy chcesz potwierdzić dokonanie opłaty za pierwszy semestr?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setLoadingApplications(true);
+      await paySemester(applicationId); // Twoja nowa funkcja z API
+      const data = await fetchApplicationsOfUser(userId);
+      setApplications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas opłacania semestru.");
     } finally {
       setLoadingApplications(false);
     }
@@ -201,173 +241,198 @@ function CandidateHomePage({ isLoggedIn, user }) {
         </div>
 
         {loadingApplications ? (
-            <p className="applications-empty">Ładowanie aplikacji...</p>
+          <p className="applications-empty">Ładowanie aplikacji...</p>
         ) : null}
 
         {applicationsError ? (
-            <p className="applications-error" role="alert">
-              {applicationsError}
-            </p>
+          <p className="applications-error" role="alert">
+            {applicationsError}
+          </p>
         ) : null}
 
         {!loadingApplications && !applicationsError ? (
-            <ul className="applications-list" aria-label="Bieżące aplikacje">
-              {applications.map((application) => {
-                // 1. Rozpakowanie nowych flag z DTO
-                const isWithdrawn = Boolean(application.isWithdrawn);
-                const isAccepted = Boolean(application.isAccepted);
-                const isEntryFeePaid = Boolean(application.isEntryFeePaid);
-                const isSemesterPaid = Boolean(application.isSemesterPaid);
-                const isDiplomaVerified = Boolean(application.isDiplomaVerified);
-                const isDeclarationVerified = Boolean(application.isDeclarationVerified);
+          <ul className="applications-list" aria-label="Bieżące aplikacje">
+            {applications.map((application) => {
+              // 1. Rozpakowanie nowych flag z DTO
+              const isWithdrawn = Boolean(application.isWithdrawn);
+              const isAccepted = Boolean(application.isAccepted);
+              const isEntryFeePaid = Boolean(application.isEntryFeePaid);
+              const isSemesterPaid = Boolean(application.isSemesterPaid);
+              const isDiplomaVerified = Boolean(application.isDiplomaVerified);
+              const isDeclarationVerified = Boolean(
+                application.isDeclarationVerified,
+              );
 
-                // 2. Obliczenie ogólnego statusu tekstowego do wyświetlenia
-                let displayStatus = "W trakcie weryfikacji";
-                let statusColor = "#eab308"; // żółty (pending)
+              // 2. Obliczenie ogólnego statusu tekstowego do wyświetlenia
+              let displayStatus = "W trakcie weryfikacji";
+              let statusColor = "#eab308"; // żółty (pending)
 
-                if (isWithdrawn) {
-                  displayStatus = "Wycofana";
-                  statusColor = "#e11d48"; // czerwony
-                } else if (isAccepted) {
-                  displayStatus = "Zaakceptowana";
-                  statusColor = "#16a34a"; // zielony
-                }
+              if (isWithdrawn) {
+                displayStatus = "Wycofana";
+                statusColor = "#e11d48"; // czerwony
+              } else if (isAccepted) {
+                displayStatus = "Zaakceptowana";
+                statusColor = "#16a34a"; // zielony
+              }
 
-                const courseId = Number(application.courseId);
-                const courseName = (!Number.isNaN(courseId) && courseNames[courseId]) || "Nieznany kierunek";
-                const university = application.university || "Brak danych";
+              const courseId = Number(application.courseId);
+              const courseName =
+                (!Number.isNaN(courseId) && courseNames[courseId]) ||
+                "Nieznany kierunek";
+              const university = application.university || "Brak danych";
 
-                return (
-                    <li key={application.id || `${courseName}-${application.id}`}>
-                      <article className="application-item">
-                        <div className="application-item-main">
-                          <h3>{courseName}</h3>
-                          <p>
-                            Uczelnia: <strong>{university}</strong>
-                            {Number.isNaN(courseId) ? "" : ` • ID kierunku: ${courseId}`}
-                          </p>
-                          <p className="application-date">
-                            Data złożenia: <strong>{formatDate(application.submissionDateTime)}</strong>
-                          </p>
+              return (
+                <li key={application.id || `${courseName}-${application.id}`}>
+                  <article className="application-item">
+                    <div className="application-item-main">
+                      <h3>{courseName}</h3>
+                      <p>
+                        Uczelnia: <strong>{university}</strong>
+                        {Number.isNaN(courseId)
+                          ? ""
+                          : ` • ID kierunku: ${courseId}`}
+                      </p>
+                      <p className="application-date">
+                        Data złożenia:{" "}
+                        <strong>
+                          {formatDate(application.submissionDateTime)}
+                        </strong>
+                      </p>
 
-                          {/* Sekcja Informacyjna (Tylko do odczytu) */}
-                          <div style={{
-                            marginTop: "12px",
-                            display: "flex",
-                            gap: "10px",
-                            flexWrap: "wrap",
-                            fontSize: "0.85rem"
-                          }}>
-                  <span style={{
-                    padding: "4px 8px",
-                    borderRadius: "6px",
-                    backgroundColor: `${statusColor}20`,
-                    color: statusColor,
-                    fontWeight: "bold"
-                  }}>
-                    {displayStatus}
-                  </span>
-
-                            <span style={{
+                      {/* Sekcja Informacyjna (Tylko do odczytu) */}
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          display: "flex",
+                          gap: "10px",
+                          flexWrap: "wrap",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: "6px",
+                            backgroundColor: `${statusColor}20`,
+                            color: statusColor,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {displayStatus}
+                        </span>
+                        {!isWithdrawn && (
+                          <span
+                            style={{
                               padding: "4px 8px",
                               borderRadius: "6px",
                               backgroundColor: "#f3f4f6",
-                              color: isDiplomaVerified ? "#16a34a" : "#6b7280"
-                            }}>
-                    Dyplom: {isDiplomaVerified ? "✓ Zweryfikowany" : "Weryfikacja..."}
-                  </span>
-
-                            <span style={{
+                              color: isDiplomaVerified ? "#16a34a" : "#6b7280",
+                            }}
+                          >
+                            Dyplom:{" "}
+                            {isDiplomaVerified
+                              ? "✓ Zweryfikowany"
+                              : "Weryfikacja..."}
+                          </span>
+                        )}
+                        {isAccepted && !isWithdrawn && (
+                          <span
+                            style={{
                               padding: "4px 8px",
                               borderRadius: "6px",
                               backgroundColor: "#f3f4f6",
-                              color: isDeclarationVerified ? "#16a34a" : "#6b7280"
-                            }}>
-                    Oświadczenie: {isDeclarationVerified ? "✓ Zweryfikowane" : "Weryfikacja..."}
-                  </span>
-                          </div>
-                        </div>
+                              color: isDeclarationVerified
+                                ? "#16a34a"
+                                : "#6b7280",
+                            }}
+                          >
+                            Oświadczenie:{" "}
+                            {isDeclarationVerified
+                              ? "✓ Zweryfikowane"
+                              : "Weryfikacja..."}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                        {/* Sekcja Akcji (Przyciski dla Kandydata) */}
-                        <div className="application-item-meta">
-                          <div style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "8px",
-                            width: "100%",
-                            minWidth: "140px"
-                          }}>
+                    {/* Sekcja Akcji (Przyciski dla Kandydata) */}
+                    <div
+                      className="application-actions-container"
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        minWidth: "180px",
+                      }}
+                    >
+                      {/* OPŁATA WPISOWA */}
+                      {!isEntryFeePaid ? (
+                        !isWithdrawn && (
+                          <button
+                            className="app-action-btn btn-primary"
+                            onClick={() => handlePayEntryFee(application.id)}
+                          >
+                            Opłać wpisowe
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          disabled
+                          className="app-action-btn btn-paid-status"
+                        >
+                          ✓ Wpisowe opłacone
+                        </button>
+                      )}
 
-                            {/* Przycisk opłaty wpisowej: widoczny gdy nie wycofano i nie opłacono */}
-                            {!isWithdrawn && !isEntryFeePaid && (
-                                <Link
-                                    to={`/payment/${application.id}?type=entry`}
-                                    className="primary-btn application-pay-btn"
-                                    style={{textAlign: "center", textDecoration: "none"}}
-                                >
-                                  Opłać wpisowe
-                                </Link>
-                            )}
+                      {/* OPŁATA ZA SEMESTR */}
+                      {isAccepted ? (
+                        !isSemesterPaid ? (
+                          !isWithdrawn && (
+                            <button
+                              className="app-action-btn btn-success"
+                              onClick={() => handlePaySemester(application.id)}
+                            >
+                              Opłać I semestr
+                            </button>
+                          )
+                        ) : (
+                          <button
+                            disabled
+                            className="app-action-btn btn-semester-paid"
+                          >
+                            ✓ Semestr opłacony
+                          </button>
+                        )
+                      ) : (
+                        isEntryFeePaid &&
+                        !isWithdrawn && (
+                          <p className="status-info-text">
+                            Czekanie na akceptację...
+                          </p>
+                        )
+                      )}
 
-                            {/* Przycisk opłaty za semestr: widoczny TYLKO gdy zaakceptowano, nie wycofano i nie opłacono */}
-                            {!isWithdrawn && isAccepted && !isSemesterPaid && (
-                                <Link
-                                    to={`/payment/${application.id}?type=semester`}
-                                    className="primary-btn application-pay-btn"
-                                    style={{
-                                      textAlign: "center",
-                                      textDecoration: "none",
-                                      backgroundColor: "#16a34a",
-                                      borderColor: "#16a34a"
-                                    }}
-                                >
-                                  Opłać I semestr
-                                </Link>
-                            )}
-
-                            {/* Informacja o opłaceniu wszystkiego */}
-                            {!isWithdrawn && isEntryFeePaid && isSemesterPaid && (
-                                <span style={{
-                                  textAlign: "center",
-                                  color: "#16a34a",
-                                  fontSize: "0.9rem",
-                                  fontWeight: "bold"
-                                }}>
-                      ✓ W pełni opłacone
-                    </span>
-                            )}
-
-                            {/* Przycisk wycofania: widoczny dopóki wniosek nie jest wycofany */}
-                            {!isWithdrawn && (
-                                <button
-                                    type="button"
-                                    className="ghost-btn application-withdraw-btn"
-                                    onClick={() => handleWithdraw(application.id)}
-                                    style={{
-                                      padding: "8px 20px",
-                                      fontSize: "0.8rem",
-                                      borderRadius: "10px",
-                                      width: "100%",
-                                      border: "1px solid #e11d48",
-                                      color: "#e11d48",
-                                      background: "transparent",
-                                      cursor: "pointer"
-                                    }}
-                                >
-                                  Zrezygnuj
-                                </button>
-                            )}
-                          </div>
-                        </div>
-                      </article>
-                    </li>
-                );
-              })}
-            </ul>
+                      {/* REZYGNACJA */}
+                      {!isWithdrawn && (
+                        <button
+                          className="app-action-btn btn-danger-outline"
+                          onClick={() => handleWithdraw(application.id)}
+                        >
+                          Zrezygnuj
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                </li>
+              );
+            })}
+          </ul>
         ) : null}
 
-        {!loadingApplications && !applicationsError && applications.length === 0 ? (
-            <p className="applications-empty">Brak bieżących aplikacji.</p>
+        {!loadingApplications &&
+        !applicationsError &&
+        applications.length === 0 ? (
+          <p className="applications-empty">Brak bieżących aplikacji.</p>
         ) : null}
       </section>
     </section>
