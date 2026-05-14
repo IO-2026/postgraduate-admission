@@ -35,12 +35,16 @@ function validateName(value) {
 }
 
 function validatePassword(password) {
-  const hasMinLength = password.length >= PASSWORD_MIN_LENGTH;
-  const hasLetter = /[A-Za-z]/.test(password);
-  const hasDigit = /\d/.test(password);
+  const validation = getPasswordValidation(password);
 
-  return hasMinLength && hasLetter && hasDigit;
+  return validation.minLength && validation.hasLetter && validation.hasDigit;
 }
+
+const getPasswordValidation = (password) => ({
+  minLength: password.length >= PASSWORD_MIN_LENGTH,
+  hasLetter: /[A-Za-z]/.test(password),
+  hasDigit: /\d/.test(password),
+});
 
 function getPasswordError(password) {
   if (password.length < PASSWORD_MIN_LENGTH) {
@@ -228,6 +232,7 @@ function AuthPage({ onAuthSuccess }) {
     }
   };
 
+  const passwordValidation = getPasswordValidation(registerData.password);
   return (
     <section className="auth-view">
       <h1 className="auth-page-title">AGH Studia Podyplomowe</h1>
@@ -383,8 +388,32 @@ function AuthPage({ onAuthSuccess }) {
                   minLength={PASSWORD_MIN_LENGTH}
                   aria-invalid={!!error}
                 />
-              </label>
+                <ul className="password-rules">
+                  <li
+                    className={
+                      passwordValidation.minLength ? "valid" : "invalid"
+                    }
+                  >
+                    Minimum 8 znaków
+                  </li>
 
+                  <li
+                    className={
+                      passwordValidation.hasLetter ? "valid" : "invalid"
+                    }
+                  >
+                    Przynajmniej jedna litera
+                  </li>
+
+                  <li
+                    className={
+                      passwordValidation.hasDigit ? "valid" : "invalid"
+                    }
+                  >
+                    Przynajmniej jedna cyfra
+                  </li>
+                </ul>
+              </label>
               <label>
                 Potwierdź hasło
                 <input

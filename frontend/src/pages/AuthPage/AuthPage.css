@@ -129,3 +129,17 @@
     padding: 20px;
   }
 }
+
+.password-rules {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+}
+
+.password-rules .valid {
+  color: #2e7d32;
+}
+
+.password-rules .invalid {
+  color: #c62828;
+}
