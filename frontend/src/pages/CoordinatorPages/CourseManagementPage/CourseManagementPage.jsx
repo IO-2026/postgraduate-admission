@@ -155,7 +155,7 @@ function CourseManagementPage() {
       setFormError("Rok akademicki jest wymagany.");
       return;
     }
-    
+
     const price = parseFloat(formData.price);
     if (price < 0 || price > 100000) {
       setFormError("Cena musi być między 0 a 100000.");
