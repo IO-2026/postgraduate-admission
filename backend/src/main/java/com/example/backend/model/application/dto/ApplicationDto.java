@@ -1,6 +1,5 @@
 package com.example.backend.model.application.dto;
 
-import com.example.backend.model.application.ApplicationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +23,6 @@ public class ApplicationDto {
     private Long userId;
     private String university;
     private Long courseId;
-    private Boolean isPaid;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -42,9 +40,15 @@ public class ApplicationDto {
     private Boolean truthfulnessConsent;
     private Boolean gdprConsent;
     private Boolean newsletterConsent;
-    private ApplicationStatus status;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime submissionDateTime;
+
+    private Boolean isWithdrawn;
+    private Boolean isAccepted;
+    private Boolean isEntryFeePaid;
+    private Boolean isDiplomaVerified;
+    private Boolean isDeclarationVerified;
+    private Boolean isSemesterPaid;
 }

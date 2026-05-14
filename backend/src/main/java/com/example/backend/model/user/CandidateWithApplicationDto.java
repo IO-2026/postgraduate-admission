@@ -15,6 +15,10 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
-    private boolean isPaid;
-    private String status;
+    private Boolean isWithdrawn;
+    private Boolean isAccepted;
+    private Boolean isEntryFeePaid;
+    private Boolean isDiplomaVerified;
+    private Boolean isDeclarationVerified;
+    private Boolean isSemesterPaid;
 }

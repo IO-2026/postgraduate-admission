@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Id;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,9 +45,6 @@ public class Application {
 
     @Column(name = "course_id")
     private Long courseId;
-
-    @Column(name = "is_paid")
-    private Boolean isPaid;
 
     private String placeOfBirth;
 
@@ -88,11 +83,25 @@ public class Application {
 
     private Boolean newsletterConsent;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name="status", nullable = false)
-    private ApplicationStatus status;
-
     @CreationTimestamp
     @Column(name = "submission_date")
     private LocalDateTime submissionDateTime;
+
+    @Column(name = "is_withdrawn")
+    private Boolean isWithdrawn = false;
+
+    @Column(name = "is_accepted")
+    private Boolean isAccepted = false;
+
+    @Column(name = "is_entryfee_paid")
+    private Boolean isEntryFeePaid = false;
+
+    @Column(name = "is_diploma_verified")
+    private Boolean isDiplomaVerified = false;
+
+    @Column(name = "is_declaration_verified")
+    private Boolean isDeclarationVerified = false;
+
+    @Column(name = "is_semester_paid")
+    private Boolean isSemesterPaid = false;
 }

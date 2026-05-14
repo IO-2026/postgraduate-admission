@@ -39,8 +39,6 @@ public class ApplicationService {
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
-        application.setIsPaid(false);
-        application.setStatus(ApplicationStatus.SUBMITTED);
 
         Application savedApplication = applicationRepository.saveAndFlush(application);
 
@@ -86,16 +84,67 @@ public class ApplicationService {
     }
 
     @Transactional
-    public void updateStatus(Long applicationId, ApplicationStatus newStatus) {
+    public void withdrawApplication(Long applicationId) {
         Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
-        User user = application.getUser();
 
-        if (application.getStatus() == ApplicationStatus.WITHDRAWN) {
+        if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest już wycofany.");
         }
 
-        application.setStatus(newStatus);
-        emailService.sendApplicationStatusChange(user, application);
+        application.setIsWithdrawn(true);
+    }
+
+    @Transactional
+    public void markDiplomaAsVerified(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
+
+        if(application.getIsWithdrawn()) {
+            throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
+        }
+        application.setIsDiplomaVerified(true);
+    }
+
+    @Transactional
+    public void markDeclarationAsVerified(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
+
+        if(application.getIsWithdrawn()) {
+            throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
+        }
+        application.setIsDeclarationVerified(true);
+    }
+
+    @Transactional
+    public void payEntryFee(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
+
+        if (application.getIsWithdrawn()) {
+            throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
+        }
+        application.setIsEntryFeePaid(true);
+    }
+
+    @Transactional
+    public void paySemester(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
+
+        if (application.getIsWithdrawn()) {
+            throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
+        } else if (!application.getIsAccepted()) {
+            throw new IllegalStateException("Nie można opłacić pierwszego semestru dopóki wniosek nie zostanie zaakceptowany");
+        }
+        application.setIsSemesterPaid(true);
+    }
+
+    @Transactional
+    public void acceptApplication(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
+
+        if(!application.getIsDiplomaVerified() || !application.getIsEntryFeePaid()){
+            throw new IllegalStateException("Nie można zaakceptować: brakuje opłaty lub dyplomu.");
+        }
+
+        application.setIsAccepted(true);
     }
 
     public List<Application> getAllApplications() {

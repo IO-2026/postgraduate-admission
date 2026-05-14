@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   getApplication,
   getApplicationDiplomaUrl,
-  updateApplicationStatus,
   updateApplication,
+  verifyDiploma,
+  verifyDeclaration,
+  acceptApplication,
 } from "../../../services/applicationApi";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./ApplicationManagementPage.css";
@@ -16,8 +18,12 @@ function ApplicationManagementPage() {
     id: applicationId,
     userId: null,
     courseId: null,
-    status: "SUBMITTED",
-    isPaid: false,
+    isWithdrawn: false,
+    isAccepted: false,
+    isEntryFeePaid: false,
+    isSemesterPaid: false,
+    isDiplomaVerified: false,
+    isDeclarationVerified: false,
     applicantPesel: "",
     applicantDateOfBirth: "",
     addressStreet: "",
@@ -27,6 +33,7 @@ function ApplicationManagementPage() {
     fieldOfStudy: "",
     university: "",
     graduationYear: "",
+    placeOfBirth: "",
     notes: "",
     truthfulnessConsent: false,
     gdprConsent: false,
@@ -42,7 +49,7 @@ function ApplicationManagementPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [diplomaLoading, setDiplomaLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [statusSaving, setStatusSaving] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
@@ -56,11 +63,15 @@ function ApplicationManagementPage() {
 
         if (isMounted) {
           setApplicationData({
-            id: data.id || data.applicationId || applicationId,
+            id: data.id || applicationId,
             userId: data.userId || null,
             courseId: data.courseId || null,
-            status: data.status || "SUBMITTED",
-            isPaid: data.isPaid || false,
+            isWithdrawn: data.isWithdrawn || false,
+            isAccepted: data.isAccepted || false,
+            isEntryFeePaid: data.isEntryFeePaid || false,
+            isSemesterPaid: data.isSemesterPaid || false,
+            isDiplomaVerified: data.isDiplomaVerified || false,
+            isDeclarationVerified: data.isDeclarationVerified || false,
             applicantPesel: data.applicantPesel || "",
             applicantDateOfBirth: data.applicantDateOfBirth || "",
             addressStreet: data.addressStreet || "",
@@ -70,6 +81,7 @@ function ApplicationManagementPage() {
             fieldOfStudy: data.fieldOfStudy || "",
             university: data.university || "",
             graduationYear: data.graduationYear || "",
+            placeOfBirth: data.placeOfBirth || "",
             notes: data.notes || "",
             truthfulnessConsent: data.truthfulnessConsent || false,
             gdprConsent: data.gdprConsent || false,
@@ -106,24 +118,58 @@ function ApplicationManagementPage() {
     }));
   };
 
-  const handleStatusChange = async (e) => {
-    const nextStatus = e.target.value;
-
-    setApplicationData((prev) => ({
-      ...prev,
-      status: nextStatus,
-    }));
+  const handleVerifyDiploma = async () => {
     setSuccessMessage("");
     setError("");
 
     try {
-      setStatusSaving(true);
-      await updateApplicationStatus(applicationId, nextStatus);
-      setSuccessMessage("Zapisano status aplikacji.");
+      setActionLoading(true);
+      await verifyDiploma(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isDiplomaVerified: true,
+      }));
+      setSuccessMessage("Dyplom został zweryfikowany pomyślnie.");
     } catch (err) {
-      setError(err.message || "Nie udało się zapisać statusu aplikacji.");
+      setError(err.message || "Nie udało się zweryfikować dyplomu.");
     } finally {
-      setStatusSaving(false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleVerifyDeclaration = async () => {
+    setSuccessMessage("");
+    setError("");
+
+    try {
+      setActionLoading(true);
+      await verifyDeclaration(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isDeclarationVerified: true,
+      }));
+      setSuccessMessage("Oświadczenie zostało zweryfikowane pomyślnie.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAcceptApplication = async () => {
+    setSuccessMessage("");
+    setError("");
+
+    try {
+      setActionLoading(true);
+      await acceptApplication(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isAccepted: true,
+      }));
+      setSuccessMessage("Wniosek został zaakceptowany.");
+    } catch (err) {
+      setError(err.message || "Nie udało się zaakceptować wniosku.");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -171,6 +217,28 @@ function ApplicationManagementPage() {
     }
   };
 
+  // Określenie statusu tekstowego na podstawie flag
+  const getStatusText = () => {
+    if (applicationData.isWithdrawn) return "Wycofana";
+    if (applicationData.isAccepted) return "Zaakceptowana";
+    if (applicationData.isDiplomaVerified && applicationData.isEntryFeePaid)
+      return "Gotowa do akceptacji";
+    if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
+    return "W trakcie weryfikacji";
+  };
+
+  // Sprawdzenie czy akcje są dostępne
+  const isWithdrawn = applicationData.isWithdrawn;
+  const isAccepted = applicationData.isAccepted;
+  const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
+  const canVerifyDeclaration =
+    !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
+  const canAcceptApplication =
+    !isWithdrawn &&
+    !isAccepted &&
+    applicationData.isDiplomaVerified &&
+    applicationData.isEntryFeePaid;
+
   if (loading) {
     return (
       <section className="application-management-view">
@@ -216,30 +284,24 @@ function ApplicationManagementPage() {
         <div className="application-management-section">
           <h3>Informacje podstawowe</h3>
           <div className="application-management-form-grid">
-            <div className="application-management-field application-management-field-status">
-              <label htmlFor="app-status">Status</label>
-              <select
-                id="app-status"
-                name="status"
-                value={applicationData.status}
-                onChange={handleStatusChange}
-                disabled={statusSaving}
-              >
-                <option value="SUBMITTED">Wniosek przyjęty</option>
-                <option value="VERIFIED">Wniosek zweryfikowany</option>
-                <option value="WAITING_LIST">
-                  Wniosek na liście rezerwowej
-                </option>
-                <option value="ACCEPTED">Wniosek zaakceptowany</option>
-                <option value="REJECTED">Wniosek odrzucony</option>
-                <option value="WITHDRAWN">Wniosek wycofany</option>
-              </select>
+            <div className="application-management-field">
+              <label>Status aplikacji</label>
+              <div className="application-management-readonly">
+                {getStatusText()}
+              </div>
             </div>
 
             <div className="application-management-field">
-              <label>Opłacone</label>
+              <label>Opłata wpisowa</label>
               <div className="application-management-readonly">
-                {applicationData.isPaid ? "Tak" : "Nie"}
+                {applicationData.isEntryFeePaid ? "Opłacona" : "Nieopłacona"}
+              </div>
+            </div>
+
+            <div className="application-management-field">
+              <label>Opłata za semestr</label>
+              <div className="application-management-readonly">
+                {applicationData.isSemesterPaid ? "Opłacona" : "Nieopłacona"}
               </div>
             </div>
 
@@ -256,6 +318,130 @@ function ApplicationManagementPage() {
                     }).format(new Date(applicationData.submissionDateTime))
                   : "Brak danych"}
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="application-management-section">
+          <h3>Akcje koordynatora</h3>
+          <div className="application-management-form-grid">
+            <div className="application-management-field">
+              <label>Weryfikacja dyplomu</label>
+              <div>
+                {applicationData.isDiplomaVerified ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Dyplom zweryfikowany
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleVerifyDiploma}
+                    disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
+                    style={{
+                      backgroundColor: canVerifyDiploma
+                        ? "var(--primary)"
+                        : "#9ca3af",
+                      cursor: canVerifyDiploma ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="application-management-field">
+              <label>Weryfikacja oświadczenia</label>
+              <div>
+                {applicationData.isDeclarationVerified ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Oświadczenie zweryfikowane
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleVerifyDeclaration}
+                    disabled={
+                      actionLoading || !canVerifyDeclaration || isWithdrawn
+                    }
+                    style={{
+                      backgroundColor: canVerifyDeclaration
+                        ? "var(--primary)"
+                        : "#9ca3af",
+                      cursor: canVerifyDeclaration ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading
+                      ? "Weryfikowanie..."
+                      : "Zweryfikuj oświadczenie"}
+                  </button>
+                )}
+              </div>
+              {!isAccepted && !isWithdrawn && (
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                    marginTop: "4px",
+                  }}
+                >
+                  Oświadczenie można zweryfikować po zaakceptowaniu wniosku
+                </div>
+              )}
+            </div>
+
+            <div className="application-management-field application-management-field-wide">
+              <label>Akceptacja wniosku</label>
+              <div>
+                {isAccepted ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Wniosek zaakceptowany
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleAcceptApplication}
+                    disabled={
+                      actionLoading || !canAcceptApplication || isWithdrawn
+                    }
+                    style={{
+                      backgroundColor: canAcceptApplication
+                        ? "#16a34a"
+                        : "#9ca3af",
+                      cursor: canAcceptApplication ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
+                  </button>
+                )}
+              </div>
+              {!canAcceptApplication && !isAccepted && !isWithdrawn && (
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                    marginTop: "4px",
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {!applicationData.isDiplomaVerified &&
+                    "• Wymagana weryfikacja dyplomu\n"}
+                  {!applicationData.isEntryFeePaid &&
+                    "• Wymagana opłata wpisowego"}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -316,6 +502,24 @@ function ApplicationManagementPage() {
               ) : (
                 <div className="application-management-readonly">
                   {applicationData.applicantDateOfBirth || "Brak danych"}
+                </div>
+              )}
+            </div>
+
+            <div className="application-management-field">
+              <label htmlFor="placeOfBirth">Miejsce urodzenia</label>
+              {isEditMode ? (
+                <input
+                  id="placeOfBirth"
+                  type="text"
+                  name="placeOfBirth"
+                  value={applicationData.placeOfBirth}
+                  onChange={handleChange}
+                  className="application-management-input"
+                />
+              ) : (
+                <div className="application-management-readonly">
+                  {applicationData.placeOfBirth || "Brak danych"}
                 </div>
               )}
             </div>
@@ -592,7 +796,7 @@ function ApplicationManagementPage() {
               type="button"
               className="application-management-edit"
               onClick={toggleEditMode}
-              disabled={submitting || statusSaving}
+              disabled={submitting || actionLoading}
             >
               Edytuj dane
             </button>

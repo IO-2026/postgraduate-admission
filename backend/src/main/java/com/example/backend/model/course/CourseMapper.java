@@ -15,5 +15,6 @@ public interface CourseMapper {
     Course toEntity(CourseDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "coordinator", ignore = true)
     void updateEntityFromDTO(CourseDTO dto, @MappingTarget Course entity);
 }
