@@ -5,6 +5,7 @@ import {
   fetchCourses,
   updateCourse,
 } from "../../../services/courseApi";
+import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./CourseManagementPage.css";
 
@@ -13,7 +14,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
-  academicYear: "",
+  academicYear: null,
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorId: "",
@@ -55,7 +56,7 @@ function CourseManagementPage() {
             name: course.name || "",
             description: course.description || "",
             price: course.price ?? "",
-            academicYear: course.academicYear || "",
+            academicYear: course.academicYear || null,
             recruitmentStart: course.recruitmentStart || "",
             recruitmentEnd: course.recruitmentEnd || "",
             coordinatorId: course.coordinatorId ?? "",
@@ -150,6 +151,11 @@ function CourseManagementPage() {
       return;
     }
 
+    if (!formData.academicYear) {
+      setFormError("Rok akademicki jest wymagany.");
+      return;
+    }
+
     if (
       formData.recruitmentStart &&
       formData.recruitmentEnd &&
@@ -167,7 +173,9 @@ function CourseManagementPage() {
         name: formData.name.trim(),
         description: formData.description,
         price: parseFloat(formData.price),
-        ...(formData.academicYear && { academicYear: formData.academicYear }),
+        ...(formData.academicYear && {
+          academicYear: parseInt(formData.academicYear, 10),
+        }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -186,7 +194,7 @@ function CourseManagementPage() {
         name: updatedCourse.name || "",
         description: updatedCourse.description || "",
         price: updatedCourse.price ?? prev.price,
-        academicYear: updatedCourse.academicYear || prev.academicYear,
+        academicYear: updatedCourse.academicYear || null,
         recruitmentStart: updatedCourse.recruitmentStart || "",
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
         coordinatorId: updatedCourse.coordinatorId ?? prev.coordinatorId,
@@ -264,14 +272,19 @@ function CourseManagementPage() {
 
             <div className="course-management-field">
               <label htmlFor="course-academic-year">Rok akademicki</label>
-              <input
+              <select
                 id="course-academic-year"
                 name="academicYear"
-                type="text"
-                value={formData.academicYear}
+                value={formData.academicYear || ""}
                 onChange={handleInputChange}
-                placeholder="np. 2024/2025"
-              />
+              >
+                <option value="">Wybierz rok akademicki</option>
+                {generateValidAcademicYears().map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="course-management-field">

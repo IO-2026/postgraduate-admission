@@ -7,6 +7,7 @@ import {
   deleteCourse,
 } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
+import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import BackButton from "../../../components/BackButton/BackButton";
 import { getToken } from "../../../config/auth";
 import "./AdminCoursesPage.css";
@@ -16,7 +17,7 @@ const INITIAL_FORM_STATE = {
   description: "",
   price: "",
   placesLimit: "",
-  academicYear: "",
+  academicYear: null,
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
@@ -121,7 +122,7 @@ function AdminCoursesPage() {
       description: course.description || "",
       price: course.price || "",
       placesLimit: course.placesLimit ?? "",
-      academicYear: course.academicYear || "",
+      academicYear: course.academicYear || null,
       recruitmentStart: course.recruitmentStart || "",
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
@@ -164,6 +165,12 @@ function AdminCoursesPage() {
       return;
     }
 
+    if (!formData.academicYear) {
+      setFormError("Rok akademicki jest wymagany.");
+      setFormSubmitting(false);
+      return;
+    }
+
     if (
       formData.recruitmentStart &&
       formData.recruitmentEnd &&
@@ -195,7 +202,9 @@ function AdminCoursesPage() {
         description: formData.description,
         price: parseFloat(formData.price),
         placesLimit: parseInt(formData.placesLimit, 10),
-        ...(formData.academicYear && { academicYear: formData.academicYear }),
+        ...(formData.academicYear && {
+          academicYear: parseInt(formData.academicYear, 10),
+        }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -284,13 +293,18 @@ function AdminCoursesPage() {
             </div>
             <div className="form-group">
               <label>Rok akademicki</label>
-              <input
-                type="text"
+              <select
                 name="academicYear"
-                value={formData.academicYear}
+                value={formData.academicYear || ""}
                 onChange={handleInputChange}
-                placeholder="np. 2024/2025"
-              />
+              >
+                <option value="">Wybierz rok akademicki</option>
+                {generateValidAcademicYears().map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
               <label>Opis</label>

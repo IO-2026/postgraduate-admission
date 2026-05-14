@@ -1,6 +1,7 @@
 package com.example.backend.model.course.dto;
 
 import com.example.backend.validation.ValidDateRange;
+import com.example.backend.validation.ValidAcademicYear;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,7 @@ public class CourseDTO {
     private Long coordinatorId;
     private String coordinatorName;
     private String coordinatorEmail;
-    private String academicYear;
+    @NotNull(message = "Rok akademicki jest wymagany.")
+    @ValidAcademicYear
+    private Integer academicYear;
 }
