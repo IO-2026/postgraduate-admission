@@ -37,14 +37,14 @@ public class UserController {
         try {
             return ResponseEntity.ok(authService.loginUser(loginRequest));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nieprawidłowe dane logowania");
         }
     }
 
     @PostMapping("/auth/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         userService.registerUser(registerRequest);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok("Użytkownik zarejestrowany pomyślnie!");
     }
 
     @GetMapping("/users")

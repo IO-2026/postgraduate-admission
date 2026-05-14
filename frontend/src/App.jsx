@@ -152,7 +152,7 @@ function App() {
             ["allUsers", token],
             async () => {
               const r = await fetch("/api/users", { headers });
-              if (!r.ok) throw new Error("Failed to fetch users");
+              if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
               return r.json();
             },
             { staleTime: 1000 * 60 * 5 },
@@ -162,7 +162,7 @@ function App() {
             ["courses", token],
             async () => {
               const r = await fetch("/api/courses", { headers });
-              if (!r.ok) throw new Error("Failed to fetch courses");
+              if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
               return r.json();
             },
             { staleTime: 1000 * 60 * 5 },
@@ -177,7 +177,7 @@ function App() {
                   headers,
                 },
               );
-              if (!r.ok) throw new Error("Failed to fetch coordinators");
+              if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
               return r.json();
             },
             { staleTime: 1000 * 60 * 5 },
@@ -211,7 +211,7 @@ function App() {
           ["allUsers", token],
           async () => {
             const r = await fetch("/api/users", { headers });
-            if (!r.ok) throw new Error("Failed to fetch users");
+            if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
             return r.json();
           },
           { staleTime: 1000 * 60 * 5 },
@@ -221,7 +221,7 @@ function App() {
           ["courses", token],
           async () => {
             const r = await fetch("/api/courses", { headers });
-            if (!r.ok) throw new Error("Failed to fetch courses");
+            if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
             return r.json();
           },
           { staleTime: 1000 * 60 * 5 },
@@ -236,7 +236,7 @@ function App() {
                 headers,
               },
             );
-            if (!r.ok) throw new Error("Failed to fetch coordinators");
+            if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
             return r.json();
           },
           { staleTime: 1000 * 60 * 5 },

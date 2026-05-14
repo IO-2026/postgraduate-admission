@@ -17,7 +17,7 @@ async function request(endpoint, options = {}) {
   });
 
   if (!response.ok) {
-    let errorMessage = `Request failed with status ${response.status}`;
+    let errorMessage = `Żądanie nie powiodło się ze statusem ${response.status}`;
     try {
       const data = await response.json();
       errorMessage = data.message || errorMessage;
