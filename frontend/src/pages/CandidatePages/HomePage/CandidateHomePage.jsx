@@ -50,7 +50,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
 
     try {
       setLoadingApplications(true);
-      await payEntryFee(applicationId); // Twoja nowa funkcja z API
+      await payEntryFee(applicationId);
       const data = await fetchApplicationsOfUser(userId);
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -71,7 +71,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
 
     try {
       setLoadingApplications(true);
-      await paySemester(applicationId); // Twoja nowa funkcja z API
+      await paySemester(applicationId);
       const data = await fetchApplicationsOfUser(userId);
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -253,7 +253,6 @@ function CandidateHomePage({ isLoggedIn, user }) {
         {!loadingApplications && !applicationsError ? (
           <ul className="applications-list" aria-label="Bieżące aplikacje">
             {applications.map((application) => {
-              // 1. Rozpakowanie nowych flag z DTO
               const isWithdrawn = Boolean(application.isWithdrawn);
               const isAccepted = Boolean(application.isAccepted);
               const isEntryFeePaid = Boolean(application.isEntryFeePaid);
@@ -263,16 +262,15 @@ function CandidateHomePage({ isLoggedIn, user }) {
                 application.isDeclarationVerified,
               );
 
-              // 2. Obliczenie ogólnego statusu tekstowego do wyświetlenia
               let displayStatus = "W trakcie weryfikacji";
-              let statusColor = "#eab308"; // żółty (pending)
+              let statusColor = "#eab308";
 
               if (isWithdrawn) {
                 displayStatus = "Wycofana";
-                statusColor = "#e11d48"; // czerwony
+                statusColor = "#e11d48";
               } else if (isAccepted) {
                 displayStatus = "Zaakceptowana";
-                statusColor = "#16a34a"; // zielony
+                statusColor = "#16a34a";
               }
 
               const courseId = Number(application.courseId);
@@ -299,7 +297,6 @@ function CandidateHomePage({ isLoggedIn, user }) {
                         </strong>
                       </p>
 
-                      {/* Sekcja Informacyjna (Tylko do odczytu) */}
                       <div
                         style={{
                           marginTop: "12px",
@@ -355,33 +352,34 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       </div>
                     </div>
 
-                    {/* Sekcja Akcji (Przyciski dla Kandydata) */}
-                    <div
-                      className="application-actions-container"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                        minWidth: "180px",
-                      }}
-                    >
+                    <div className="application-item-meta">
                       {/* OPŁATA WPISOWA */}
                       {!isEntryFeePaid ? (
                         !isWithdrawn && (
                           <button
-                            className="app-action-btn btn-primary"
+                            className="application-pay-btn primary-btn"
+                            style={{
+                              padding: "8px 20px",
+                              fontSize: "0.8rem",
+                              textDecoration: "none",
+                              borderRadius: "10px",
+                              border: "none",
+                              cursor: "pointer",
+                              backgroundColor: "#2563eb",
+                              color: "white",
+                            }}
                             onClick={() => handlePayEntryFee(application.id)}
                           >
                             Opłać wpisowe
                           </button>
                         )
                       ) : (
-                        <button
-                          disabled
-                          className="app-action-btn btn-paid-status"
+                        <span
+                          className="application-payment-paid"
+                          style={{ whiteSpace: "nowrap" }}
                         >
                           ✓ Wpisowe opłacone
-                        </button>
+                        </span>
                       )}
 
                       {/* OPŁATA ZA SEMESTR */}
@@ -389,33 +387,53 @@ function CandidateHomePage({ isLoggedIn, user }) {
                         !isSemesterPaid ? (
                           !isWithdrawn && (
                             <button
-                              className="app-action-btn btn-success"
+                              className="application-pay-btn primary-btn"
+                              style={{
+                                padding: "8px 20px",
+                                fontSize: "0.8rem",
+                                textDecoration: "none",
+                                borderRadius: "10px",
+                                border: "none",
+                                cursor: "pointer",
+                                backgroundColor: "#16a34a",
+                                color: "white",
+                              }}
                               onClick={() => handlePaySemester(application.id)}
                             >
                               Opłać I semestr
                             </button>
                           )
                         ) : (
-                          <button
-                            disabled
-                            className="app-action-btn btn-semester-paid"
+                          <span
+                            className="application-payment-paid"
+                            style={{ whiteSpace: "nowrap" }}
                           >
                             ✓ Semestr opłacony
-                          </button>
+                          </span>
                         )
                       ) : (
                         isEntryFeePaid &&
                         !isWithdrawn && (
-                          <p className="status-info-text">
+                          <span className="status-info-text">
                             Czekanie na akceptację...
-                          </p>
+                          </span>
                         )
                       )}
 
                       {/* REZYGNACJA */}
                       {!isWithdrawn && (
                         <button
-                          className="app-action-btn btn-danger-outline"
+                          className="application-pay-btn"
+                          style={{
+                            padding: "8px 20px",
+                            fontSize: "0.8rem",
+                            textDecoration: "none",
+                            borderRadius: "10px",
+                            border: "2px solid #e11d48",
+                            backgroundColor: "white",
+                            color: "#e11d48",
+                            cursor: "pointer",
+                          }}
                           onClick={() => handleWithdraw(application.id)}
                         >
                           Zrezygnuj

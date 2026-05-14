@@ -4,7 +4,6 @@ import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
-import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
@@ -24,9 +23,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -35,12 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-// LENIENT to avoid failing tests due to unused stubbings in these unit tests
-// Prefer cleaning up unused stubs if you want strict verification later
 public class ApplicationServiceTest {
     @Mock
     private ApplicationRepository applicationRepository;
-
 
     @Mock
     private EmailService emailService;
@@ -81,6 +75,8 @@ public class ApplicationServiceTest {
         return user;
     }
 
+    // --- TESTY TWORZENIA APLIKACJI ---
+
     @Test
     void shouldSuccessfullySaveApplication() {
         // GIVEN
@@ -88,19 +84,28 @@ public class ApplicationServiceTest {
 
         User mockUser = createMockUser(1L, "jan@example.com");
         when(applicationRepository.findByUserId(1L)).thenReturn(Collections.emptyList());
+
         Application mockApplication = new Application();
         mockApplication.setUniversity("Test University");
         mockApplication.setCourseId(100L);
+        // Symulacja tego, co robi serwis podczas tworzenia nowej aplikacji
+        mockApplication.setIsWithdrawn(false);
+        mockApplication.setIsAccepted(false);
+        mockApplication.setIsEntryFeePaid(false);
+        mockApplication.setIsSemesterPaid(false);
+        mockApplication.setIsDiplomaVerified(false);
+        mockApplication.setIsDeclarationVerified(false);
+
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
         when(storageService.getDiplomasBucket()).thenReturn("diplomas");
         when(storageService.getMaxDiplomaBytes()).thenReturn(10 * 1024 * 1024L);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
-            "diploma",
-            "diploma.pdf",
-            "application/pdf",
-            "fake-pdf".getBytes()
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "fake-pdf".getBytes()
         );
 
         // WHEN
@@ -111,7 +116,14 @@ public class ApplicationServiceTest {
         assertEquals("Test University", result.getUniversity());
         assertEquals(100L, result.getCourseId());
         assertEquals(mockUser, result.getUser());
-        assertEquals(ApplicationStatus.SUBMITTED, result.getStatus());
+
+        // Zamiast enuma statusu, sprawdzamy domyślne flagi
+        assertFalse(result.getIsWithdrawn());
+        assertFalse(result.getIsAccepted());
+        assertFalse(result.getIsEntryFeePaid());
+        assertFalse(result.getIsSemesterPaid());
+        assertFalse(result.getIsDiplomaVerified());
+        assertFalse(result.getIsDeclarationVerified());
 
         verify(applicationRepository, times(1)).saveAndFlush(any(Application.class));
     }
@@ -153,10 +165,10 @@ public class ApplicationServiceTest {
         when(storageService.getMaxDiplomaBytes()).thenReturn(10 * 1024 * 1024L);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
-            "diploma",
-            "diploma.pdf",
-            "application/pdf",
-            "fake-pdf".getBytes()
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "fake-pdf".getBytes()
         );
 
         Mockito.doThrow(new MailSendException("smtp unavailable"))
@@ -193,17 +205,79 @@ public class ApplicationServiceTest {
         assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, diplomaFile, incompleteUser));
     }
 
+    // --- NOWE TESTY FLAG ---
+
     @Test
-    void shouldChangeStatusToWithdrawn() {
+    void shouldWithdrawApplicationSuccessfully() {
         Long id = 1L;
         Application application = new Application();
         application.setId(id);
-        application.setStatus(ApplicationStatus.SUBMITTED);
+        application.setIsWithdrawn(false);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
 
-        applicationService.updateStatus(id, ApplicationStatus.WITHDRAWN);
+        applicationService.withdrawApplication(id);
 
-        assertEquals(ApplicationStatus.WITHDRAWN, application.getStatus());
+        assertTrue(application.getIsWithdrawn());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenWithdrawingAlreadyWithdrawnApplication() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsWithdrawn(true);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        assertThrows(IllegalStateException.class, () -> applicationService.withdrawApplication(id));
+    }
+
+    @Test
+    void shouldPayEntryFeeSuccessfully() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsWithdrawn(false);
+        application.setIsEntryFeePaid(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        applicationService.payEntryFee(id);
+
+        assertTrue(application.getIsEntryFeePaid());
+    }
+
+    @Test
+    void shouldAcceptApplicationSuccessfullyAfterDiplomaAndEntryFee() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsAccepted(false);
+        application.setIsEntryFeePaid(false);
+        application.setIsDiplomaVerified(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        applicationService.markDiplomaAsVerified(id);
+        applicationService.payEntryFee(id);
+
+        applicationService.acceptApplication(id);
+
+        assertTrue(application.getIsAccepted());
+    }
+
+    @Test
+    void shouldVerifyDiplomaSuccessfully() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsDiplomaVerified(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        // Założyłem, że nazwa metody w serwisie to verifyDiploma
+        applicationService.markDiplomaAsVerified(id);
+
+        assertTrue(application.getIsDiplomaVerified());
     }
 }

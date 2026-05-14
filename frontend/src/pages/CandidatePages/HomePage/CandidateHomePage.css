@@ -405,4 +405,40 @@
     margin: 5px 0;
     font-style: italic;
   }
+  .application-pay-btn {
+    transition: all 0.2s ease;
+  }
+
+  .application-pay-btn.primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(17, 47, 74, 0.14);
+  }
+
+  .application-pay-btn:active {
+    transform: translateY(0);
+  }
+
+  .application-payment-paid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.16);
+    color: #0a6b37;
+  }
+
+  .status-info-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    margin: 5px 0;
+    font-style: italic;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgba(107, 114, 128, 0.1);
+  }
 }

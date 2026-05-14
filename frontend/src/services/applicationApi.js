@@ -1,7 +1,6 @@
 import { API_URL } from "../config/api";
 import { getToken } from "../config/auth";
 
-
 export async function getApplication(applicationId) {
   const token = getToken();
   const response = await fetch(`${API_URL}/applications/${applicationId}`, {

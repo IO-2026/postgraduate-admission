@@ -361,26 +361,128 @@ function CourseManagementPage() {
                 .filter(Boolean)
                 .join(" ");
 
+              // Statusy aplikacji
+              const isWithdrawn = Boolean(candidate.isWithdrawn);
+              const isAccepted = Boolean(candidate.isAccepted);
+              const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
+              const isSemesterPaid = Boolean(candidate.isSemesterPaid);
+              const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
+              const isDeclarationVerified = Boolean(
+                candidate.isDeclarationVerified,
+              );
+
+              // Określenie głównego statusu
+              let mainStatus = "W trakcie weryfikacji";
+              if (isWithdrawn) {
+                mainStatus = "Wycofana";
+              } else if (isAccepted) {
+                mainStatus = "Zaakceptowana";
+              }
+
+              // Określenie statusu płatności (priorytet: semestr > wpisowe)
+              let paymentStatus = "Nieopłacone";
+              let paymentClass = "course-candidate-unpaid";
+              if (isSemesterPaid) {
+                paymentStatus = "Semestr opłacony";
+                paymentClass = "course-candidate-paid";
+              } else if (isEntryFeePaid) {
+                paymentStatus = "Wpisowe opłacone";
+                paymentClass = "course-candidate-paid";
+              }
+
               return (
                 <article key={candidate.id} className="course-candidate-card">
                   <div className="course-candidate-main">
                     <h3>{fullName || "Kandydat bez danych"}</h3>
                     <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
-                  </div>
-                  <div className="course-candidate-meta">
-                    <span>{candidate.status || "Brak statusu"}</span>
-                    <span
-                      className={
-                        (candidate.paid ?? candidate.isPaid)
-                          ? "course-candidate-paid"
-                          : "course-candidate-unpaid"
-                      }
+
+                    {/* Dodatkowe informacje o statusie */}
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        display: "flex",
+                        gap: "8px",
+                        flexWrap: "wrap",
+                        fontSize: "0.85rem",
+                      }}
                     >
-                      {(candidate.paid ?? candidate.isPaid)
-                        ? "Opłacone"
-                        : "Nieopłacone"}
-                    </span>
+                      <span
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "6px",
+                          background: isWithdrawn
+                            ? "rgba(225, 29, 72, 0.1)"
+                            : isAccepted
+                              ? "rgba(22, 163, 74, 0.1)"
+                              : "rgba(234, 179, 8, 0.1)",
+                          color: isWithdrawn
+                            ? "#e11d48"
+                            : isAccepted
+                              ? "#16a34a"
+                              : "#eab308",
+                        }}
+                      >
+                        {mainStatus}
+                      </span>
+
+                      {!isWithdrawn && (
+                        <span
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: "6px",
+                            background: "#f3f4f6",
+                            color: isDiplomaVerified ? "#16a34a" : "#6b7280",
+                          }}
+                        >
+                          Dyplom:{" "}
+                          {isDiplomaVerified
+                            ? "✓ Zweryfikowany"
+                            : "Weryfikacja..."}
+                        </span>
+                      )}
+
+                      {isAccepted && !isWithdrawn && (
+                        <span
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: "6px",
+                            background: "#f3f4f6",
+                            color: isDeclarationVerified
+                              ? "#16a34a"
+                              : "#6b7280",
+                          }}
+                        >
+                          Oświadczenie:{" "}
+                          {isDeclarationVerified
+                            ? "✓ Zweryfikowane"
+                            : "Weryfikacja..."}
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  <div className="course-candidate-meta">
+                    <span>{mainStatus}</span>
+                    <span className={paymentClass}>{paymentStatus}</span>
+                    {isEntryFeePaid &&
+                      !isSemesterPaid &&
+                      !isWithdrawn &&
+                      isAccepted && (
+                        <span
+                          style={{
+                            borderRadius: "999px",
+                            background: "rgba(251, 146, 60, 0.2)",
+                            padding: "8px 12px",
+                            color: "#9a3412",
+                            fontSize: "0.9rem",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Oczekuje na opłatę semestru
+                        </span>
+                      )}
+                  </div>
+
                   <div className="course-candidate-actions">
                     <Link
                       to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
