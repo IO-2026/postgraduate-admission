@@ -21,7 +21,7 @@ import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/SendMessagePage/SendMessagePage.jsx";
 import { AUTH_STORAGE_KEY } from "./config/auth";
-import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
+import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
 
 function getInitialAuthState() {
   try {

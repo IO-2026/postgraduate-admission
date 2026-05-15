@@ -59,6 +59,10 @@
     box-shadow 0.2s;
 }
 
+.contact-form textarea {
+  resize: vertical;
+}
+
 .contact-form input:focus,
 .contact-form textarea:focus {
   outline: 3px solid rgba(15, 127, 115, 0.18);

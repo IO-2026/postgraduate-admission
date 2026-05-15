@@ -70,7 +70,7 @@ function InboxPage() {
     <section className="inbox-view">
       <BackButton />
       <div className="inbox-card">
-        <h1>Wiadomości od koordynatorów</h1>
+        <h1>Wiadomości</h1>
         {messages.length === 0 ? (
           <p className="inbox-empty">Brak wiadomości.</p>
         ) : (

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import BackButton from "../../components/BackButton/BackButton";
-import { sendContactForm } from "../../services/contactApi";
+import BackButton from "../../../components/BackButton/BackButton";
+import { sendContactForm } from "../../../services/contactApi";
 import "./ContactFormPage.css";
 
 function ContactFormPage() {
@@ -46,7 +46,7 @@ function ContactFormPage() {
         <h1>Formularz kontaktowy</h1>
         <p className="contact-subtitle">
           Masz pytanie dotyczące rekrutacji lub oferty studiów? Napisz do nas –
-          odpowiemy na podany w profilu adres e-mail.
+          odpowiemy na przypisany do konta adres e-mail.
         </p>
 
         {success && (
