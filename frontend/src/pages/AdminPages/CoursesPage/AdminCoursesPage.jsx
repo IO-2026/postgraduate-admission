@@ -281,6 +281,7 @@ function AdminCoursesPage() {
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 required
                 placeholder="np. 4500"
               />
@@ -294,6 +295,7 @@ function AdminCoursesPage() {
                 step="1"
                 value={formData.placesLimit}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 required
                 placeholder="np. 40"
               />

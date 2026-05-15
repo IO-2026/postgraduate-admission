@@ -659,6 +659,7 @@ function ApplicationManagementPage() {
                   name="graduationYear"
                   value={applicationData.graduationYear}
                   onChange={handleChange}
+                  onWheel={(e) => e.target.blur()}
                   className="application-management-input"
                 />
               ) : (
