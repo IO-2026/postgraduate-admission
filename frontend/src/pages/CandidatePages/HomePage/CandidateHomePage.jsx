@@ -301,13 +301,31 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           </button>
                         )}
                         {!isWithdrawn && (
-                          <div className="application-menu-container" style={{ position: "relative" }}>
+                          <div
+                            className="application-menu-container"
+                            style={{ position: "relative" }}
+                          >
                             <button
                               className="application-menu-btn"
-                              onClick={() => setOpenMenuId(openMenuId === application.id ? null : application.id)}
+                              onClick={() =>
+                                setOpenMenuId(
+                                  openMenuId === application.id
+                                    ? null
+                                    : application.id,
+                                )
+                              }
                               aria-label="Więcej opcji"
                             >
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
                                 <circle cx="12" cy="12" r="1"></circle>
                                 <circle cx="12" cy="5" r="1"></circle>
                                 <circle cx="12" cy="19" r="1"></circle>
@@ -340,32 +358,70 @@ function CandidateHomePage({ isLoggedIn, user }) {
                         {[
                           { label: "Aplikacja wysłana", done: true },
                           { label: "Wpisowe wpłacone", done: isEntryFeePaid },
-                          { label: "Dyplom potwierdzony", done: isDiplomaVerified },
+                          {
+                            label: "Dyplom potwierdzony",
+                            done: isDiplomaVerified,
+                          },
                           { label: "Zaakceptowany", done: isAccepted },
                           { label: "Semestr opłacony", done: isSemesterPaid },
-                          { label: "Oświadczenie wysłane", done: isDeclarationVerified },
-                          { label: "Oświadczenie potwierdzone", done: isDeclarationVerified },
-                          { label: "Przyjęty", done: isAccepted && isEntryFeePaid && isDiplomaVerified && isSemesterPaid && isDeclarationVerified },
+                          {
+                            label: "Oświadczenie wysłane",
+                            done: isDeclarationVerified,
+                          },
+                          {
+                            label: "Oświadczenie potwierdzone",
+                            done: isDeclarationVerified,
+                          },
+                          {
+                            label: "Przyjęty",
+                            done:
+                              isAccepted &&
+                              isEntryFeePaid &&
+                              isDiplomaVerified &&
+                              isSemesterPaid &&
+                              isDeclarationVerified,
+                          },
                         ].map((step, idx, arr) => (
                           <div key={idx} className="timeline-step">
                             <div className="timeline-step-track">
                               <div
                                 className={`timeline-line ${idx > 0 && step.done ? "done" : ""}`}
-                                style={idx === 0 ? { visibility: "hidden" } : undefined}
+                                style={
+                                  idx === 0
+                                    ? { visibility: "hidden" }
+                                    : undefined
+                                }
                               />
-                              <div className={`timeline-dot ${step.done ? "done" : ""}`}>
+                              <div
+                                className={`timeline-dot ${step.done ? "done" : ""}`}
+                              >
                                 {step.done && (
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="white"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
                                     <polyline points="20 6 9 17 4 12"></polyline>
                                   </svg>
                                 )}
                               </div>
                               <div
                                 className={`timeline-line ${idx < arr.length - 1 && arr[idx + 1].done ? "done" : ""}`}
-                                style={idx === arr.length - 1 ? { visibility: "hidden" } : undefined}
+                                style={
+                                  idx === arr.length - 1
+                                    ? { visibility: "hidden" }
+                                    : undefined
+                                }
                               />
                             </div>
-                            <span className={`timeline-label ${step.done ? "done" : ""}`}>
+                            <span
+                              className={`timeline-label ${step.done ? "done" : ""}`}
+                            >
                               {step.label}
                             </span>
                           </div>
@@ -380,8 +436,8 @@ function CandidateHomePage({ isLoggedIn, user }) {
         ) : null}
 
         {!loadingApplications &&
-          !applicationsError &&
-          applications.length === 0 ? (
+        !applicationsError &&
+        applications.length === 0 ? (
           <p className="applications-empty">Brak bieżących aplikacji.</p>
         ) : null}
       </section>

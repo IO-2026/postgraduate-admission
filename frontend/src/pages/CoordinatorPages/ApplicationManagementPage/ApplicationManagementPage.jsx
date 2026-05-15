@@ -65,9 +65,10 @@ function ApplicationManagementPage() {
           fetchCourseCandidates(courseId).catch(() => []),
         ]);
 
-        const candidateInfo = candidates.find(
-          (c) => String(c.applicationId) === String(applicationId)
-        ) || {};
+        const candidateInfo =
+          candidates.find(
+            (c) => String(c.applicationId) === String(applicationId),
+          ) || {};
 
         if (isMounted) {
           setApplicationData({

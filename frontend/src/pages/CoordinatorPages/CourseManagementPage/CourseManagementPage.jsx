@@ -153,7 +153,11 @@ function CourseManagementPage() {
       return;
     }
 
-    if (formData.placesLimit === "" || Number.isNaN(Number(formData.placesLimit)) || Number(formData.placesLimit) < 1) {
+    if (
+      formData.placesLimit === "" ||
+      Number.isNaN(Number(formData.placesLimit)) ||
+      Number(formData.placesLimit) < 1
+    ) {
       setFormError("Limit miejsc jest wymagany i musi wynosić co najmniej 1.");
       return;
     }
@@ -426,7 +430,13 @@ function CourseManagementPage() {
                 statusColor = "#16a34a";
               }
 
-              const isFullyAccepted = !isWithdrawn && isAccepted && isDiplomaVerified && isDeclarationVerified && isEntryFeePaid && isSemesterPaid;
+              const isFullyAccepted =
+                !isWithdrawn &&
+                isAccepted &&
+                isDiplomaVerified &&
+                isDeclarationVerified &&
+                isEntryFeePaid &&
+                isSemesterPaid;
 
               return (
                 <article key={candidate.id} className="course-candidate-card">
@@ -438,18 +448,17 @@ function CourseManagementPage() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns:
-                        isFullyAccepted
-                          ? "auto 1fr"
-                          : [
+                      gridTemplateColumns: isFullyAccepted
+                        ? "auto 1fr"
+                        : [
                               true,
                               !isWithdrawn,
                               isAccepted && !isWithdrawn,
                               isEntryFeePaid && !isWithdrawn,
                               isAccepted && isSemesterPaid && !isWithdrawn,
                             ].filter(Boolean).length > 3
-                            ? "auto 1fr auto 1fr"
-                            : "auto 1fr",
+                          ? "auto 1fr auto 1fr"
+                          : "auto 1fr",
                       gap: "6px 10px",
                       alignItems: "center",
                       fontSize: "0.85rem",
@@ -457,7 +466,9 @@ function CourseManagementPage() {
                   >
                     {isFullyAccepted ? (
                       <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>Aplikacja:</span>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
+                        </span>
                         <div>
                           <span
                             style={{
@@ -475,7 +486,9 @@ function CourseManagementPage() {
                       </>
                     ) : (
                       <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>Aplikacja:</span>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
+                        </span>
                         <div>
                           <span
                             style={{
@@ -489,40 +502,60 @@ function CourseManagementPage() {
                             {displayStatus}
                           </span>
                         </div>
-                        
+
                         {!isWithdrawn && (
                           <>
-                            <span style={{ color: "#6b7280", textAlign: "right" }}>Dyplom:</span>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Dyplom:
+                            </span>
                             <div>
                               <span
                                 style={{
                                   padding: "4px 8px",
                                   borderRadius: "6px",
-                                  backgroundColor: isDiplomaVerified ? "#16a34a20" : "#eab30820",
-                                  color: isDiplomaVerified ? "#16a34a" : "#eab308",
+                                  backgroundColor: isDiplomaVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDiplomaVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
                                   display: "inline-block",
                                 }}
                               >
-                                {isDiplomaVerified ? "zweryfikowany" : "w trakcie weryfikacji"}
+                                {isDiplomaVerified
+                                  ? "zweryfikowany"
+                                  : "w trakcie weryfikacji"}
                               </span>
                             </div>
                           </>
                         )}
-                        
+
                         {isAccepted && !isWithdrawn && (
                           <>
-                            <span style={{ color: "#6b7280", textAlign: "right" }}>Oświadczenie:</span>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Oświadczenie:
+                            </span>
                             <div>
                               <span
                                 style={{
                                   padding: "4px 8px",
                                   borderRadius: "6px",
-                                  backgroundColor: isDeclarationVerified ? "#16a34a20" : "#eab30820",
-                                  color: isDeclarationVerified ? "#16a34a" : "#eab308",
+                                  backgroundColor: isDeclarationVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDeclarationVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
                                   display: "inline-block",
                                 }}
                               >
-                                {isDeclarationVerified ? "zweryfikowane" : "w trakcie weryfikacji"}
+                                {isDeclarationVerified
+                                  ? "zweryfikowane"
+                                  : "w trakcie weryfikacji"}
                               </span>
                             </div>
                           </>
@@ -530,7 +563,11 @@ function CourseManagementPage() {
 
                         {isEntryFeePaid && !isWithdrawn && (
                           <>
-                            <span style={{ color: "#6b7280", textAlign: "right" }}>Wpisowe:</span>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Wpisowe:
+                            </span>
                             <div>
                               <span
                                 style={{
@@ -549,7 +586,11 @@ function CourseManagementPage() {
 
                         {isAccepted && isSemesterPaid && !isWithdrawn && (
                           <>
-                            <span style={{ color: "#6b7280", textAlign: "right" }}>Semestr:</span>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Semestr:
+                            </span>
                             <div>
                               <span
                                 style={{

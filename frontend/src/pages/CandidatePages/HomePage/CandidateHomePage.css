@@ -8,9 +8,11 @@
   width: min(760px, 100%);
   border-radius: 28px;
   border: 1px solid var(--panel-border);
-  background: linear-gradient(145deg,
-      rgba(255, 255, 255, 0.82),
-      rgba(230, 244, 241, 0.84));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(230, 244, 241, 0.84)
+  );
   box-shadow: var(--shadow-soft);
   padding: 34px;
   text-align: left;
@@ -62,9 +64,11 @@
   overflow: hidden;
   border-radius: 28px;
   border: 1px solid var(--panel-border);
-  background: linear-gradient(145deg,
-      rgba(255, 255, 255, 0.8),
-      rgba(230, 244, 241, 0.82));
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.8),
+    rgba(230, 244, 241, 0.82)
+  );
   box-shadow: var(--shadow-soft);
   padding: 36px;
 }
@@ -112,9 +116,11 @@
   right: -120px;
   top: -120px;
   border-radius: 50%;
-  background: radial-gradient(circle,
-      rgba(15, 127, 115, 0.25),
-      rgba(15, 127, 115, 0));
+  background: radial-gradient(
+    circle,
+    rgba(15, 127, 115, 0.25),
+    rgba(15, 127, 115, 0)
+  );
 }
 
 .home-tag {
@@ -254,7 +260,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
   z-index: 1;
 }
 
@@ -387,7 +395,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .application-menu-btn:hover {
