@@ -1,5 +1,4 @@
 import { useState } from "react";
-import BackButton from "../../../components/BackButton/BackButton";
 import { sendContactForm } from "../../../services/contactApi";
 import "./ContactFormPage.css";
 
@@ -41,7 +40,6 @@ function ContactFormPage() {
 
   return (
     <section className="contact-form-view">
-      <BackButton />
       <div className="contact-form-card">
         <h1>Formularz kontaktowy</h1>
         <p className="contact-subtitle">

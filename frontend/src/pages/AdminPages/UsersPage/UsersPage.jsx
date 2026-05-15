@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { fetchUsers, updateUserRole } from "../../../services/userApi";
-import { Link } from "react-router-dom";
-import BackButton from "../../../components/BackButton/BackButton";
 import { getToken } from "../../../config/auth";
 import "./UsersPage.css";
 
@@ -80,7 +78,6 @@ function UsersPage() {
 
   return (
     <div className="users-page">
-      <BackButton />
       <header className="users-header">
         <h1>Zarządzanie Użytkownikami</h1>
         <p className="users-subtitle">

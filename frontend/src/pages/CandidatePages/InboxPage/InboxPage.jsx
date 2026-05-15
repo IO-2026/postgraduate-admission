@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { fetchInbox, markAsRead } from "../../../services/messageApi";
-import BackButton from "../../../components/BackButton/BackButton";
 import "./InboxPage.css";
+
+const INBOX_UNREAD_EVENT = "inbox-unread-count-updated";
 
 function InboxPage() {
   const [messages, setMessages] = useState([]);
@@ -10,19 +10,33 @@ function InboxPage() {
   const [error, setError] = useState("");
   const [selectedMsg, setSelectedMsg] = useState(null);
 
-  const loadMessages = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchInbox();
-      setMessages(data);
-    } catch (err) {
-      setError(err.message || "Nie udało się pobrać wiadomości.");
-    } finally {
-      setLoading(false);
-    }
+  const publishUnreadCount = (items) => {
+    const unread = Array.isArray(items)
+      ? items.filter((message) => !message.isRead).length
+      : 0;
+
+    window.dispatchEvent(
+      new CustomEvent(INBOX_UNREAD_EVENT, {
+        detail: { count: unread },
+      }),
+    );
   };
 
   useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchInbox();
+        const safeMessages = Array.isArray(data) ? data : [];
+        setMessages(safeMessages);
+        publishUnreadCount(safeMessages);
+      } catch (err) {
+        setError(err.message || "Nie udało się pobrać wiadomości.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadMessages();
   }, []);
 
@@ -30,11 +44,13 @@ function InboxPage() {
     try {
       await markAsRead(recipientId);
       // Update local state
-      setMessages((prev) =>
-        prev.map((msg) =>
+      setMessages((prev) => {
+        const updatedMessages = prev.map((msg) =>
           msg.recipientId === recipientId ? { ...msg, isRead: true } : msg,
-        ),
-      );
+        );
+        publishUnreadCount(updatedMessages);
+        return updatedMessages;
+      });
       if (selectedMsg?.recipientId === recipientId) {
         setSelectedMsg({ ...selectedMsg, isRead: true });
       }
@@ -68,7 +84,6 @@ function InboxPage() {
 
   return (
     <section className="inbox-view">
-      <BackButton />
       <div className="inbox-card">
         <h1>Wiadomości</h1>
         {messages.length === 0 ? (

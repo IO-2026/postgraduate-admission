@@ -11,7 +11,7 @@ import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHo
 import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
-import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
+import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
 
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
@@ -249,7 +249,12 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={handleLogout} />
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        user={user}
+        isAdmin={isAdmin}
+        isCoordinator={isCoordinator}
+      />
       <Routes>
         <Route
           path="/"
@@ -275,9 +280,10 @@ function App() {
         />
 
         <Route
-          path="/admin/courses"
-          element={isAdmin ? <AdminCoursesPage /> : <Navigate to="/" replace />}
+          path="/admin/courses/new"
+          element={isAdmin ? <NewCoursePage /> : <Navigate to="/" replace />}
         />
+        <Route path="/admin/courses" element={<Navigate to="/" replace />} />
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={
