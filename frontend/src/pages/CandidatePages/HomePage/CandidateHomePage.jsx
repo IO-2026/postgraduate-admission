@@ -322,7 +322,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                     >
                       {!isWithdrawn && isAccepted && isDiplomaVerified && isDeclarationVerified && isEntryFeePaid && isSemesterPaid ? (
                         <>
-                          <span style={{ color: "#6b7280", textAlign: "right" }}>Aplikacja:</span>
+                          <span style={{ color: "#000000ff", textAlign: "right" }}>Aplikacja:</span>
                           <div>
                             <span
                               style={{
@@ -340,7 +340,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                         </>
                       ) : (
                         <>
-                          <span style={{ color: "#6b7280", textAlign: "right" }}>Aplikacja:</span>
+                          <span style={{ color: "#000000ff", textAlign: "right" }}>Aplikacja:</span>
                           <div>
                             <span
                               style={{
@@ -357,7 +357,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           
                           {!isWithdrawn && (
                             <>
-                              <span style={{ color: "#6b7280", textAlign: "right" }}>Dyplom:</span>
+                              <span style={{ color: "#000000ff", textAlign: "right" }}>Dyplom:</span>
                               <div>
                                 <span
                                   style={{
@@ -376,7 +376,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           
                           {isAccepted && !isWithdrawn && (
                             <>
-                              <span style={{ color: "#6b7280", textAlign: "right" }}>Oświadczenie:</span>
+                              <span style={{ color: "#000000ff", textAlign: "right" }}>Oświadczenie:</span>
                               <div>
                                 <span
                                   style={{
@@ -395,7 +395,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
 
                           {isEntryFeePaid && !isWithdrawn && (
                             <>
-                              <span style={{ color: "#6b7280", textAlign: "right" }}>Wpisowe:</span>
+                              <span style={{ color: "#000000ff", textAlign: "right" }}>Wpisowe:</span>
                               <div>
                                 <span
                                   style={{
@@ -414,7 +414,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
 
                           {isAccepted && isSemesterPaid && !isWithdrawn && (
                             <>
-                              <span style={{ color: "#6b7280", textAlign: "right" }}>Semestr:</span>
+                              <span style={{ color: "#000000ff", textAlign: "right" }}>Semestr:</span>
                               <div>
                                 <span
                                   style={{

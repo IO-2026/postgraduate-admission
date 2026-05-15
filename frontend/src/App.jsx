@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
 import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
-import MessagesPage from "./pages/MessagesPage/MessagesPage";
+import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
@@ -19,7 +19,7 @@ import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManag
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
-import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
+import SendMessagePage from "./pages/SendMessagePage/SendMessagePage.jsx";
 import { AUTH_STORAGE_KEY } from "./config/auth";
 import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
 

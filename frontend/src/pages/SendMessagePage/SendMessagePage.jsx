@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import {
   getAvailableRecipients,
   sendMessage,
-} from "../../../services/messageApi.js";
+} from "../../services/messageApi.js";
 import {
   fetchCoursesOfCoordinator,
   fetchCourses,
   fetchCourseCandidates,
-} from "../../../services/courseApi.js";
-import BackButton from "../../../components/BackButton/BackButton";
+} from "../../services/courseApi.js";
+import BackButton from "../../components/BackButton/BackButton.jsx";
 import "./SendMessagePage.css";
 
 function SendMessagePage({ user }) {
