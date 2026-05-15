@@ -224,7 +224,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 12px;
 }
 
 .application-status,
@@ -268,16 +268,28 @@
   gap: 6px;
 }
 
-.primary-btn.application-pay-btn {
+.application-pay-btn {
   align-self: stretch;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
-  font-size: 0.8rem;
-  text-decoration: none;
-  border-radius: 10px;
-  box-shadow: none;
+  padding: 8px 20px !important;
+  font-size: 0.85rem !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.application-pay-btn:hover {
+  transform: none !important;
+}
+
+.primary-btn.danger-btn {
+  background-color: #e11d48;
+}
+
+.primary-btn.danger-btn:hover {
+  background-color: #be123c;
 }
 
 .applications-error {
