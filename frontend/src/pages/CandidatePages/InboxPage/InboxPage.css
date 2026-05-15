@@ -66,9 +66,7 @@
   background: rgba(15, 127, 115, 0.08);
 }
 
-.inbox-item.unread {
-  background: rgba(15, 127, 115, 0.12);
-}
+
 
 .inbox-item.active {
   background: rgba(15, 127, 115, 0.2);

@@ -7,6 +7,7 @@ import {
   paySemester,
 } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
+import { fetchInbox } from "../../../services/messageApi";
 import "./CandidateHomePage.css";
 
 function resolveUserId(user) {
@@ -23,6 +24,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
   const [courseNames, setCourseNames] = useState({});
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [applicationsError, setApplicationsError] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const userId = useMemo(() => resolveUserId(user), [user]);
 
@@ -130,6 +132,29 @@ function CandidateHomePage({ isLoggedIn, user }) {
 
   useEffect(() => {
     let isMounted = true;
+    if (!isLoggedIn) return;
+
+    const loadUnreadMessages = async () => {
+      try {
+        const messages = await fetchInbox();
+        if (isMounted) {
+          const unread = messages.filter((msg) => !msg.isRead).length;
+          setUnreadCount(unread);
+        }
+      } catch (err) {
+        console.error("Failed to load inbox for unread count", err);
+      }
+    };
+
+    loadUnreadMessages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    let isMounted = true;
 
     const loadCourseNames = async () => {
       if (
@@ -225,8 +250,25 @@ function CandidateHomePage({ isLoggedIn, user }) {
           <Link className="ghost-link" to="/courses">
             Kierunki studiów
           </Link>
-          <Link className="ghost-link" to="/messages">
+          <Link className="ghost-link" to="/messages" style={{ position: "relative" }}>
             Wiadomości
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-5px",
+                  right: "-10px",
+                  background: "#e11d48",
+                  color: "white",
+                  fontSize: "0.7rem",
+                  fontWeight: "bold",
+                  padding: "2px 6px",
+                  borderRadius: "999px",
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
           </Link>
           <Link className="ghost-link" to="/contact">
             Formularz kontaktowy
