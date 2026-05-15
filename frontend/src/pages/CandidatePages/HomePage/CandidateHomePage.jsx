@@ -247,9 +247,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
           <Link className="primary-btn" to="/admission">
             Zapisz się na studia
           </Link>
-          <Link className="ghost-link" to="/courses">
-            Kierunki studiów
-          </Link>
+
           <Link className="ghost-link" to="/messages" style={{ position: "relative" }}>
             Wiadomości
             {unreadCount > 0 && (
