@@ -51,11 +51,6 @@ function CoordinatorHomePage({ user }) {
       <header className="coordinator-home-header">
         <h1>Strona koordynatora</h1>
         <p>Twoje kierunki studiów podyplomowych.</p>
-        <div className="coordinator-home-actions">
-          <Link className="ghost-link" to="/send-message">
-            Wyślij wiadomość
-          </Link>
-        </div>
       </header>
 
       {loading ? (

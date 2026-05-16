@@ -1,0 +1,9 @@
+.admin-new-course-view {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.admin-new-course-view .course-form-container {
+  margin-top: 0;
+}

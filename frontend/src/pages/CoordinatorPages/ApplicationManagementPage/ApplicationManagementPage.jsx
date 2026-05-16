@@ -8,6 +8,7 @@ import {
   verifyDeclaration,
   acceptApplication,
 } from "../../../services/applicationApi";
+import { fetchCourseCandidates } from "../../../services/courseApi";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./ApplicationManagementPage.css";
 
@@ -59,7 +60,15 @@ function ApplicationManagementPage() {
       try {
         setLoading(true);
         setError("");
-        const data = await getApplication(applicationId);
+        const [data, candidates] = await Promise.all([
+          getApplication(applicationId),
+          fetchCourseCandidates(courseId).catch(() => []),
+        ]);
+
+        const candidateInfo =
+          candidates.find(
+            (c) => String(c.applicationId) === String(applicationId),
+          ) || {};
 
         if (isMounted) {
           setApplicationData({
@@ -87,9 +96,9 @@ function ApplicationManagementPage() {
             gdprConsent: data.gdprConsent || false,
             newsletterConsent: data.newsletterConsent || false,
             submissionDateTime: data.submissionDateTime || "",
-            userName: data.user?.name || "",
-            userSurname: data.user?.surname || "",
-            userEmail: data.user?.email || "",
+            userName: data.user?.name || candidateInfo.name || "",
+            userSurname: data.user?.surname || candidateInfo.surname || "",
+            userEmail: data.user?.email || candidateInfo.email || "",
           });
         }
       } catch (err) {
@@ -108,7 +117,7 @@ function ApplicationManagementPage() {
     return () => {
       isMounted = false;
     };
-  }, [applicationId]);
+  }, [applicationId, courseId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -651,6 +660,7 @@ function ApplicationManagementPage() {
                   name="graduationYear"
                   value={applicationData.graduationYear}
                   onChange={handleChange}
+                  onWheel={(e) => e.target.blur()}
                   className="application-management-input"
                 />
               ) : (

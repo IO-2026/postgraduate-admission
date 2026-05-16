@@ -95,7 +95,8 @@
 }
 
 .course-management-field input,
-.course-management-field textarea {
+.course-management-field textarea,
+.course-management-field select {
   width: 100%;
   border: 1px solid var(--field-border);
   border-radius: 12px;
@@ -109,7 +110,8 @@
     box-shadow 0.2s;
 }
 
-.course-management-field input {
+.course-management-field input,
+.course-management-field select {
   min-height: 44px;
 }
 
@@ -119,12 +121,14 @@
 }
 
 .course-management-field input:focus,
-.course-management-field textarea:focus {
+.course-management-field textarea:focus,
+.course-management-field select:focus {
   outline: 3px solid rgba(15, 127, 115, 0.18);
   border-color: var(--field-focus);
 }
 
-.course-management-field input:disabled {
+.course-management-field input:disabled,
+.course-management-field select:disabled {
   color: var(--text-muted);
   background: rgba(223, 233, 240, 0.55);
   cursor: not-allowed;
@@ -236,7 +240,7 @@
   display: grid;
   gap: 5px;
   min-width: 0;
-  flex: 1;
+  flex: 0 0 280px;
 }
 
 .course-candidate-main h3 {
@@ -320,6 +324,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .candidate-edit-application {

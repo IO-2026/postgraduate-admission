@@ -14,6 +14,7 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
+  placesLimit: "",
   academicYear: null,
   recruitmentStart: "",
   recruitmentEnd: "",
@@ -56,6 +57,7 @@ function CourseManagementPage() {
             name: course.name || "",
             description: course.description || "",
             price: course.price ?? "",
+            placesLimit: course.placesLimit ?? "",
             academicYear: course.academicYear || null,
             recruitmentStart: course.recruitmentStart || "",
             recruitmentEnd: course.recruitmentEnd || "",
@@ -151,6 +153,15 @@ function CourseManagementPage() {
       return;
     }
 
+    if (
+      formData.placesLimit === "" ||
+      Number.isNaN(Number(formData.placesLimit)) ||
+      Number(formData.placesLimit) < 1
+    ) {
+      setFormError("Limit miejsc jest wymagany i musi wynosić co najmniej 1.");
+      return;
+    }
+
     if (!formData.academicYear) {
       setFormError("Rok akademicki jest wymagany.");
       return;
@@ -179,6 +190,7 @@ function CourseManagementPage() {
         name: formData.name.trim(),
         description: formData.description,
         price: parseFloat(formData.price),
+        placesLimit: parseInt(formData.placesLimit, 10),
         ...(formData.academicYear && {
           academicYear: parseInt(formData.academicYear, 10),
         }),
@@ -200,6 +212,7 @@ function CourseManagementPage() {
         name: updatedCourse.name || "",
         description: updatedCourse.description || "",
         price: updatedCourse.price ?? prev.price,
+        placesLimit: updatedCourse.placesLimit ?? prev.placesLimit,
         academicYear: updatedCourse.academicYear || null,
         recruitmentStart: updatedCourse.recruitmentStart || "",
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
@@ -272,6 +285,22 @@ function CourseManagementPage() {
                 step="0.01"
                 value={formData.price}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
+                required
+              />
+            </div>
+
+            <div className="course-management-field">
+              <label htmlFor="course-places-limit">Limit miejsc</label>
+              <input
+                id="course-places-limit"
+                name="placesLimit"
+                type="number"
+                min="1"
+                step="1"
+                value={formData.placesLimit}
+                onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 required
               />
             </div>
@@ -390,116 +419,195 @@ function CourseManagementPage() {
                 candidate.isDeclarationVerified,
               );
 
-              // Określenie głównego statusu
-              let mainStatus = "W trakcie weryfikacji";
+              let displayStatus = "przesłana";
+              let statusColor = "#eab308";
+
               if (isWithdrawn) {
-                mainStatus = "Wycofana";
+                displayStatus = "wycofana";
+                statusColor = "#e11d48";
               } else if (isAccepted) {
-                mainStatus = "Zaakceptowana";
+                displayStatus = "zaakceptowana";
+                statusColor = "#16a34a";
               }
 
-              // Określenie statusu płatności (priorytet: semestr > wpisowe)
-              let paymentStatus = "Nieopłacone";
-              let paymentClass = "course-candidate-unpaid";
-              if (isSemesterPaid) {
-                paymentStatus = "Semestr opłacony";
-                paymentClass = "course-candidate-paid";
-              } else if (isEntryFeePaid) {
-                paymentStatus = "Wpisowe opłacone";
-                paymentClass = "course-candidate-paid";
-              }
+              const isFullyAccepted =
+                !isWithdrawn &&
+                isAccepted &&
+                isDiplomaVerified &&
+                isDeclarationVerified &&
+                isEntryFeePaid &&
+                isSemesterPaid;
 
               return (
                 <article key={candidate.id} className="course-candidate-card">
                   <div className="course-candidate-main">
                     <h3>{fullName || "Kandydat bez danych"}</h3>
                     <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
-
-                    {/* Dodatkowe informacje o statusie */}
-                    <div
-                      style={{
-                        marginTop: "8px",
-                        display: "flex",
-                        gap: "8px",
-                        flexWrap: "wrap",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: "6px",
-                          background: isWithdrawn
-                            ? "rgba(225, 29, 72, 0.1)"
-                            : isAccepted
-                              ? "rgba(22, 163, 74, 0.1)"
-                              : "rgba(234, 179, 8, 0.1)",
-                          color: isWithdrawn
-                            ? "#e11d48"
-                            : isAccepted
-                              ? "#16a34a"
-                              : "#eab308",
-                        }}
-                      >
-                        {mainStatus}
-                      </span>
-
-                      {!isWithdrawn && (
-                        <span
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: "6px",
-                            background: "#f3f4f6",
-                            color: isDiplomaVerified ? "#16a34a" : "#6b7280",
-                          }}
-                        >
-                          Dyplom:{" "}
-                          {isDiplomaVerified
-                            ? "✓ Zweryfikowany"
-                            : "Weryfikacja..."}
-                        </span>
-                      )}
-
-                      {isAccepted && !isWithdrawn && (
-                        <span
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: "6px",
-                            background: "#f3f4f6",
-                            color: isDeclarationVerified
-                              ? "#16a34a"
-                              : "#6b7280",
-                          }}
-                        >
-                          Oświadczenie:{" "}
-                          {isDeclarationVerified
-                            ? "✓ Zweryfikowane"
-                            : "Weryfikacja..."}
-                        </span>
-                      )}
-                    </div>
                   </div>
 
-                  <div className="course-candidate-meta">
-                    <span>{mainStatus}</span>
-                    <span className={paymentClass}>{paymentStatus}</span>
-                    {isEntryFeePaid &&
-                      !isSemesterPaid &&
-                      !isWithdrawn &&
-                      isAccepted && (
-                        <span
-                          style={{
-                            borderRadius: "999px",
-                            background: "rgba(251, 146, 60, 0.2)",
-                            padding: "8px 12px",
-                            color: "#9a3412",
-                            fontSize: "0.9rem",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Oczekuje na opłatę semestru
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: isFullyAccepted
+                        ? "auto 1fr"
+                        : [
+                              true,
+                              !isWithdrawn,
+                              isAccepted && !isWithdrawn,
+                              isEntryFeePaid && !isWithdrawn,
+                              isAccepted && isSemesterPaid && !isWithdrawn,
+                            ].filter(Boolean).length > 3
+                          ? "auto 1fr auto 1fr"
+                          : "auto 1fr",
+                      gap: "6px 10px",
+                      alignItems: "center",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    {isFullyAccepted ? (
+                      <>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
                         </span>
-                      )}
+                        <div>
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: "#16a34a20",
+                              color: "#16a34a",
+                              fontWeight: "bold",
+                              display: "inline-block",
+                            }}
+                          >
+                            kandydat przyjęty
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
+                        </span>
+                        <div>
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: `${statusColor}20`,
+                              color: statusColor,
+                              display: "inline-block",
+                            }}
+                          >
+                            {displayStatus}
+                          </span>
+                        </div>
+
+                        {!isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Dyplom:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: isDiplomaVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDiplomaVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
+                                  display: "inline-block",
+                                }}
+                              >
+                                {isDiplomaVerified
+                                  ? "zweryfikowany"
+                                  : "w trakcie weryfikacji"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isAccepted && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Oświadczenie:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: isDeclarationVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDeclarationVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
+                                  display: "inline-block",
+                                }}
+                              >
+                                {isDeclarationVerified
+                                  ? "zweryfikowane"
+                                  : "w trakcie weryfikacji"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isEntryFeePaid && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Wpisowe:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#16a34a20",
+                                  color: "#16a34a",
+                                  display: "inline-block",
+                                }}
+                              >
+                                opłacone
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isAccepted && isSemesterPaid && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Semestr:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#16a34a20",
+                                  color: "#16a34a",
+                                  display: "inline-block",
+                                }}
+                              >
+                                opłacony
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
 
                   <div className="course-candidate-actions">
