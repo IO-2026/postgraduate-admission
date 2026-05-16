@@ -54,7 +54,7 @@ export async function markAsRead(recipientId) {
 }
 
 export async function getAvailableRecipients(user) {
-  if (user?.role === "Admin") {
+  if (user?.role === "Admin" || user?.roleName === "Admin") {
     const res = await authFetch(API_URL + "/users");
     if (!res.ok) throw new Error("Błąd pobierania użytkowników");
     const users = await res.json();
@@ -63,7 +63,7 @@ export async function getAvailableRecipients(user) {
     );
   }
 
-  if (user?.role === "Coordinator") {
+  if (user?.role === "Coordinator" || user?.roleName === "Coordinator") {
     const myCourses = await fetchCoursesOfCoordinator(user.id);
 
     const candidatesPromises = myCourses.map((course) =>

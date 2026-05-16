@@ -18,6 +18,21 @@ export const fetchUserById = async (userId) => {
   return response.json();
 };
 
+export const fetchCurrentUser = async () => {
+  const response = await authFetch(`${COURSE_API_URL}/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać danych użytkownika");
+  }
+
+  return response.json();
+};
+
 export const fetchUsers = async () => {
   const response = await authFetch(COURSE_API_URL, {
     method: "GET",

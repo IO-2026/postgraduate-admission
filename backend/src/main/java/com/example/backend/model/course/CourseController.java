@@ -1,6 +1,6 @@
 package com.example.backend.model.course;
 
-import com.example.backend.model.user.CandidateWithApplicationDto;
+import com.example.backend.model.user.dto.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

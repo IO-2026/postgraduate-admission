@@ -63,30 +63,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
 
-                        .requestMatchers("/api/users/**").hasRole("Admin")
-
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-
-                        .requestMatchers(org.springframework.http.HttpMethod.GET,
-                                "/api/applications/*/diploma-url",
-                                "/api/applications/*/declaration").hasAnyRole("Candidate", "Admin", "Coordinator")
-
-                        .requestMatchers("/api/applications/submit", "/api/applications/of/**").hasRole("Candidate")
-                        .requestMatchers(org.springframework.http.HttpMethod.PATCH,
-                                "/api/applications/*/withdraw",
-                                "/api/applications/*/pay-entry-fee",
-                                "/api/applications/*/pay-semester").hasRole("Candidate")
-
-                        .requestMatchers(org.springframework.http.HttpMethod.PATCH,
-                                "/api/applications/*/verify-diploma",
-                                "/api/applications/*/verify-declaration",
-                                "/api/applications/*/accept").hasAnyRole("Admin", "Coordinator")
-
-                        .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
 
                         .anyRequest().authenticated()
                 )

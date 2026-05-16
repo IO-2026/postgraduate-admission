@@ -7,7 +7,6 @@ import { submitApplication } from "../../../services/admissionApi.js";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-import { getStoredAuth } from "../../../config/auth";
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
@@ -32,10 +31,6 @@ function safeJsonParse(value) {
   } catch {
     return null;
   }
-}
-
-function loadAuthState() {
-  return getStoredAuth();
 }
 
 function getDraftStorageKey(courseId) {
@@ -256,15 +251,11 @@ function isRecruitmentOpen(start, end) {
   return now >= startDate && now <= endDate;
 }
 
-function AdmissionPage() {
+function AdmissionPage({ isLoggedIn, user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
-
-  const authState = useMemo(loadAuthState, []);
-  const user = authState?.user || null;
-  const isLoggedIn = Boolean(authState?.isLoggedIn);
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>

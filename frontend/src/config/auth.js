@@ -28,9 +28,16 @@ function selectStoredUser(authState) {
   if (!authState || typeof authState !== "object") return null;
   const source = authState?.user || authState;
   const id = resolveUserId(source);
-  if (id != null) return { id };
   const email = resolveUserEmail(source);
-  return email ? { email } : null;
+  
+  if (id != null || email) {
+    const user = {};
+    if (id != null) user.id = id;
+    if (email) user.email = email;
+    return user;
+  }
+  
+  return null;
 }
 
 function sanitizeAuthState(authState) {
@@ -109,7 +116,7 @@ export async function authFetch(input, init = {}) {
     ...init,
   });
 
-  if (response.status === 401 || response.status === 403) {
+  if (response.status === 401) {
     notifyAuthExpired();
   }
 

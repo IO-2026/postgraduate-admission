@@ -1,5 +1,5 @@
 import { API_URL } from "./config/api.js";
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
 import SuccessPage from "./pages/CandidatePages/SuccessPage/SuccessPage";
@@ -20,7 +20,7 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
-import { fetchUserById } from "./services/userApi";
+import { fetchCurrentUser } from "./services/userApi";
 import {
   AUTH_EXPIRED_EVENT,
   authFetch,
@@ -60,8 +60,16 @@ function getRoleId(user) {
   return null;
 }
 
+function getRoleName(user) {
+  if (!user) return null;
+  if (typeof user.roleName === "string") return user.roleName;
+  if (typeof user.role === "string") return user.role;
+  if (user.role && typeof user.role.name === "string") return user.role.name;
+  return null;
+}
+
 function hasRoleInfo(user) {
-  return Boolean(user && (user.role != null || user.roleId != null));
+  return Boolean(user && (user.roleId != null || getRoleName(user)));
 }
 
 function resolveUserId(user) {
@@ -75,10 +83,10 @@ function resolveUserId(user) {
 
 function isAdminUser(user) {
   const roleId = getRoleId(user);
+  const roleName = getRoleName(user);
   return (
     roleId === 2 ||
-    (typeof user?.role === "string" &&
-      user.role.toLowerCase().includes("admin"))
+    (typeof roleName === "string" && roleName.toLowerCase().includes("admin"))
   );
 }
 
@@ -89,7 +97,7 @@ function getSessionProbePath(user) {
   if (isAdminUser(user)) {
     return "/api/users";
   }
-  if (user?.role === "Coordinator") {
+  if (getRoleName(user) === "Coordinator") {
     return `${API_URL}/courses/ofCoordinator?coordinatorId=${userId}`;
   }
   return `${API_URL}/applications/of/${userId}`;
@@ -99,35 +107,51 @@ function App() {
   const [authState, setAuthState] = useState(getInitialAuthState);
   const { isLoggedIn, user } = authState;
   const isAdmin = isLoggedIn && isAdminUser(user);
-  const isCoordinator = isLoggedIn && user?.role === "Coordinator";
+  const isCoordinator = isLoggedIn && getRoleName(user) === "Coordinator";
   const isRoleReady = !isLoggedIn || hasRoleInfo(user);
   const queryClient = useQueryClient();
-  const hydrationAttemptRef = useRef(null);
+
 
   const handleAuthSuccess = useCallback(
     (userData, authPayload) => {
       const payloadUserId =
-        typeof authPayload === "object" && authPayload ? authPayload.id : null;
+        resolveUserId(authPayload) ?? resolveUserId(authPayload?.user) ?? null;
       const payloadEmail =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.email
-          : null;
+          : null) ??
+        authPayload?.user?.email ??
+        null;
       const payloadRole =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.role
-          : null;
+          : null) ??
+        authPayload?.user?.role ??
+        null;
+      const payloadRoleName =
+        (typeof authPayload === "object" && authPayload
+          ? authPayload.roleName
+          : null) ??
+        authPayload?.user?.roleName ??
+        (typeof payloadRole === "string" ? payloadRole : null);
       const payloadName =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.name
-          : null;
+          : null) ??
+        authPayload?.user?.name ??
+        null;
       const payloadSurname =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.surname
-          : null;
+          : null) ??
+        authPayload?.user?.surname ??
+        null;
       const payloadTelNumber =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.telNumber
-          : null;
+          : null) ??
+        authPayload?.user?.telNumber ??
+        null;
 
       const payloadRoleId = (() => {
         if (typeof authPayload === "object" && authPayload) {
@@ -135,6 +159,20 @@ function App() {
           if (typeof authPayload.role === "number") return authPayload.role;
           if (authPayload.role && typeof authPayload.role.id === "number") {
             return authPayload.role.id;
+          }
+        }
+        if (typeof authPayload?.user === "object" && authPayload.user) {
+          if (typeof authPayload.user.roleId === "number") {
+            return authPayload.user.roleId;
+          }
+          if (typeof authPayload.user.role === "number") {
+            return authPayload.user.role;
+          }
+          if (
+            authPayload.user.role &&
+            typeof authPayload.user.role.id === "number"
+          ) {
+            return authPayload.user.role.id;
           }
         }
         return null;
@@ -156,10 +194,12 @@ function App() {
           id: payloadUserId ?? userData?.id ?? null,
           email: userData?.email ?? payloadEmail ?? null,
           roleId: userRoleId ?? payloadRoleId ?? null,
-          role: userData?.role ?? payloadRole ?? null,
+          role: userData?.role ?? payloadRole ?? payloadRoleName ?? null,
+          roleName: userData?.roleName ?? payloadRoleName ?? null,
           name: userData?.name ?? payloadName ?? null,
           surname: userData?.surname ?? payloadSurname ?? null,
           telNumber: userData?.telNumber ?? payloadTelNumber ?? null,
+          isHydrated: false,
         };
 
         storeAuthState({
@@ -274,26 +314,28 @@ function App() {
   useEffect(() => {
     if (!isLoggedIn) return;
 
-    const userId = resolveUserId(user);
-    if (!userId || hasRoleInfo(user)) return;
-
-    if (hydrationAttemptRef.current === userId) return;
-    hydrationAttemptRef.current = userId;
+    const needsHydration = !user?.isHydrated && (!user || !hasRoleInfo(user) || !user?.name);
+    if (!needsHydration) return;
 
     let isMounted = true;
 
     const hydrateUser = async () => {
       try {
-        const fetchedUser = await fetchUserById(userId);
+        const fetchedUser = await fetchCurrentUser();
         if (!isMounted) return;
 
         setAuthState((prev) => {
           if (!prev?.isLoggedIn) return prev;
+          const resolvedRoleName =
+            getRoleName(fetchedUser) ?? getRoleName(prev.user) ?? null;
           const mergedUser = {
             ...(prev.user || {}),
             ...(fetchedUser || {}),
-            id: fetchedUser?.id ?? userId,
+            id: fetchedUser?.id ?? resolveUserId(prev.user) ?? null,
             email: fetchedUser?.email ?? prev.user?.email ?? null,
+            role: fetchedUser?.role ?? prev.user?.role ?? resolvedRoleName,
+            roleName: resolvedRoleName,
+            isHydrated: true,
           };
 
           storeAuthState({
@@ -410,7 +452,7 @@ function App() {
         <Route
           path="/users"
           element={
-            !isRoleReady ? null : isLoggedIn && user?.role === "Admin" ? (
+            !isRoleReady ? null : isLoggedIn && isAdmin ? (
               <UsersPage />
             ) : (
               <Navigate to="/" replace />
@@ -419,7 +461,7 @@ function App() {
         />
         <Route
           path="/admission"
-          element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
+          element={isLoggedIn ? <AdmissionPage isLoggedIn={isLoggedIn} user={user} /> : <Navigate to="/" replace />}
         />
         <Route
           path="/admission/success"
@@ -437,7 +479,7 @@ function App() {
           path="/send-message"
           element={
             !isRoleReady ? null : isLoggedIn &&
-            (user?.role === "Coordinator" || isAdmin) ? (
+            (getRoleName(user) === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
             ) : (
               <Navigate to="/" replace />

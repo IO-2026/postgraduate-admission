@@ -138,6 +138,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).map(userMapper::toDTO).orElse(null);
     }
 
+    public UserDTO getUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(userMapper::toDTO).orElse(null);
+    }
+
     public List<CoordinatorWithCoursesDto> getCoordinatorsWithCourses() {
         return userRepository.findAll().stream()
                 .filter(u -> u.getRole() != null && u.getRole().getId() == 3)
