@@ -1,5 +1,5 @@
 import { API_URL } from "./config/api.js";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdmissionPage from "./pages/CandidatePages/AdmissionPage/AdmissionPage";
 import SuccessPage from "./pages/CandidatePages/SuccessPage/SuccessPage";
@@ -20,6 +20,7 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
+import { fetchUserById } from "./services/userApi";
 import {
   AUTH_EXPIRED_EVENT,
   authFetch,
@@ -59,6 +60,19 @@ function getRoleId(user) {
   return null;
 }
 
+function hasRoleInfo(user) {
+  return Boolean(user && (user.role != null || user.roleId != null));
+}
+
+function resolveUserId(user) {
+  if (!user || typeof user !== "object") return null;
+  if (typeof user.id === "number") return user.id;
+  if (typeof user.userId === "number") return user.userId;
+
+  const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
+  return Number.isNaN(parsedId) ? null : parsedId;
+}
+
 function isAdminUser(user) {
   const roleId = getRoleId(user);
   return (
@@ -69,14 +83,16 @@ function isAdminUser(user) {
 }
 
 function getSessionProbePath(user) {
-  if (!user || user.id == null) return null;
+  const userId = resolveUserId(user);
+  if (!userId) return null;
+  if (!hasRoleInfo(user)) return null;
   if (isAdminUser(user)) {
     return "/api/users";
   }
   if (user?.role === "Coordinator") {
-    return `${API_URL}/courses/ofCoordinator?coordinatorId=${user.id}`;
+    return `${API_URL}/courses/ofCoordinator?coordinatorId=${userId}`;
   }
-  return `${API_URL}/applications/of/${user.id}`;
+  return `${API_URL}/applications/of/${userId}`;
 }
 
 function App() {
@@ -84,7 +100,9 @@ function App() {
   const { isLoggedIn, user } = authState;
   const isAdmin = isLoggedIn && isAdminUser(user);
   const isCoordinator = isLoggedIn && user?.role === "Coordinator";
+  const isRoleReady = !isLoggedIn || hasRoleInfo(user);
   const queryClient = useQueryClient();
+  const hydrationAttemptRef = useRef(null);
 
   const handleAuthSuccess = useCallback(
     (userData, authPayload) => {
@@ -115,20 +133,21 @@ function App() {
         if (typeof authPayload === "object" && authPayload) {
           if (typeof authPayload.roleId === "number") return authPayload.roleId;
           if (typeof authPayload.role === "number") return authPayload.role;
-          if (authPayload.role && typeof authPayload.role.id === "number")
+          if (authPayload.role && typeof authPayload.role.id === "number") {
             return authPayload.role.id;
+          }
         }
         return null;
       })();
 
-      // Use functional state update to avoid capturing `user` in this callback
       setAuthState((prev) => {
         const prevUser = prev?.user;
         const userRoleId = (() => {
           if (prevUser?.roleId != null) return prevUser.roleId;
           if (typeof prevUser?.role === "number") return prevUser.role;
-          if (prevUser?.role && typeof prevUser.role.id === "number")
+          if (prevUser?.role && typeof prevUser.role.id === "number") {
             return prevUser.role.id;
+          }
           return null;
         })();
 
@@ -175,7 +194,9 @@ function App() {
           queryClient.prefetchQuery(
             ["coordinatorsWithCourses"],
             async () => {
-              const r = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
+              const r = await authFetch(
+                `${API_URL}/admin/coordinators-with-courses`,
+              );
               if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
               return r.json();
             },
@@ -251,6 +272,50 @@ function App() {
   }, [queryClient]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const userId = resolveUserId(user);
+    if (!userId || hasRoleInfo(user)) return;
+
+    if (hydrationAttemptRef.current === userId) return;
+    hydrationAttemptRef.current = userId;
+
+    let isMounted = true;
+
+    const hydrateUser = async () => {
+      try {
+        const fetchedUser = await fetchUserById(userId);
+        if (!isMounted) return;
+
+        setAuthState((prev) => {
+          if (!prev?.isLoggedIn) return prev;
+          const mergedUser = {
+            ...(prev.user || {}),
+            ...(fetchedUser || {}),
+            id: fetchedUser?.id ?? userId,
+            email: fetchedUser?.email ?? prev.user?.email ?? null,
+          };
+
+          storeAuthState({
+            isLoggedIn: true,
+            user: mergedUser,
+          });
+
+          return { isLoggedIn: true, user: mergedUser };
+        });
+      } catch {
+        // ignore hydration errors
+      }
+    };
+
+    hydrateUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, user]);
+
+  useEffect(() => {
     if (!isLoggedIn || !user) return undefined;
 
     let isMounted = true;
@@ -314,12 +379,18 @@ function App() {
         <Route path="/courses" element={<CoursesPage />} />
         <Route
           path="/admin/courses"
-          element={isAdmin ? <AdminCoursesPage /> : <Navigate to="/" replace />}
+          element={
+            !isRoleReady ? null : isAdmin ? (
+              <AdminCoursesPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={
-            isCoordinator ? (
+            !isRoleReady ? null : isCoordinator ? (
               <CourseManagementPage />
             ) : (
               <Navigate to="/" replace />
@@ -329,7 +400,7 @@ function App() {
         <Route
           path="/coordinator/courses/:courseId/applications/:applicationId/manage"
           element={
-            isCoordinator ? (
+            !isRoleReady ? null : isCoordinator ? (
               <ApplicationManagementPage />
             ) : (
               <Navigate to="/" replace />
@@ -339,7 +410,7 @@ function App() {
         <Route
           path="/users"
           element={
-            isLoggedIn && user?.role === "Admin" ? (
+            !isRoleReady ? null : isLoggedIn && user?.role === "Admin" ? (
               <UsersPage />
             ) : (
               <Navigate to="/" replace />
@@ -365,7 +436,8 @@ function App() {
         <Route
           path="/send-message"
           element={
-            isLoggedIn && (user?.role === "Coordinator" || isAdmin) ? (
+            !isRoleReady ? null : isLoggedIn &&
+            (user?.role === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
             ) : (
               <Navigate to="/" replace />

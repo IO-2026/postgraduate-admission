@@ -134,6 +134,10 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    public UserDTO getUserById(Long id) {
+        return userRepository.findById(id).map(userMapper::toDTO).orElse(null);
+    }
+
     public List<CoordinatorWithCoursesDto> getCoordinatorsWithCourses() {
         return userRepository.findAll().stream()
                 .filter(u -> u.getRole() != null && u.getRole().getId() == 3)

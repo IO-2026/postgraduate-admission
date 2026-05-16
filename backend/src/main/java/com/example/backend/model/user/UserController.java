@@ -8,9 +8,7 @@ import com.example.backend.model.user.dto.CoordinatorDto;
 import com.example.backend.model.user.dto.CoordinatorWithCoursesDto;
 import com.example.backend.model.user.dto.UserDTO;
 import com.example.backend.security.JwtUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -81,6 +79,11 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PutMapping("/users/{id}/role")
