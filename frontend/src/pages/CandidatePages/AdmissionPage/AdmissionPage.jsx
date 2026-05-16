@@ -448,6 +448,7 @@ function AdmissionPage() {
         university: String(draft.university).trim(),
         courseId,
         applicantDateOfBirth: String(account.dateOfBirth).trim(),
+        applicantPlaceOfBirth: String(account.placeOfBirth).trim(),
         applicantPesel: String(account.pesel).trim(),
         addressStreet: String(draft.street).trim(),
         addressPostalCode: String(draft.postalCode).trim(),

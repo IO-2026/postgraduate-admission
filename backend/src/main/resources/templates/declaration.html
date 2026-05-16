@@ -99,12 +99,12 @@
     <div class="data-row">Ja niżej podpisany/a: <span class="dotted-line" th:text="${user.name} + ' ' + ${user.surname}"></span></div>
     <div class="data-row"><span style="font-size: 10px;">Imiona i nazwisko</span></div>
 
-    <div class="data-row" style="margin-top: 10px;">Data i miejsce urodzenia: <span class="dotted-line" th:text="${app.applicantDateOfBirth} + '[DODAĆ MIEJSCE URODZENIA DO TABELI APPLICATIONS]|'"></span></div>
+    <div class="data-row" style="margin-top: 10px;">Data i miejsce urodzenia: <span class="dotted-line" th:text="${app.applicantDateOfBirth} + ', ' + ${app.applicantPlaceOfBirth}"></span></div>
     <div class="data-row" style="margin-top: 10px;">Adres do korespondencji: <span class="dotted-line" th:text="${app.addressStreet} + ', ' + ${app.addressPostalCode} + ' ' + ${app.addressCity}"></span></div>
 </div>
 
 <div>
-    przyjęty/a na studia podyplomowe w Akademii Górniczo-Hutniczej im. Stanisława Staszica w Krakowie, zwanej dalej Uczelnią lub AGH w roku akademickim <span class="dotted-line" style="min-width: 100px;">[DODAĆ DO TABELI COURSES]</span><br/><br/>
+    przyjęty/a na studia podyplomowe w Akademii Górniczo-Hutniczej im. Stanisława Staszica w Krakowie, zwanej dalej Uczelnią lub AGH w roku akademickim <span class="dotted-line" th:text="|${course.academicYear}/${course.academicYear + 1}|"></span><br/><br/>
 
     Wydział: <span class="dotted-line"> Informatyki </span><br/><br/>
     Nazwa studiów podyplomowych: <span class="dotted-line" th:text="${course.name}"></span><br/><br/>

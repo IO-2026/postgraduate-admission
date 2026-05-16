@@ -35,7 +35,7 @@ public class ApplicationDto {
     private String previousDegree;
     private String fieldOfStudy;
     private Integer graduationYear;
-    private String placeOfBirth;
+    private String applicantPlaceOfBirth;
     private String notes;
     private Boolean truthfulnessConsent;
     private Boolean gdprConsent;
