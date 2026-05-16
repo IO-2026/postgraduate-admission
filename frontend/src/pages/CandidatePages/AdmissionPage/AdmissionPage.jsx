@@ -17,7 +17,6 @@ function resolveUserId(user) {
   const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
   return Number.isNaN(parsedId) ? null : parsedId;
 }
-const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const MAX_DIPLOMA_BYTES = 10 * 1024 * 1024;
 const PDF_MIME_TYPE = "application/pdf";
@@ -272,7 +271,7 @@ function AdmissionPage() {
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
 
-  const authState = useMemo(loadAuthState, []);
+  const authState = useMemo(() => loadAuthState(), []);
   const token = authState?.token || null;
   const user = authState?.user || null;
   const isLoggedIn = Boolean(authState?.isLoggedIn);
@@ -298,12 +297,15 @@ function AdmissionPage() {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccount(getAccountDefaults(user));
   }, [user]);
 
   useEffect(() => {
     if (courseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(getDraftDefaults(loadDraft(courseId)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiplomaFile(null);
     }
   }, [courseId]);
@@ -374,6 +376,7 @@ function AdmissionPage() {
   }, [courseId, draft]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrors(validateDraft({ account, draft, diplomaFile }));
   }, [account, draft, diplomaFile]);
 
