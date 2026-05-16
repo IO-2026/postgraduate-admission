@@ -365,11 +365,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           { label: "Zaakceptowany", done: isAccepted },
                           { label: "Semestr opłacony", done: isSemesterPaid },
                           {
-                            label: "Oświadczenie wysłane",
-                            done: isDeclarationVerified,
-                          },
-                          {
-                            label: "Oświadczenie potwierdzone",
+                            label: "Oświadczenie dostarczone",
                             done: isDeclarationVerified,
                           },
                           {
