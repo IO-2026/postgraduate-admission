@@ -23,7 +23,7 @@ const INITIAL_EDIT_FORM_STATE = {
   coordinatorEmail: "",
 };
 
-function AdminHomePage({ isLoggedIn, user }) {
+function AdminHomePage({ isLoggedIn }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
