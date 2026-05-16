@@ -77,7 +77,6 @@ function UsersPage() {
 
   return (
     <div className="users-page">
-      <BackButton />
       <header className="users-header">
         <h1>Zarządzanie Użytkownikami</h1>
         <p className="users-subtitle">

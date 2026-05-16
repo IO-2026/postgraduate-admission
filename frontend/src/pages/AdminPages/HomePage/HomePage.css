@@ -57,13 +57,6 @@
   font-size: 1.05rem;
 }
 
-.admin-home-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 @media (max-width: 640px) {
   .admin-home-header {
     padding: 20px;

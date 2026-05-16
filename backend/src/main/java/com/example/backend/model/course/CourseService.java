@@ -3,7 +3,6 @@ package com.example.backend.model.course;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.user.UserMapper;
 import com.example.backend.model.user.UserRepository;
-import com.example.backend.model.user.UserService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.dto.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
@@ -23,7 +22,6 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final ApplicationService applicationService;
-    private final UserService userService;
     private final CourseMapper courseMapper;
     private final UserMapper userMapper;
 

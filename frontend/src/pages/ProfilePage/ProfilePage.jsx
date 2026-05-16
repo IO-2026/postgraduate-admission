@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import BackButton from "../../components/BackButton/BackButton";
 import "./ProfilePage.css";
 
 const roleTranslations = {
@@ -25,7 +23,6 @@ function ProfilePage({ user, onLogout }) {
 
   return (
     <section className="profile-view">
-      <BackButton />
       <div className="profile-card">
         <header className="profile-header">
           <div className="profile-avatar">{avatarLabel}</div>

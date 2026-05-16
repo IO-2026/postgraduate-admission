@@ -208,15 +208,116 @@
   background: rgba(255, 255, 255, 0.62);
 }
 
+.application-item--vertical {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 20px 24px;
+}
+
+.application-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.application-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Horizontal Timeline --- */
+.application-timeline {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 16px;
+  overflow: visible;
+  padding: 4px 8px 4px 8px;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-step-track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 24px;
+}
+
+.timeline-dot {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 50%;
+  background: #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
+  z-index: 1;
+}
+
+.timeline-dot.done {
+  background: #0f7f73;
+  box-shadow: 0 0 0 3px rgba(15, 127, 115, 0.18);
+}
+
+.timeline-line {
+  flex: 1;
+  height: 3px;
+  background: #d1d5db;
+  transition: background 0.3s;
+}
+
+.timeline-line.done {
+  background: #0f7f73;
+}
+
+.timeline-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+  word-break: break-word;
+  padding: 0 2px;
+}
+
+.timeline-label.done {
+  color: #0f7f73;
+  font-weight: 600;
+}
+
+.application-withdrawn-badge {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(225, 29, 72, 0.1);
+  color: #e11d48;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .application-item-main h3 {
   margin: 0 0 4px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--text-strong);
 }
 
 .application-item-main p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--text-strong);
   font-size: 0.94rem;
 }
 
@@ -224,7 +325,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 12px;
 }
 
 .application-status,
@@ -268,16 +369,87 @@
   gap: 6px;
 }
 
-.primary-btn.application-pay-btn {
+.application-pay-btn {
   align-self: stretch;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
-  font-size: 0.8rem;
-  text-decoration: none;
-  border-radius: 10px;
-  box-shadow: none;
+  padding: 8px 20px !important;
+  font-size: 0.85rem !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.application-pay-btn:hover {
+  transform: none !important;
+}
+
+.application-menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.application-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-strong);
+}
+
+.application-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 200px;
+  z-index: 10;
+}
+
+.application-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.application-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.application-dropdown-item.danger {
+  color: #e11d48;
+}
+
+.application-dropdown-item.danger:hover {
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.primary-btn.danger-btn {
+  background-color: #e11d48;
+}
+
+.primary-btn.danger-btn:hover {
+  background-color: #be123c;
 }
 
 .applications-error {
@@ -332,6 +504,7 @@
     align-items: center;
     flex-wrap: wrap;
   }
+
   .app-action-btn {
     display: block;
     width: 100%;
@@ -341,7 +514,8 @@
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    border: 2px solid transparent; /* Rezerwujemy miejsce na ramkę */
+    border: 2px solid transparent;
+    /* Rezerwujemy miejsce na ramkę */
     font-family: inherit;
   }
 
@@ -405,6 +579,7 @@
     margin: 5px 0;
     font-style: italic;
   }
+
   .application-pay-btn {
     transition: all 0.2s ease;
   }

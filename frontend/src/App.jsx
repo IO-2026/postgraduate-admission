@@ -8,11 +8,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import CandidateHomePage from "./pages/CandidatePages/HomePage/CandidateHomePage";
 import CoordinatorHomePage from "./pages/CoordinatorPages/HomePage/CoordinatorHomePage";
-import MessagesPage from "./pages/MessagesPage/MessagesPage";
+import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
-import AdminCoursesPage from "./pages/AdminPages/CoursesPage/AdminCoursesPage";
-import CoursesPage from "./pages/CandidatePages/CoursesPage/CoursesPage";
+import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
+
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
@@ -418,17 +418,12 @@ function App() {
             )
           }
         />
-        <Route path="/courses" element={<CoursesPage />} />
+
         <Route
-          path="/admin/courses"
-          element={
-            !isRoleReady ? null : isAdmin ? (
-              <AdminCoursesPage />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
+          path="/admin/courses/new"
+          element={isAdmin ? <NewCoursePage /> : <Navigate to="/" replace />}
         />
+        <Route path="/admin/courses" element={<Navigate to="/" replace />} />
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={
