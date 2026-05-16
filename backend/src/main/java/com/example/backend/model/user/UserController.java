@@ -93,8 +93,8 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/role")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<UserDTO> updateUserRole(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
-        
         String newRole = requestBody.get("roleName");
         if (newRole == null || newRole.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -108,12 +108,14 @@ public class UserController {
     }
 
     @GetMapping("/admin/users")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AdminUserDto>> getAllUsersForAdmin() {
         return ResponseEntity.ok(userService.getAllAdminUsers());
     }
 
     @PostMapping("/admin/users/{id}/promote")
-    public ResponseEntity<?> promoteUser(@PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<?> promoteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.promoteToCoordinator(id));
         } catch (IllegalArgumentException e) {
@@ -122,7 +124,8 @@ public class UserController {
     }
 
     @PostMapping("/admin/users/{id}/demote")
-    public ResponseEntity<?> demoteUser(@PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<?> demoteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.demoteToApplicant(id));
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -131,11 +134,13 @@ public class UserController {
     }
 
     @GetMapping("/admin/coordinators")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<CoordinatorDto>> getCoordinators() {
         return ResponseEntity.ok(userService.getAllCoordinators());
     }
 
     @GetMapping("/admin/coordinators-with-courses")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<CoordinatorWithCoursesDto>> getCoordinatorsWithCourses() {
         return ResponseEntity.ok(userService.getCoordinatorsWithCourses());
     }
