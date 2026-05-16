@@ -1,5 +1,5 @@
 package com.example.backend;
-import com.example.backend.model.course.AssignRequest;
+import com.example.backend.model.course.dto.AssignRequest;
 
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;

@@ -63,12 +63,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()
                         .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
 
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

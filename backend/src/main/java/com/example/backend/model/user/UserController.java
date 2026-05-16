@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class UserController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
             AuthService.LoginResult result = authService.loginUser(loginRequest);
-            ResponseCookie cookie = buildJwtCookie(result.jwt(), jwtUtil.getExpiration() / 1000, request.isSecure());
+            ResponseCookie cookie = userService.buildJwtCookie(result.jwt(), jwtUtil.getExpiration() / 1000, request.isSecure());
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(result.response());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nieprawidłowe dane logowania");
@@ -60,18 +59,8 @@ public class UserController {
 
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
-        ResponseCookie cookie = buildJwtCookie("", 0, request.isSecure());
+        ResponseCookie cookie = userService.buildJwtCookie("", 0, request.isSecure());
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
-    }
-
-    private ResponseCookie buildJwtCookie(String value, long maxAgeSeconds, boolean secure) {
-        return ResponseCookie.from("jwt", value)
-                .httpOnly(true)
-                .secure(secure)
-                .path("/")
-                .maxAge(maxAgeSeconds)
-                .sameSite("Lax")
-                .build();
     }
 
     @PostMapping("/auth/register")

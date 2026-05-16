@@ -1,11 +1,13 @@
 package com.example.backend.model.course;
 
+import com.example.backend.model.course.dto.AssignRequest;
 import com.example.backend.model.user.dto.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class CourseController {
     }
 
     @PostMapping("/courses")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
         try {
             CourseDTO savedCourse = courseService.saveCourse(courseDTO);
@@ -40,6 +43,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/courses/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         try {
             courseService.deleteCourse(id);
@@ -50,13 +54,14 @@ public class CourseController {
     }
 
     @PatchMapping("/courses/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseDTO courseDTO) {
         courseService.updateCourse(id, courseDTO);
         return ResponseEntity.ok().build();
     }
 
-    // Admin assignment endpoint (kept under /api/admin/... by the front-end)
     @PostMapping("/admin/courses/{id}/coordinator")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> assignCourseCoordinator(@PathVariable Long id, @RequestBody AssignRequest req) {
         try {
             Course saved = courseService.assignCoordinator(id, req.getCoordinatorId());
@@ -67,11 +72,13 @@ public class CourseController {
     }
 
     @GetMapping("/courses/ofCoordinator")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public List<CourseDTO> getCoursesOfCoordinator(@RequestParam Long coordinatorId) {
         return courseService.getCoursesOfCoordinator(coordinatorId);
     }
 
     @GetMapping("/courses/{id}/candidates")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public List<CandidateWithApplicationDto> getCourseCandidates(@PathVariable Long id) {
         return courseService.getCourseCandidates(id);
     }
