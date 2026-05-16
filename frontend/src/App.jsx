@@ -20,21 +20,25 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
-import { AUTH_STORAGE_KEY } from "./config/auth";
+import {
+  AUTH_EXPIRED_EVENT,
+  authFetch,
+  clearAuthStorage,
+  getStoredAuth,
+  storeAuthState,
+} from "./config/auth";
 import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
 
 function getInitialAuthState() {
   try {
-    const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!savedAuth) {
+    const parsedAuth = getStoredAuth();
+    if (!parsedAuth) {
       return { isLoggedIn: false, user: null };
     }
 
-    const parsedAuth = JSON.parse(savedAuth);
-
     // Force logout if we have a legacy format without the user object
     if (parsedAuth?.isLoggedIn && !parsedAuth?.user) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      clearAuthStorage();
       return { isLoggedIn: false, user: null };
     }
 
@@ -64,6 +68,17 @@ function isAdminUser(user) {
   );
 }
 
+function getSessionProbePath(user) {
+  if (!user || user.id == null) return null;
+  if (isAdminUser(user)) {
+    return "/api/users";
+  }
+  if (user?.role === "Coordinator") {
+    return `${API_URL}/courses/ofCoordinator?coordinatorId=${user.id}`;
+  }
+  return `${API_URL}/applications/of/${user.id}`;
+}
+
 function App() {
   const [authState, setAuthState] = useState(getInitialAuthState);
   const { isLoggedIn, user } = authState;
@@ -73,11 +88,6 @@ function App() {
 
   const handleAuthSuccess = useCallback(
     (userData, authPayload) => {
-      const token =
-        typeof authPayload === "string"
-          ? authPayload
-          : authPayload?.token || authPayload?.jwt || authPayload?.accessToken;
-
       const payloadUserId =
         typeof authPayload === "object" && authPayload ? authPayload.id : null;
       const payloadEmail =
@@ -133,25 +143,19 @@ function App() {
           telNumber: userData?.telNumber ?? payloadTelNumber ?? null,
         };
 
-        localStorage.setItem(
-          AUTH_STORAGE_KEY,
-          JSON.stringify({
-            isLoggedIn: true,
-            user: mergedUser,
-            token: token || null,
-          }),
-        );
+        storeAuthState({
+          isLoggedIn: true,
+          user: mergedUser,
+        });
 
         // Prefetch admin-related data if user is admin
         const isAdmin = isAdminUser(mergedUser);
 
         if (isAdmin) {
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
           queryClient.prefetchQuery(
-            ["allUsers", token],
+            ["allUsers"],
             async () => {
-              const r = await fetch("/api/users", { headers });
+              const r = await authFetch("/api/users");
               if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
               return r.json();
             },
@@ -159,9 +163,9 @@ function App() {
           );
 
           queryClient.prefetchQuery(
-            ["courses", token],
+            ["courses"],
             async () => {
-              const r = await fetch("/api/courses", { headers });
+              const r = await authFetch("/api/courses");
               if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
               return r.json();
             },
@@ -169,14 +173,9 @@ function App() {
           );
 
           queryClient.prefetchQuery(
-            ["coordinatorsWithCourses", token],
+            ["coordinatorsWithCourses"],
             async () => {
-              const r = await fetch(
-                `${API_URL}/admin/coordinators-with-courses`,
-                {
-                  headers,
-                },
-              );
+              const r = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
               if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
               return r.json();
             },
@@ -191,26 +190,22 @@ function App() {
   );
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    clearAuthStorage();
     window.location.href = "/";
   }, []);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
+      const parsed = getStoredAuth();
+      if (!parsed) return;
       if (!parsed?.isLoggedIn) return;
       const user = parsed.user;
-      const token = parsed.token || null;
       const isAdmin = isAdminUser(user);
       if (user && isAdmin) {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
         queryClient.prefetchQuery(
-          ["allUsers", token],
+          ["allUsers"],
           async () => {
-            const r = await fetch("/api/users", { headers });
+            const r = await authFetch("/api/users");
             if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
             return r.json();
           },
@@ -218,9 +213,9 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["courses", token],
+          ["courses"],
           async () => {
-            const r = await fetch("/api/courses", { headers });
+            const r = await authFetch("/api/courses");
             if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
             return r.json();
           },
@@ -228,14 +223,9 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["coordinatorsWithCourses", token],
+          ["coordinatorsWithCourses"],
           async () => {
-            const r = await fetch(
-              `${API_URL}/admin/coordinators-with-courses`,
-              {
-                headers,
-              },
-            );
+            const r = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
             if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
             return r.json();
           },
@@ -246,6 +236,54 @@ function App() {
       // ignore prefetch errors
     }
   }, [queryClient]);
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setAuthState({ isLoggedIn: false, user: null });
+      queryClient.clear();
+    };
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !user) return undefined;
+
+    let isMounted = true;
+
+    const ensureActiveSession = async () => {
+      const probePath = getSessionProbePath(user);
+      if (!probePath) return;
+
+      try {
+        await authFetch(probePath, { method: "GET" });
+      } catch {
+        if (!isMounted) return;
+        // Ignore transient network errors; logout is handled on 401/403 via authFetch.
+      }
+    };
+
+    ensureActiveSession();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        ensureActiveSession();
+      }
+    };
+
+    window.addEventListener("focus", ensureActiveSession);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("focus", ensureActiveSession);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isLoggedIn, user]);
 
   return (
     <div className="app-shell">

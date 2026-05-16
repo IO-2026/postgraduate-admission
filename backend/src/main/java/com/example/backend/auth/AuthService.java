@@ -23,7 +23,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public JwtResponse loginUser(LoginRequest loginRequest) {
+    public record LoginResult(String jwt, JwtResponse response) {}
+
+    public LoginResult loginUser(LoginRequest loginRequest) {
         String email = normalizeEmail(loginRequest.getEmail());
 
         Authentication authentication = authenticationManager.authenticate(
@@ -38,9 +40,7 @@ public class AuthService {
         String jwt = jwtUtil.generateToken(userDetails);
 
         User user = userRepository.findByEmail(email).orElseThrow();
-        return new JwtResponse(
-                jwt,
-                "Bearer",
+        JwtResponse response = new JwtResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().getName(),
@@ -48,6 +48,7 @@ public class AuthService {
                 user.getSurname(),
                 user.getTelNumber()
         );
+        return new LoginResult(jwt, response);
     }
 
     private String normalizeEmail(String email) {

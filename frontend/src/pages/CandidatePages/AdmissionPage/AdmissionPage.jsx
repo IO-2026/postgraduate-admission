@@ -7,7 +7,7 @@ import { submitApplication } from "../../../services/admissionApi.js";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-import { AUTH_STORAGE_KEY } from "../../../config/auth";
+import { getStoredAuth } from "../../../config/auth";
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
@@ -35,17 +35,7 @@ function safeJsonParse(value) {
 }
 
 function loadAuthState() {
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) {
-    return null;
-  }
-
-  const parsed = safeJsonParse(raw);
-  if (!parsed || typeof parsed !== "object") {
-    return null;
-  }
-
-  return parsed;
+  return getStoredAuth();
 }
 
 function getDraftStorageKey(courseId) {
@@ -273,7 +263,6 @@ function AdmissionPage() {
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
 
   const authState = useMemo(loadAuthState, []);
-  const token = authState?.token || null;
   const user = authState?.user || null;
   const isLoggedIn = Boolean(authState?.isLoggedIn);
 
@@ -428,7 +417,7 @@ function AdmissionPage() {
       return;
     }
 
-    if (!token) {
+    if (!isLoggedIn) {
       setSubmitError("Sesja wygasła. Zaloguj się ponownie.");
       return;
     }
@@ -464,7 +453,7 @@ function AdmissionPage() {
         newsletterConsent: Boolean(draft.newsletterConsent),
       };
 
-      await submitApplication({ payload, diplomaFile }, token);
+      await submitApplication({ payload, diplomaFile });
 
       clearDraft(courseId);
       setDiplomaFile(null);
@@ -476,7 +465,7 @@ function AdmissionPage() {
     }
   };
 
-  const missingSession = !token;
+  const missingSession = !isLoggedIn;
   const hasValidationErrors = Object.keys(errors).length > 0;
 
   const showFieldError = (name) => {
@@ -605,7 +594,7 @@ function AdmissionPage() {
           {missingSession ? (
             <div className="admission-session">
               <p className="form-error" role="alert">
-                Brakuje danych sesji (token). Zaloguj się ponownie.
+                Sesja wygasła. Zaloguj się ponownie.
               </p>
               <div className="admission-actions">
                 <Link className="primary-btn" to="/auth">

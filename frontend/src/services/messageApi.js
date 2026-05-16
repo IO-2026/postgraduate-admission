@@ -1,17 +1,15 @@
 import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
 import { API_URL } from "../config/api";
-import { getToken } from "../config/auth";
+import { authFetch } from "../config/auth";
 const API_BASE = API_URL + "/messages";
 
 async function request(endpoint, options = {}) {
-  const token = getToken();
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const response = await authFetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
   });
@@ -56,11 +54,8 @@ export async function markAsRead(recipientId) {
 }
 
 export async function getAvailableRecipients(user) {
-  const token = getToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
   if (user?.role === "Admin") {
-    const res = await fetch(API_URL + "/users", { headers });
+    const res = await authFetch(API_URL + "/users");
     if (!res.ok) throw new Error("Błąd pobierania użytkowników");
     const users = await res.json();
     return users.filter(

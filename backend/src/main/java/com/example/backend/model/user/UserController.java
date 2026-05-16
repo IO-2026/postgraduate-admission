@@ -7,9 +7,15 @@ import com.example.backend.model.user.dto.AdminUserDto;
 import com.example.backend.model.user.dto.CoordinatorDto;
 import com.example.backend.model.user.dto.CoordinatorWithCoursesDto;
 import com.example.backend.model.user.dto.UserDTO;
+import com.example.backend.security.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,15 +36,40 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
-
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
+                                              HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(authService.loginUser(loginRequest));
+            AuthService.LoginResult result = authService.loginUser(loginRequest);
+
+            ResponseCookie cookie = buildJwtCookie(result.jwt(), jwtUtil.getExpiration() / 1000, request.isSecure());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(result.response());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nieprawidłowe dane logowania");
         }
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        ResponseCookie cookie = buildJwtCookie("", 0, request.isSecure());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
+
+    private ResponseCookie buildJwtCookie(String value, long maxAgeSeconds, boolean secure) {
+        return ResponseCookie.from("jwt", value)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(maxAgeSeconds)
+                .sameSite("Lax")
+                .build();
     }
 
     @PostMapping("/auth/register")

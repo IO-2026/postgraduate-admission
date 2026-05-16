@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { fetchUsers, updateUserRole } from "../../../services/userApi";
 import { Link } from "react-router-dom";
 import BackButton from "../../../components/BackButton/BackButton";
-import { getToken } from "../../../config/auth";
 import "./UsersPage.css";
 
 const ROLE_FILTERS = [
@@ -19,13 +18,11 @@ function UsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const token = getToken();
-
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        const data = await fetchUsers(token);
+        const data = await fetchUsers();
         setUsers(data);
       } catch (err) {
         console.error(err);
@@ -36,11 +33,11 @@ function UsersPage() {
     };
 
     loadUsers();
-  }, [token]);
+  }, []);
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await updateUserRole(token, userId, newRole);
+      await updateUserRole(userId, newRole);
       setUsers(
         users.map((user) =>
           user.id === userId ? { ...user, roleName: newRole } : user,

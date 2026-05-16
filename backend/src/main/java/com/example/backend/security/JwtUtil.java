@@ -26,6 +26,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private int expiration;
 
+    public int getExpiration() {
+        return expiration;
+    }
+
     private SecretKey secretKey;
 
     @PostConstruct

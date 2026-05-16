@@ -9,7 +9,7 @@ import {
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import BackButton from "../../../components/BackButton/BackButton";
-import { getToken } from "../../../config/auth";
+import { authFetch } from "../../../config/auth";
 import "./AdminCoursesPage.css";
 
 const INITIAL_FORM_STATE = {
@@ -58,13 +58,7 @@ function AdminCoursesPage() {
     try {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
-      const token = getToken();
-      const response = await fetch(
-        `${API_URL}/admin/coordinators-with-courses`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        },
-      );
+      const response = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");
       }
