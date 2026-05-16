@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { API_URL } from "../../../config/api";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -7,7 +8,7 @@ import {
 } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
-import { getToken } from "../../../config/auth";
+import { authFetch } from "../../../config/auth";
 import "./HomePage.css";
 import "../CoursesPage/AdminCoursesPage.css";
 
@@ -22,7 +23,7 @@ const INITIAL_EDIT_FORM_STATE = {
   coordinatorEmail: "",
 };
 
-function AdminHomePage() {
+function AdminHomePage({ isLoggedIn, user }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,12 +57,8 @@ function AdminHomePage() {
     try {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
-      const token = getToken();
-      const response = await fetch(
-        `${API_URL}/admin/coordinators-with-courses`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        },
+      const response = await authFetch(
+        `${API_URL}/admin/coordinators-with-courses`
       );
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");
@@ -234,6 +231,26 @@ function AdminHomePage() {
       setFormSubmitting(false);
     }
   };
+
+  if (!isLoggedIn) {
+    return (
+      <section className="gate-view" aria-label="Brama dostępu dla gościa">
+        <div className="guest-panel">
+          <p className="guest-tag">Studia podyplomowe AGH</p>
+          <h1>Witamy w portalu administratora</h1>
+          <p className="guest-subtitle">
+            Zaloguj się, aby zarządzać ofertą kierunków studiów podyplomowych i koordynatorami.
+          </p>
+
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <Link className="primary-btn" to="/auth">
+              Zaloguj się
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="admin-home-view" aria-label="Panel administratora">

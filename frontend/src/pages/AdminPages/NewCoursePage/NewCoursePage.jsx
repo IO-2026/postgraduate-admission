@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createCourse } from "../../../services/courseApi";
 import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
-import { getToken } from "../../../config/auth";
+import { authFetch } from "../../../config/auth";
 import "../HomePage/HomePage.css";
 import "../CoursesPage/AdminCoursesPage.css";
 import "./NewCoursePage.css";
@@ -37,12 +37,8 @@ function NewCoursePage() {
     try {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
-      const token = getToken();
-      const response = await fetch(
-        `${API_URL}/admin/coordinators-with-courses`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        },
+      const response = await authFetch(
+        `${API_URL}/admin/coordinators-with-courses`
       );
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");

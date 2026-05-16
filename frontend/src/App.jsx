@@ -12,14 +12,13 @@ import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
-
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
-import SendMessagePage from "./pages/MessagesPage/SendMessagePage/SendMessagePage.jsx";
+import SendMessagePage from "./pages/SendMessagePage/SendMessagePage.jsx";
 import { fetchCurrentUser } from "./services/userApi";
 import {
   AUTH_EXPIRED_EVENT,
@@ -28,7 +27,7 @@ import {
   getStoredAuth,
   storeAuthState,
 } from "./config/auth";
-import ContactFormPage from "./pages/ContactFormPage/ContactFormPage.jsx";
+import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
 
 function getInitialAuthState() {
   try {
@@ -394,13 +393,19 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Navbar isLoggedIn={isLoggedIn} user={user} onLogout={handleLogout} />
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        user={user}
+        isAdmin={isAdmin}
+        isCoordinator={isCoordinator}
+        onLogout={handleLogout}
+      />
       <Routes>
         <Route
           path="/"
           element={
             isAdmin ? (
-              <AdminHomePage />
+              <AdminHomePage isLoggedIn={isLoggedIn} user={user} />
             ) : isCoordinator ? (
               <CoordinatorHomePage user={user} />
             ) : (
