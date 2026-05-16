@@ -1,5 +1,12 @@
 package com.example.backend.model.application.dto;
 
+import com.example.backend.validation.GraduationYear;
+import com.example.backend.validation.Pesel;
+import com.example.backend.validation.PeselConsistent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,27 +25,59 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@PeselConsistent
 public class ApplicationDto {
     private Long id;
     private Long userId;
+
+    @NotBlank
+    @Size(min = 2, max = 200)
     private String university;
+
+    @NotNull
     private Long courseId;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate applicantDateOfBirth;
 
+    @NotBlank
+    @Pesel
     private String applicantPesel;
+
+    @NotBlank
+    @Size(min = 2, max = 120)
     private String addressStreet;
+
+    @NotBlank
+    @Pattern(regexp = "\\d{2}-\\d{3}", message = "Nieprawidłowy kod pocztowy.")
     private String addressPostalCode;
+
+    @NotBlank
+    @Size(min = 2, max = 80)
     private String addressCity;
+
+    @Size(max = 120)
     private String previousDegree;
+
+    @Size(max = 120)
     private String fieldOfStudy;
+
+    @GraduationYear
     private Integer graduationYear;
+
     private String placeOfBirth;
+
+    @Size(max = 500)
     private String notes;
+
+    @NotNull
     private Boolean truthfulnessConsent;
+
+    @NotNull
     private Boolean gdprConsent;
+
+    @NotNull
     private Boolean newsletterConsent;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
