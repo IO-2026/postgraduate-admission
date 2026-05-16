@@ -38,7 +38,7 @@ function NewCoursePage() {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
       const response = await authFetch(
-        `${API_URL}/admin/coordinators-with-courses`
+        `${API_URL}/admin/coordinators-with-courses`,
       );
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");

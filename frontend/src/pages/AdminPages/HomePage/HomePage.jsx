@@ -58,7 +58,7 @@ function AdminHomePage({ isLoggedIn, user }) {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
       const response = await authFetch(
-        `${API_URL}/admin/coordinators-with-courses`
+        `${API_URL}/admin/coordinators-with-courses`,
       );
       if (!response.ok) {
         throw new Error("Nie udalo sie pobrac koordynatorow");
@@ -239,7 +239,8 @@ function AdminHomePage({ isLoggedIn, user }) {
           <p className="guest-tag">Studia podyplomowe AGH</p>
           <h1>Witamy w portalu administratora</h1>
           <p className="guest-subtitle">
-            Zaloguj się, aby zarządzać ofertą kierunków studiów podyplomowych i koordynatorami.
+            Zaloguj się, aby zarządzać ofertą kierunków studiów podyplomowych i
+            koordynatorami.
           </p>
 
           <div style={{ display: "flex", gap: "1rem" }}>

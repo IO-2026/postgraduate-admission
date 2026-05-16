@@ -29,14 +29,14 @@ function selectStoredUser(authState) {
   const source = authState?.user || authState;
   const id = resolveUserId(source);
   const email = resolveUserEmail(source);
-  
+
   if (id != null || email) {
     const user = {};
     if (id != null) user.id = id;
     if (email) user.email = email;
     return user;
   }
-  
+
   return null;
 }
 

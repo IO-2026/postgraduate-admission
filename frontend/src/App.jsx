@@ -110,7 +110,6 @@ function App() {
   const isRoleReady = !isLoggedIn || hasRoleInfo(user);
   const queryClient = useQueryClient();
 
-
   const handleAuthSuccess = useCallback(
     (userData, authPayload) => {
       const payloadUserId =
@@ -285,7 +284,9 @@ function App() {
         queryClient.prefetchQuery(
           ["coordinatorsWithCourses"],
           async () => {
-            const r = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
+            const r = await authFetch(
+              `${API_URL}/admin/coordinators-with-courses`,
+            );
             if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
             return r.json();
           },
@@ -313,7 +314,8 @@ function App() {
   useEffect(() => {
     if (!isLoggedIn) return;
 
-    const needsHydration = !user?.isHydrated && (!user || !hasRoleInfo(user) || !user?.name);
+    const needsHydration =
+      !user?.isHydrated && (!user || !hasRoleInfo(user) || !user?.name);
     if (!needsHydration) return;
 
     let isMounted = true;
@@ -461,7 +463,13 @@ function App() {
         />
         <Route
           path="/admission"
-          element={isLoggedIn ? <AdmissionPage isLoggedIn={isLoggedIn} user={user} /> : <Navigate to="/" replace />}
+          element={
+            isLoggedIn ? (
+              <AdmissionPage isLoggedIn={isLoggedIn} user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="/admission/success"
@@ -479,7 +487,7 @@ function App() {
           path="/send-message"
           element={
             !isRoleReady ? null : isLoggedIn &&
-            (getRoleName(user) === "Coordinator" || isAdmin) ? (
+              (getRoleName(user) === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
             ) : (
               <Navigate to="/" replace />

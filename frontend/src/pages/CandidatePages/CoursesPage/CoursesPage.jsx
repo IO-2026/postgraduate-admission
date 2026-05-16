@@ -33,7 +33,9 @@ function CoursesPage() {
   const { data: coordinators = [] } = useQuery(
     ["coordinatorsWithCourses"],
     async () => {
-      const response = await authFetch(`${API_URL}/admin/coordinators-with-courses`);
+      const response = await authFetch(
+        `${API_URL}/admin/coordinators-with-courses`,
+      );
       if (!response.ok) {
         throw new Error("Nie udało się pobrać koordynatorów");
       }
