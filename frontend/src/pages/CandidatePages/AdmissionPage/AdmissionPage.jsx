@@ -79,60 +79,60 @@ function isBlank(value) {
 }
 
 function isValidPesel(value, dateOfBirth) {
-    const pesel = String(value || "").trim();
+  const pesel = String(value || "").trim();
 
-    if (!/^\d{11}$/.test(pesel)) {
-        return false;
-    }
+  if (!/^\d{11}$/.test(pesel)) {
+    return false;
+  }
 
-    const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-    const sum = weights.reduce(
-        (acc, weight, index) => acc + Number.parseInt(pesel[index], 10) * weight,
-        0,
-    );
-    const checksum = (10 - (sum % 10)) % 10;
-    if (checksum !== Number.parseInt(pesel[10], 10)) {
-        return false;
-    }
+  const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+  const sum = weights.reduce(
+    (acc, weight, index) => acc + Number.parseInt(pesel[index], 10) * weight,
+    0,
+  );
+  const checksum = (10 - (sum % 10)) % 10;
+  if (checksum !== Number.parseInt(pesel[10], 10)) {
+    return false;
+  }
 
-    if (!dateOfBirth || String(dateOfBirth).trim() === "") {
-        return false;
-    }
+  if (!dateOfBirth || String(dateOfBirth).trim() === "") {
+    return false;
+  }
 
-    const dob = new Date(dateOfBirth);
-    if (Number.isNaN(dob.getTime())) {
-        return false;
-    }
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) {
+    return false;
+  }
 
-    let year = Number(pesel.substring(0, 2));
-    let month = Number(pesel.substring(2, 4));
-    const day = Number(pesel.substring(4, 6));
+  let year = Number(pesel.substring(0, 2));
+  let month = Number(pesel.substring(2, 4));
+  const day = Number(pesel.substring(4, 6));
 
-    let century = 1900;
+  let century = 1900;
 
-    if (month > 80) {
-        century = 1800;
-        month -= 80;
-    } else if (month > 60) {
-        century = 2200;
-        month -= 60;
-    } else if (month > 40) {
-        century = 2100;
-        month -= 40;
-    } else if (month > 20) {
-        century = 2000;
-        month -= 20;
-    }
+  if (month > 80) {
+    century = 1800;
+    month -= 80;
+  } else if (month > 60) {
+    century = 2200;
+    month -= 60;
+  } else if (month > 40) {
+    century = 2100;
+    month -= 40;
+  } else if (month > 20) {
+    century = 2000;
+    month -= 20;
+  }
 
-    year = century + year;
+  year = century + year;
 
-    const peselDate = new Date(year, month - 1, day);
+  const peselDate = new Date(year, month - 1, day);
 
-    return (
-        peselDate.getFullYear() === dob.getFullYear() &&
-        peselDate.getMonth() === dob.getMonth() &&
-        peselDate.getDate() === dob.getDate()
-    );
+  return (
+    peselDate.getFullYear() === dob.getFullYear() &&
+    peselDate.getMonth() === dob.getMonth() &&
+    peselDate.getDate() === dob.getDate()
+  );
 }
 
 function isPastDate(value) {
@@ -163,7 +163,7 @@ function validateYear(value) {
 
   const year = Number.parseInt(raw, 10);
   const currentYear = new Date().getFullYear();
-    if (year < 1900 || year > currentYear) {
+  if (year < 1900 || year > currentYear) {
     return "Rok ukończenia jest nieprawidłowy.";
   }
 
@@ -179,13 +179,13 @@ function validateDraft({ account, draft, diplomaFile }) {
     errors.dateOfBirth = "Data urodzenia musi być w przeszłości.";
   }
 
-    if (isBlank(account.pesel)) {
-        errors.pesel = "PESEL jest wymagany.";
-    } else if (!account.dateOfBirth) {
-        errors.pesel = "Najpierw podaj datę urodzenia.";
-    } else if (!isValidPesel(account.pesel, account.dateOfBirth)) {
-        errors.pesel = "Podaj poprawny numer PESEL zgodny z datą urodzenia.";
-    }
+  if (isBlank(account.pesel)) {
+    errors.pesel = "PESEL jest wymagany.";
+  } else if (!account.dateOfBirth) {
+    errors.pesel = "Najpierw podaj datę urodzenia.";
+  } else if (!isValidPesel(account.pesel, account.dateOfBirth)) {
+    errors.pesel = "Podaj poprawny numer PESEL zgodny z datą urodzenia.";
+  }
 
   const placeOfBirth = String(account.placeOfBirth || "").trim();
   if (!placeOfBirth) {
