@@ -26,7 +26,13 @@ public class ApplicationConsistentValidator
     private boolean dateValidation(ApplicationDto dto) {
 
         LocalDate dob = dto.getApplicantDateOfBirth();
+        if (dob == null) {
+            return true;
+        }
         Integer graduationYear = dto.getGraduationYear();
+        if (graduationYear == null) {
+            return true;
+        }
         LocalDate today = LocalDate.now();
 
         if (dob.isAfter(today)) {
@@ -77,7 +83,6 @@ public class ApplicationConsistentValidator
         }
 
         return peselDate.equals(dob);
-
     }
 
     private int resolveCentury(int month) {
@@ -96,5 +101,4 @@ public class ApplicationConsistentValidator
         if (month > 20) return month - 20;
         return month;
     }
-
 }
