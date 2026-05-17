@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import BackButton from "../../components/BackButton/BackButton";
+import BackButton from "../../../components/BackButton/BackButton";
 import "./MessagesPage.css";
 
 function MessagesPage() {
