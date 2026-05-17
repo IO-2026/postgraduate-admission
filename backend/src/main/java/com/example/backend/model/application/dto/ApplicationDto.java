@@ -3,10 +3,7 @@ package com.example.backend.model.application.dto;
 import com.example.backend.validation.GraduationYear;
 import com.example.backend.validation.Pesel;
 import com.example.backend.validation.PeselConsistent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -72,9 +69,11 @@ public class ApplicationDto {
     private String notes;
 
     @NotNull
+    @AssertTrue
     private Boolean truthfulnessConsent;
 
     @NotNull
+    @AssertTrue
     private Boolean gdprConsent;
 
     @NotNull

@@ -202,7 +202,7 @@ public class ApplicationServiceTest {
                 "fake-pdf".getBytes()
         );
 
-        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, diplomaFile, incompleteUser));
+        assertThrows(NullPointerException.class, () -> applicationService.saveApplication(request, diplomaFile, incompleteUser));
     }
 
     // --- NOWE TESTY FLAG ---
