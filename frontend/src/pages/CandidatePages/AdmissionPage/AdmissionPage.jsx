@@ -151,20 +151,24 @@ function isPastDate(value) {
   return parsed < today;
 }
 
-function validateYear(value) {
-  const raw = String(value || "").trim();
-  if (!raw) {
+function validateGraduationYear(gy, dob) {
+  const gy_raw = String(gy || "").trim();
+  if (!gy_raw) {
     return REQUIRED_ERROR;
   }
 
-  if (!/^\d+$/.test(raw)) {
+  if (!/^\d+$/.test(gy_raw)) {
     return "Rok ukończenia jest nieprawidłowy.";
   }
 
-  const year = Number.parseInt(raw, 10);
+  const year = Number.parseInt(gy_raw, 10);
   const currentYear = new Date().getFullYear();
   if (year < 1900 || year > currentYear) {
     return "Rok ukończenia jest nieprawidłowy.";
+  }
+  const dobYear = new Date(dob).getFullYear();
+  if (year < dobYear) {
+    return "Rok ukończenia nie może być wcześniejszy niż rok urodzenia.";
   }
 
   return "";
@@ -229,7 +233,10 @@ function validateDraft({ account, draft, diplomaFile }) {
     errors.fieldOfStudy = "Nazwa kierunku jest za długa.";
   }
 
-  const yearError = validateYear(draft.graduationYear);
+  const yearError = validateGraduationYear(
+    draft.graduationYear,
+    account.dateOfBirth,
+  );
   if (yearError) {
     errors.graduationYear = yearError;
   }

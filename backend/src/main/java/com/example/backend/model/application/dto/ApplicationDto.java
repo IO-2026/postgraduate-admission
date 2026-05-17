@@ -1,8 +1,8 @@
 package com.example.backend.model.application.dto;
 
+import com.example.backend.validation.ApplicationConsistent;
 import com.example.backend.validation.GraduationYear;
 import com.example.backend.validation.Pesel;
-import com.example.backend.validation.PeselConsistent;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@PeselConsistent
+@ApplicationConsistent
 public class ApplicationDto {
     private Long id;
     private Long userId;

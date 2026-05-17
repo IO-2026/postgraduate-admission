@@ -10,12 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Constraint(validatedBy = PeselConsistentValidator.class)
+@Constraint(validatedBy = ApplicationConsistentValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PeselConsistent {
-
-    String message() default "PESEL jest niezgodny z datą urodzenia.";
+public @interface ApplicationConsistent {
+    String message() default "Wpisano niepoprawne dane, sprawdź ponownie wartość poszczególnych pól, " +
+            "poprawność dat oraz numeru pesel";
 
     Class<?>[] groups() default {};
 

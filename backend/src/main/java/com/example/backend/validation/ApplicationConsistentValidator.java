@@ -6,13 +6,43 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
 
-public class PeselConsistentValidator
-        implements ConstraintValidator<PeselConsistent, ApplicationDto> {
+public class ApplicationConsistentValidator
+        implements ConstraintValidator<ApplicationConsistent, ApplicationDto> {
 
     private static final int[] WEIGHTS = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
 
     @Override
     public boolean isValid(ApplicationDto dto, ConstraintValidatorContext context) {
+        if (dto == null) {
+            return true;
+        }
+
+        boolean peselValid = peselValidation(dto);
+        boolean dateValid = dateValidation(dto);
+
+        return peselValid && dateValid;
+    }
+
+    private boolean dateValidation(ApplicationDto dto) {
+
+        LocalDate dob = dto.getApplicantDateOfBirth();
+        Integer graduationYear = dto.getGraduationYear();
+        LocalDate today = LocalDate.now();
+
+        if (dob.isAfter(today)) {
+            return false;
+        }
+        if (graduationYear > today.getYear()) {
+            return false;
+        }
+        if (graduationYear < dob.getYear()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean peselValidation(ApplicationDto dto) {
         if (dto == null) return true;
 
         String pesel = dto.getApplicantPesel();
@@ -47,6 +77,7 @@ public class PeselConsistentValidator
         }
 
         return peselDate.equals(dob);
+
     }
 
     private int resolveCentury(int month) {
@@ -65,4 +96,5 @@ public class PeselConsistentValidator
         if (month > 20) return month - 20;
         return month;
     }
+
 }
