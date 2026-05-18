@@ -72,6 +72,24 @@ public class UserService implements UserDetailsService {
         Role newRole = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Rola " + roleName + " nie znaleziona!"));
 
+
+        boolean isCurrentlyAdmin =
+                user.getRole() != null &&
+                        "Admin".equals(user.getRole().getName());
+
+        boolean willBeAdmin =
+                "Admin".equals(newRole.getName());
+
+        if (isCurrentlyAdmin && !willBeAdmin) {
+            long adminsCount = userRepository.countUsersByRoleName("Admin");
+
+            if (adminsCount <= 1) {
+                throw new IllegalArgumentException(
+                        "Nie można zmienić roli ostatniego administratora."
+                );
+            }
+        }
+
         // if user is currently a coordinator and new role is not coordinator, prevent demotion while courses assigned
         boolean isCurrentlyCoordinator = user.getRole() != null && Integer.valueOf(3).equals(user.getRole().getId());
         boolean willBeCoordinator = newRole != null && Integer.valueOf(3).equals(newRole.getId());

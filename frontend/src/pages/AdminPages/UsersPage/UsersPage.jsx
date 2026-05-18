@@ -75,6 +75,8 @@ function UsersPage() {
     );
   }
 
+  const adminCount = users.filter((u) => u.roleName === "Admin").length;
+
   return (
     <div className="users-page">
       <header className="users-header">
@@ -136,6 +138,7 @@ function UsersPage() {
                     value={user.roleName}
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="role-select"
+                    disabled={user.roleName === "Admin" && adminCount <= 1}
                   >
                     <option value="Admin">Administrator</option>
                     <option value="Coordinator">Koordynator</option>
