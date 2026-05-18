@@ -450,9 +450,9 @@ function AdmissionPage() {
       const payload = {
         university: String(draft.university).trim(),
         courseId,
-        applicantDateOfBirth: String(account.dateOfBirth).trim(),
-        applicantPlaceOfBirth: String(account.placeOfBirth).trim(),
-        applicantPesel: String(account.pesel).trim(),
+        candidateDateOfBirth: String(account.dateOfBirth).trim(),
+        candidatePlaceOfBirth: String(account.placeOfBirth).trim(),
+        candidatePesel: String(account.pesel).trim(),
         addressStreet: String(draft.street).trim(),
         addressPostalCode: String(draft.postalCode).trim(),
         addressCity: String(draft.city).trim(),

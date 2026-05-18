@@ -46,14 +46,14 @@ public class Application {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Column(name = "applicant_place_of_birth")
-    private String applicantPlaceOfBirth;
+    @Column(name = "candidate_place_of_birth")
+    private String candidatePlaceOfBirth;
 
-    @Column(name = "applicant_date_of_birth")
-    private LocalDate applicantDateOfBirth;
+    @Column(name = "candidate_date_of_birth")
+    private LocalDate candidateDateOfBirth;
 
-    @Column(name = "applicant_pesel")
-    private String applicantPesel;
+    @Column(name = "candidate_pesel")
+    private String candidatePesel;
 
     @Column(name = "address_street")
     private String addressStreet;
