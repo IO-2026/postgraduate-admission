@@ -2,6 +2,8 @@ package com.example.backend.model.message;
 
 import com.example.backend.model.message.dto.MessageResponse;
 import com.example.backend.model.message.dto.MessageSendRequest;
+import com.example.backend.model.message.dto.RecipientStatusResponse;
+import com.example.backend.model.message.dto.SentMessageResponse;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,5 +92,33 @@ public class MessageService {
 
     public long getUnreadCount(Long userId) {
         return recipientRepository.countByRecipientIdAndIsReadFalse(userId);
+    }
+
+    public List<SentMessageResponse> getMessagesSentBy(Long senderId) {
+
+        List<MessageRecipient> data = recipientRepository.findAllBySenderIdInMessage(senderId);
+
+        return data.stream()
+                .collect(Collectors.groupingBy(MessageRecipient::getMessage))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var message = entry.getKey();
+                    var recipients = entry.getValue();
+
+                    return new SentMessageResponse(
+                            message.getId(),
+                            message.getSubject(),
+                            message.getContent(),
+                            message.getSentAt(),
+                            recipients.stream()
+                                    .map(r -> new RecipientStatusResponse(
+                                            r.getRecipient().getId(),
+                                            r.getIsRead()
+                                    ))
+                                    .toList()
+                    );
+                })
+                .toList();
     }
 }

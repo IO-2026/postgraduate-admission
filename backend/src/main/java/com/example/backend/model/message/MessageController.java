@@ -2,6 +2,7 @@ package com.example.backend.model.message;
 
 import com.example.backend.model.message.dto.MessageResponse;
 import com.example.backend.model.message.dto.MessageSendRequest;
+import com.example.backend.model.message.dto.SentMessageResponse;
 import com.example.backend.model.user.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,4 +61,14 @@ public class MessageController {
         messageService.markAsRead(recipientId, user.getId());
         return ResponseEntity.ok().build();
     }
+
+
+    @GetMapping("/sent-by")
+    public ResponseEntity<List<SentMessageResponse>> getSenderMessages(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(messageService.getMessagesSentBy(user.getId()));
+    }
+
 }
