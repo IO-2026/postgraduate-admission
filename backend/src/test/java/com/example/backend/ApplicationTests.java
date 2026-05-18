@@ -159,7 +159,7 @@ public class ApplicationTests {
 
         Map<String, Object> applicationData = new HashMap<>();
         applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010101234");
+        applicationData.put("applicantPesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -170,6 +170,7 @@ public class ApplicationTests {
         applicationData.put("university", "Test University");
         applicationData.put("truthfulnessConsent", true);
         applicationData.put("gdprConsent", true);
+        applicationData.put("newsletterConsent", false);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
                 "diploma",
