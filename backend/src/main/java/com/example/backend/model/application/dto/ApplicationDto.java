@@ -26,16 +26,16 @@ public class ApplicationDto {
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate applicantDateOfBirth;
+    private LocalDate candidateDateOfBirth;
 
-    private String applicantPesel;
+    private String candidatePesel;
     private String addressStreet;
     private String addressPostalCode;
     private String addressCity;
     private String previousDegree;
     private String fieldOfStudy;
     private Integer graduationYear;
-    private String placeOfBirth;
+    private String candidatePlaceOfBirth;
     private String notes;
     private Boolean truthfulnessConsent;
     private Boolean gdprConsent;

@@ -167,3 +167,50 @@ export async function acceptApplication(applicationId) {
     "Nie udało się zaakceptować wniosku. Sprawdź, czy dyplom i wpisowe są odhaczone.",
   );
 }
+
+// Dodaj tę funkcję w pliku applicationApi.js (np. obok innych funkcji)
+
+export async function fetchDeclaration(applicationId) {
+  const response = await authFetch(
+    `${API_URL}/applications/${applicationId}/declaration`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać deklaracji");
+  }
+
+  // Pobranie pliku jako blob
+  const blob = await response.blob();
+
+  // Utworzenie URL dla pliku i automatyczne pobranie
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  // Pobranie nazwy pliku z nagłówka Content-Disposition lub wygenerowanie domyślnej
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = `deklaracja_${applicationId}.pdf`;
+  if (contentDisposition && contentDisposition.includes("filename=")) {
+    const match = contentDisposition.match(
+      /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+    );
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Czyszczenie URL po pobraniu
+  setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+  }, 100);
+
+  return true;
+}

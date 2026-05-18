@@ -49,6 +49,7 @@ public class SupabaseStorageService {
         try {
             webClient.post()
                     .uri(uriBuilder -> buildObjectUri(uriBuilder, diplomasBucket, objectKey))
+                    .header("x-upsert", "true")
                     .contentType(MediaType.APPLICATION_PDF)
                     .header("Authorization", "Bearer " + serviceRoleKey)
                     .header("apikey", serviceRoleKey)

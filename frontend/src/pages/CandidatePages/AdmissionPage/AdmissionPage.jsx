@@ -16,7 +16,6 @@ function resolveUserId(user) {
   const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
   return Number.isNaN(parsedId) ? null : parsedId;
 }
-const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
 const MAX_DIPLOMA_BYTES = 10 * 1024 * 1024;
 const PDF_MIME_TYPE = "application/pdf";
@@ -278,12 +277,15 @@ function AdmissionPage({ isLoggedIn, user }) {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccount(getAccountDefaults(user));
   }, [user]);
 
   useEffect(() => {
     if (courseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(getDraftDefaults(loadDraft(courseId)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiplomaFile(null);
     }
   }, [courseId]);
@@ -354,6 +356,7 @@ function AdmissionPage({ isLoggedIn, user }) {
   }, [courseId, draft]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrors(validateDraft({ account, draft, diplomaFile }));
   }, [account, draft, diplomaFile]);
 
@@ -427,8 +430,9 @@ function AdmissionPage({ isLoggedIn, user }) {
       const payload = {
         university: String(draft.university).trim(),
         courseId,
-        applicantDateOfBirth: String(account.dateOfBirth).trim(),
-        applicantPesel: String(account.pesel).trim(),
+        candidateDateOfBirth: String(account.dateOfBirth).trim(),
+        candidatePlaceOfBirth: String(account.placeOfBirth).trim(),
+        candidatePesel: String(account.pesel).trim(),
         addressStreet: String(draft.street).trim(),
         addressPostalCode: String(draft.postalCode).trim(),
         addressCity: String(draft.city).trim(),

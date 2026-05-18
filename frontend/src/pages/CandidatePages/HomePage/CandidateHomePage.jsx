@@ -5,6 +5,7 @@ import {
   withdrawApplication,
   payEntryFee,
   paySemester,
+  fetchDeclaration,
 } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
@@ -66,6 +67,17 @@ function CandidateHomePage({ isLoggedIn, user }) {
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
       alert(error.message || "Wystąpił błąd podczas opłacania wpisowego.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handleDownloadDeclaration = async (applicationId) => {
+    try {
+      setLoadingApplications(true);
+      await fetchDeclaration(applicationId);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas pobierania deklaracji.");
     } finally {
       setLoadingApplications(false);
     }
@@ -300,6 +312,18 @@ function CandidateHomePage({ isLoggedIn, user }) {
                             Opłać I semestr
                           </button>
                         )}
+                        {isAccepted &&
+                          !isWithdrawn &&
+                          !isDeclarationVerified && (
+                            <button
+                              className="primary-btn application-pay-btn"
+                              onClick={() =>
+                                handleDownloadDeclaration(application.id)
+                              }
+                            >
+                              Pobierz oświadczenie
+                            </button>
+                          )}
                         {!isWithdrawn && (
                           <div
                             className="application-menu-container"

@@ -62,7 +62,7 @@ public class DeclarationService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDisposition(ContentDisposition.inline()
-                    .filename("oswiadczenie_" + applicationId + ".pdf")
+                    .filename("oswiadczenie_" + user.getName() + "_" + user.getSurname() + ".pdf")
                     .build());
 
             return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
