@@ -321,7 +321,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                                 handleDownloadDeclaration(application.id)
                               }
                             >
-                              Pobierz deklarację
+                              Pobierz oświadczenie
                             </button>
                           )}
                         {!isWithdrawn && (
