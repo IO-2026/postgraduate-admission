@@ -171,14 +171,10 @@ export async function acceptApplication(applicationId) {
 // Dodaj tę funkcję w pliku applicationApi.js (np. obok innych funkcji)
 
 export async function fetchDeclaration(applicationId) {
-  const token = getToken();
-  const response = await fetch(
+  const response = await authFetch(
     `${API_URL}/applications/${applicationId}/declaration`,
     {
       method: "GET",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
     },
   );
 
