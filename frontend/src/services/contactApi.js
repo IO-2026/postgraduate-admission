@@ -1,23 +1,12 @@
+import { authFetch } from "../config/auth";
+
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsedAuth = JSON.parse(savedAuth);
-    return parsedAuth?.token || null;
-  } catch {
-    return null;
-  }
-}
-
 export async function sendContactForm({ subject, content }) {
-  const token = getToken();
-  const response = await fetch(`${API_URL}/form/send`, {
+  const response = await authFetch(`${API_URL}/form/send`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ subject, content }),
   });

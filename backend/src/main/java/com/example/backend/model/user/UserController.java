@@ -7,10 +7,17 @@ import com.example.backend.model.user.dto.AdminUserDto;
 import com.example.backend.model.user.dto.CoordinatorDto;
 import com.example.backend.model.user.dto.CoordinatorWithCoursesDto;
 import com.example.backend.model.user.dto.UserDTO;
+import com.example.backend.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -30,15 +36,31 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
-
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(authService.loginUser(loginRequest));
+            AuthService.LoginResult result = authService.loginUser(loginRequest);
+            ResponseCookie cookie = userService.buildJwtCookie(result.jwt(), jwtUtil.getExpiration() / 1000, request.isSecure());
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(result.response());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nieprawidłowe dane logowania");
         }
+    }
+
+    @GetMapping("/users/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getMe(@AuthenticationPrincipal UserDetails principal) {
+        String email = principal.getUsername();
+        UserDTO user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        ResponseCookie cookie = userService.buildJwtCookie("", 0, request.isSecure());
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
     }
 
     @PostMapping("/auth/register")
@@ -48,13 +70,20 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/users/{id}")
+    @PreAuthorize("hasRole('Admin') or #id == authentication.principal.id")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     @PutMapping("/users/{id}/role")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<UserDTO> updateUserRole(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
-        
         String newRole = requestBody.get("roleName");
         if (newRole == null || newRole.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -68,12 +97,14 @@ public class UserController {
     }
 
     @GetMapping("/admin/users")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AdminUserDto>> getAllUsersForAdmin() {
         return ResponseEntity.ok(userService.getAllAdminUsers());
     }
 
     @PostMapping("/admin/users/{id}/promote")
-    public ResponseEntity<?> promoteUser(@PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<?> promoteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.promoteToCoordinator(id));
         } catch (IllegalArgumentException e) {
@@ -82,7 +113,8 @@ public class UserController {
     }
 
     @PostMapping("/admin/users/{id}/demote")
-    public ResponseEntity<?> demoteUser(@PathVariable("id") Long id) {
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<?> demoteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.demoteToApplicant(id));
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -91,11 +123,13 @@ public class UserController {
     }
 
     @GetMapping("/admin/coordinators")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<CoordinatorDto>> getCoordinators() {
         return ResponseEntity.ok(userService.getAllCoordinators());
     }
 
     @GetMapping("/admin/coordinators-with-courses")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<CoordinatorWithCoursesDto>> getCoordinatorsWithCourses() {
         return ResponseEntity.ok(userService.getCoordinatorsWithCourses());
     }

@@ -30,7 +30,9 @@ function ProfilePage({ user, onLogout }) {
             <h1>
               {user?.name} {user?.surname}
             </h1>
-            <span className="profile-role-tag">{getRoleLabel(user?.role)}</span>
+            <span className="profile-role-tag">
+              {getRoleLabel(user?.roleName ?? user?.role)}
+            </span>
           </div>
         </header>
 

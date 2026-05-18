@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCourses } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import BackButton from "../../../components/BackButton/BackButton";
-import { getToken } from "../../../config/auth";
+import { authFetch } from "../../../config/auth";
 import "./CoursesPage.css";
 
 function getCoordinatorDetails(course) {
@@ -29,16 +29,12 @@ function CoursesPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = getToken();
 
   const { data: coordinators = [] } = useQuery(
-    ["coordinatorsWithCourses", token],
+    ["coordinatorsWithCourses"],
     async () => {
-      const response = await fetch(
+      const response = await authFetch(
         `${API_URL}/admin/coordinators-with-courses`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        },
       );
       if (!response.ok) {
         throw new Error("Nie udało się pobrać koordynatorów");
@@ -46,7 +42,7 @@ function CoursesPage() {
       return response.json();
     },
     {
-      enabled: Boolean(token),
+      enabled: true,
       retry: false,
       staleTime: 1000 * 60 * 5,
     },

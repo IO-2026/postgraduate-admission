@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,11 +30,13 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     @GetMapping("/of/{userId}")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator') or (hasRole('Candidate') and #userId == authentication.principal.id)")
     public List<ApplicationDto> getApplicationsOfUser(@PathVariable long userId) {
         return applicationService.getApplicationsOfUser(userId);
     }
 
     @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('Candidate')")
     public ResponseEntity<?> submit(@RequestPart("application") ApplicationDto request,
                                     @RequestPart("diploma") MultipartFile diplomaFile,
                                     @AuthenticationPrincipal User user) {
@@ -53,36 +56,42 @@ public class ApplicationController {
     }
 
     @PatchMapping("/{id}/withdraw")
-    public ResponseEntity<Void> withdraw(@PathVariable Long id) {
+    @PreAuthorize("hasRole('Candidate') and @securityService.isApplicationOwner(authentication, #id)")
+    public ResponseEntity<Void> withdrawApplication(@PathVariable Long id) {
         applicationService.withdrawApplication(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/verify-diploma")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> verifyDiploma(@PathVariable Long id) {
         applicationService.markDiplomaAsVerified(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/verify-declaration")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> verifyDeclaration(@PathVariable Long id) {
         applicationService.markDeclarationAsVerified(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/pay-entry-fee")
+    @PreAuthorize("hasRole('Candidate') and @securityService.isApplicationOwner(authentication, #id)")
     public ResponseEntity<?> payEntryFee(@PathVariable Long id) {
         applicationService.payEntryFee(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/pay-semester")
+    @PreAuthorize("hasRole('Candidate') and @securityService.isApplicationOwner(authentication, #id)")
     public ResponseEntity<?> paySemester(@PathVariable Long id) {
         applicationService.paySemester(id);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/accept")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> acceptApplication(@PathVariable Long id) {
         applicationService.acceptApplication(id);
         return ResponseEntity.ok().build();
@@ -90,17 +99,20 @@ public class ApplicationController {
 
 
     @PatchMapping("/")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator')")
     public ResponseEntity<?> updateApplication(@RequestBody ApplicationDto applicationDto) {
         applicationService.updateApplication(applicationDto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator') or (hasRole('Candidate') and #id == authentication.principal.id)")
     public ApplicationDto getApplication(@PathVariable Long id) {
         return applicationService.getApplication(id);
     }
 
     @GetMapping("/{id}/diploma-url")
+    @PreAuthorize("hasAnyRole('Candidate', 'Coordinator', 'Admin')")
     public ResponseEntity<?> getDiplomaUrl(@PathVariable Long id,
                                            @AuthenticationPrincipal User user) {
         if (user == null) {

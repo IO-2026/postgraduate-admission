@@ -4,7 +4,7 @@ import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.user.UserMapper;
 import com.example.backend.model.user.UserRepository;
 import com.example.backend.model.user.User;
-import com.example.backend.model.user.CandidateWithApplicationDto;
+import com.example.backend.model.user.dto.CandidateWithApplicationDto;
 import com.example.backend.model.course.dto.CourseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
