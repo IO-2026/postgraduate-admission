@@ -623,7 +623,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                   <input
                     type="date"
                     name="dateOfBirth"
-                    value={account.dateOfBirth}
+                    value={account.candidateDateOfBirth}
                     onChange={onAccountInput}
                     onBlur={onFieldBlur}
                     disabled={isSubmitting}
@@ -640,7 +640,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                     <input
                       type="text"
                       name="pesel"
-                      value={account.pesel}
+                      value={account.candidatePesel}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}
@@ -656,7 +656,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                     <input
                       type="text"
                       name="placeOfBirth"
-                      value={account.placeOfBirth}
+                      value={account.candidatePlaceOfBirth}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}
