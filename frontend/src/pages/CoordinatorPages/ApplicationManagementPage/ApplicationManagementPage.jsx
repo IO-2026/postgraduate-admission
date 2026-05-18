@@ -679,7 +679,7 @@ function ApplicationManagementPage() {
                   onClick={handleDiplomaDownload}
                   disabled={diplomaLoading}
                 >
-                  {diplomaLoading ? "Pobieranie..." : "Pobierz dyplom"}
+                  {diplomaLoading ? "Pobieranie..." : "Wyświetl dyplom"}
                 </button>
               </div>
             </div>

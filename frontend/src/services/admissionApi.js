@@ -1,4 +1,5 @@
 import { API_URL } from "../config/api";
+import { authFetch } from "../config/auth";
 const APPLICATIONS_BASE_PATH = API_URL + "/applications";
 
 function getErrorMessage(payload) {
@@ -28,7 +29,7 @@ async function parsePayload(response) {
   return response.text();
 }
 
-export async function submitApplication({ payload, diplomaFile }, token) {
+export async function submitApplication({ payload, diplomaFile }) {
   const formData = new FormData();
   formData.append(
     "application",
@@ -36,11 +37,8 @@ export async function submitApplication({ payload, diplomaFile }, token) {
   );
   formData.append("diploma", diplomaFile);
 
-  const response = await fetch(`${APPLICATIONS_BASE_PATH}/submit`, {
+  const response = await authFetch(`${APPLICATIONS_BASE_PATH}/submit`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
     body: formData,
   });
 

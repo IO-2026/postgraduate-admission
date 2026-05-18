@@ -10,6 +10,7 @@ import com.example.backend.model.user.dto.CoordinatorDto;
 import com.example.backend.model.user.dto.CoordinatorWithCoursesDto;
 import com.example.backend.model.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -134,6 +135,14 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    public UserDTO getUserById(Long id) {
+        return userRepository.findById(id).map(userMapper::toDTO).orElse(null);
+    }
+
+    public UserDTO getUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(userMapper::toDTO).orElse(null);
+    }
+
     public List<CoordinatorWithCoursesDto> getCoordinatorsWithCourses() {
         return userRepository.findAll().stream()
                 .filter(u -> u.getRole() != null && u.getRole().getId() == 3)
@@ -142,5 +151,15 @@ public class UserService implements UserDetailsService {
                     return userMapper.toCoordinatorWithCoursesDto(u, courses);
                 })
                 .toList();
+    }
+
+    public ResponseCookie buildJwtCookie(String value, long maxAgeSeconds, boolean secure) {
+        return ResponseCookie.from("jwt", value)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/")
+                .maxAge(maxAgeSeconds)
+                .sameSite("Lax")
+                .build();
     }
 }
