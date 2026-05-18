@@ -316,7 +316,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           !isWithdrawn &&
                           !isDeclarationVerified && (
                             <button
-                              className="primary-btn application-declaration-btn"
+                              className="primary-btn application-pay-btn"
                               onClick={() =>
                                 handleDownloadDeclaration(application.id)
                               }
