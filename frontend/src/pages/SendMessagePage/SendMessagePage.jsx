@@ -49,9 +49,9 @@ function SendMessagePage({ user }) {
       setLoadingCourses(true);
       try {
         let data = [];
-        if (user?.role === "Coordinator") {
+        if (user?.role === "Coordinator" || user?.roleName === "Coordinator") {
           data = await fetchCoursesOfCoordinator(user.id);
-        } else if (user?.role === "Admin") {
+        } else if (user?.role === "Admin" || user?.roleName === "Admin") {
           data = await fetchCourses();
         }
         setCourses(data);

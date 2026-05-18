@@ -1,4 +1,5 @@
 import { API_URL } from "../config/api";
+import { authFetch } from "../config/auth";
 const AUTH_BASE_PATH = API_URL + "/auth";
 
 function getErrorMessage(payload) {
@@ -29,7 +30,7 @@ async function parsePayload(response) {
 }
 
 async function postAuth(path, body) {
-  const response = await fetch(`${AUTH_BASE_PATH}${path}`, {
+  const response = await authFetch(`${AUTH_BASE_PATH}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

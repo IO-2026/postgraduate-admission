@@ -12,7 +12,6 @@ import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
-
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
@@ -20,21 +19,26 @@ import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/SendMessagePage/SendMessagePage.jsx";
-import { AUTH_STORAGE_KEY } from "./config/auth";
+import { fetchCurrentUser } from "./services/userApi";
+import {
+  AUTH_EXPIRED_EVENT,
+  authFetch,
+  clearAuthStorage,
+  getStoredAuth,
+  storeAuthState,
+} from "./config/auth";
 import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
 
 function getInitialAuthState() {
   try {
-    const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!savedAuth) {
+    const parsedAuth = getStoredAuth();
+    if (!parsedAuth) {
       return { isLoggedIn: false, user: null };
     }
 
-    const parsedAuth = JSON.parse(savedAuth);
-
     // Force logout if we have a legacy format without the user object
     if (parsedAuth?.isLoggedIn && !parsedAuth?.user) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      clearAuthStorage();
       return { isLoggedIn: false, user: null };
     }
 
@@ -55,70 +59,131 @@ function getRoleId(user) {
   return null;
 }
 
+function getRoleName(user) {
+  if (!user) return null;
+  if (typeof user.roleName === "string") return user.roleName;
+  if (typeof user.role === "string") return user.role;
+  if (user.role && typeof user.role.name === "string") return user.role.name;
+  return null;
+}
+
+function hasRoleInfo(user) {
+  return Boolean(user && (user.roleId != null || getRoleName(user)));
+}
+
+function resolveUserId(user) {
+  if (!user || typeof user !== "object") return null;
+  if (typeof user.id === "number") return user.id;
+  if (typeof user.userId === "number") return user.userId;
+
+  const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
+  return Number.isNaN(parsedId) ? null : parsedId;
+}
+
 function isAdminUser(user) {
   const roleId = getRoleId(user);
+  const roleName = getRoleName(user);
   return (
     roleId === 2 ||
-    (typeof user?.role === "string" &&
-      user.role.toLowerCase().includes("admin"))
+    (typeof roleName === "string" && roleName.toLowerCase().includes("admin"))
   );
+}
+
+function getSessionProbePath(user) {
+  const userId = resolveUserId(user);
+  if (!userId) return null;
+  if (!hasRoleInfo(user)) return null;
+  if (isAdminUser(user)) {
+    return "/api/users";
+  }
+  if (getRoleName(user) === "Coordinator") {
+    return `${API_URL}/courses/ofCoordinator?coordinatorId=${userId}`;
+  }
+  return `${API_URL}/applications/of/${userId}`;
 }
 
 function App() {
   const [authState, setAuthState] = useState(getInitialAuthState);
   const { isLoggedIn, user } = authState;
   const isAdmin = isLoggedIn && isAdminUser(user);
-  const isCoordinator = isLoggedIn && user?.role === "Coordinator";
+  const isCoordinator = isLoggedIn && getRoleName(user) === "Coordinator";
+  const isRoleReady = !isLoggedIn || hasRoleInfo(user);
   const queryClient = useQueryClient();
 
   const handleAuthSuccess = useCallback(
     (userData, authPayload) => {
-      const token =
-        typeof authPayload === "string"
-          ? authPayload
-          : authPayload?.token || authPayload?.jwt || authPayload?.accessToken;
-
       const payloadUserId =
-        typeof authPayload === "object" && authPayload ? authPayload.id : null;
+        resolveUserId(authPayload) ?? resolveUserId(authPayload?.user) ?? null;
       const payloadEmail =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.email
-          : null;
+          : null) ??
+        authPayload?.user?.email ??
+        null;
       const payloadRole =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.role
-          : null;
+          : null) ??
+        authPayload?.user?.role ??
+        null;
+      const payloadRoleName =
+        (typeof authPayload === "object" && authPayload
+          ? authPayload.roleName
+          : null) ??
+        authPayload?.user?.roleName ??
+        (typeof payloadRole === "string" ? payloadRole : null);
       const payloadName =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.name
-          : null;
+          : null) ??
+        authPayload?.user?.name ??
+        null;
       const payloadSurname =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.surname
-          : null;
+          : null) ??
+        authPayload?.user?.surname ??
+        null;
       const payloadTelNumber =
-        typeof authPayload === "object" && authPayload
+        (typeof authPayload === "object" && authPayload
           ? authPayload.telNumber
-          : null;
+          : null) ??
+        authPayload?.user?.telNumber ??
+        null;
 
       const payloadRoleId = (() => {
         if (typeof authPayload === "object" && authPayload) {
           if (typeof authPayload.roleId === "number") return authPayload.roleId;
           if (typeof authPayload.role === "number") return authPayload.role;
-          if (authPayload.role && typeof authPayload.role.id === "number")
+          if (authPayload.role && typeof authPayload.role.id === "number") {
             return authPayload.role.id;
+          }
+        }
+        if (typeof authPayload?.user === "object" && authPayload.user) {
+          if (typeof authPayload.user.roleId === "number") {
+            return authPayload.user.roleId;
+          }
+          if (typeof authPayload.user.role === "number") {
+            return authPayload.user.role;
+          }
+          if (
+            authPayload.user.role &&
+            typeof authPayload.user.role.id === "number"
+          ) {
+            return authPayload.user.role.id;
+          }
         }
         return null;
       })();
 
-      // Use functional state update to avoid capturing `user` in this callback
       setAuthState((prev) => {
         const prevUser = prev?.user;
         const userRoleId = (() => {
           if (prevUser?.roleId != null) return prevUser.roleId;
           if (typeof prevUser?.role === "number") return prevUser.role;
-          if (prevUser?.role && typeof prevUser.role.id === "number")
+          if (prevUser?.role && typeof prevUser.role.id === "number") {
             return prevUser.role.id;
+          }
           return null;
         })();
 
@@ -127,31 +192,27 @@ function App() {
           id: payloadUserId ?? userData?.id ?? null,
           email: userData?.email ?? payloadEmail ?? null,
           roleId: userRoleId ?? payloadRoleId ?? null,
-          role: userData?.role ?? payloadRole ?? null,
+          role: userData?.role ?? payloadRole ?? payloadRoleName ?? null,
+          roleName: userData?.roleName ?? payloadRoleName ?? null,
           name: userData?.name ?? payloadName ?? null,
           surname: userData?.surname ?? payloadSurname ?? null,
           telNumber: userData?.telNumber ?? payloadTelNumber ?? null,
+          isHydrated: false,
         };
 
-        localStorage.setItem(
-          AUTH_STORAGE_KEY,
-          JSON.stringify({
-            isLoggedIn: true,
-            user: mergedUser,
-            token: token || null,
-          }),
-        );
+        storeAuthState({
+          isLoggedIn: true,
+          user: mergedUser,
+        });
 
         // Prefetch admin-related data if user is admin
         const isAdmin = isAdminUser(mergedUser);
 
         if (isAdmin) {
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
           queryClient.prefetchQuery(
-            ["allUsers", token],
+            ["allUsers"],
             async () => {
-              const r = await fetch("/api/users", { headers });
+              const r = await authFetch("/api/users");
               if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
               return r.json();
             },
@@ -159,9 +220,9 @@ function App() {
           );
 
           queryClient.prefetchQuery(
-            ["courses", token],
+            ["courses"],
             async () => {
-              const r = await fetch("/api/courses", { headers });
+              const r = await authFetch("/api/courses");
               if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
               return r.json();
             },
@@ -169,13 +230,10 @@ function App() {
           );
 
           queryClient.prefetchQuery(
-            ["coordinatorsWithCourses", token],
+            ["coordinatorsWithCourses"],
             async () => {
-              const r = await fetch(
+              const r = await authFetch(
                 `${API_URL}/admin/coordinators-with-courses`,
-                {
-                  headers,
-                },
               );
               if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
               return r.json();
@@ -191,26 +249,22 @@ function App() {
   );
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    clearAuthStorage();
     window.location.href = "/";
   }, []);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
+      const parsed = getStoredAuth();
+      if (!parsed) return;
       if (!parsed?.isLoggedIn) return;
       const user = parsed.user;
-      const token = parsed.token || null;
       const isAdmin = isAdminUser(user);
       if (user && isAdmin) {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
         queryClient.prefetchQuery(
-          ["allUsers", token],
+          ["allUsers"],
           async () => {
-            const r = await fetch("/api/users", { headers });
+            const r = await authFetch("/api/users");
             if (!r.ok) throw new Error("Nie udało się pobrać użytkowników");
             return r.json();
           },
@@ -218,9 +272,9 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["courses", token],
+          ["courses"],
           async () => {
-            const r = await fetch("/api/courses", { headers });
+            const r = await authFetch("/api/courses");
             if (!r.ok) throw new Error("Nie udało się pobrać kierunków");
             return r.json();
           },
@@ -228,13 +282,10 @@ function App() {
         );
 
         queryClient.prefetchQuery(
-          ["coordinatorsWithCourses", token],
+          ["coordinatorsWithCourses"],
           async () => {
-            const r = await fetch(
+            const r = await authFetch(
               `${API_URL}/admin/coordinators-with-courses`,
-              {
-                headers,
-              },
             );
             if (!r.ok) throw new Error("Nie udało się pobrać koordynatorów");
             return r.json();
@@ -247,6 +298,101 @@ function App() {
     }
   }, [queryClient]);
 
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      setAuthState({ isLoggedIn: false, user: null });
+      queryClient.clear();
+    };
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const needsHydration =
+      !user?.isHydrated && (!user || !hasRoleInfo(user) || !user?.name);
+    if (!needsHydration) return;
+
+    let isMounted = true;
+
+    const hydrateUser = async () => {
+      try {
+        const fetchedUser = await fetchCurrentUser();
+        if (!isMounted) return;
+
+        setAuthState((prev) => {
+          if (!prev?.isLoggedIn) return prev;
+          const resolvedRoleName =
+            getRoleName(fetchedUser) ?? getRoleName(prev.user) ?? null;
+          const mergedUser = {
+            ...(prev.user || {}),
+            ...(fetchedUser || {}),
+            id: fetchedUser?.id ?? resolveUserId(prev.user) ?? null,
+            email: fetchedUser?.email ?? prev.user?.email ?? null,
+            role: fetchedUser?.role ?? prev.user?.role ?? resolvedRoleName,
+            roleName: resolvedRoleName,
+            isHydrated: true,
+          };
+
+          storeAuthState({
+            isLoggedIn: true,
+            user: mergedUser,
+          });
+
+          return { isLoggedIn: true, user: mergedUser };
+        });
+      } catch {
+        // ignore hydration errors
+      }
+    };
+
+    hydrateUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, user]);
+
+  useEffect(() => {
+    if (!isLoggedIn || !user) return undefined;
+
+    let isMounted = true;
+
+    const ensureActiveSession = async () => {
+      const probePath = getSessionProbePath(user);
+      if (!probePath) return;
+
+      try {
+        await authFetch(probePath, { method: "GET" });
+      } catch {
+        if (!isMounted) return;
+        // Ignore transient network errors; logout is handled on 401/403 via authFetch.
+      }
+    };
+
+    ensureActiveSession();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        ensureActiveSession();
+      }
+    };
+
+    window.addEventListener("focus", ensureActiveSession);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("focus", ensureActiveSession);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isLoggedIn, user]);
+
   return (
     <div className="app-shell">
       <Navbar
@@ -254,13 +400,14 @@ function App() {
         user={user}
         isAdmin={isAdmin}
         isCoordinator={isCoordinator}
+        onLogout={handleLogout}
       />
       <Routes>
         <Route
           path="/"
           element={
             isAdmin ? (
-              <AdminHomePage />
+              <AdminHomePage isLoggedIn={isLoggedIn} user={user} />
             ) : isCoordinator ? (
               <CoordinatorHomePage user={user} />
             ) : (
@@ -287,7 +434,7 @@ function App() {
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={
-            isCoordinator ? (
+            !isRoleReady ? null : isCoordinator ? (
               <CourseManagementPage />
             ) : (
               <Navigate to="/" replace />
@@ -297,7 +444,7 @@ function App() {
         <Route
           path="/coordinator/courses/:courseId/applications/:applicationId/manage"
           element={
-            isCoordinator ? (
+            !isRoleReady ? null : isCoordinator ? (
               <ApplicationManagementPage />
             ) : (
               <Navigate to="/" replace />
@@ -307,7 +454,7 @@ function App() {
         <Route
           path="/users"
           element={
-            isLoggedIn && user?.role === "Admin" ? (
+            !isRoleReady ? null : isLoggedIn && isAdmin ? (
               <UsersPage />
             ) : (
               <Navigate to="/" replace />
@@ -316,7 +463,13 @@ function App() {
         />
         <Route
           path="/admission"
-          element={isLoggedIn ? <AdmissionPage /> : <Navigate to="/" replace />}
+          element={
+            isLoggedIn ? (
+              <AdmissionPage isLoggedIn={isLoggedIn} user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="/admission/success"
@@ -333,7 +486,8 @@ function App() {
         <Route
           path="/send-message"
           element={
-            isLoggedIn && (user?.role === "Coordinator" || isAdmin) ? (
+            !isRoleReady ? null : isLoggedIn &&
+              (getRoleName(user) === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
             ) : (
               <Navigate to="/" replace />

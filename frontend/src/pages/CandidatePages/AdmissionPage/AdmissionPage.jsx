@@ -7,7 +7,6 @@ import { submitApplication } from "../../../services/admissionApi.js";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-import { AUTH_STORAGE_KEY } from "../../../config/auth";
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
@@ -31,20 +30,6 @@ function safeJsonParse(value) {
   } catch {
     return null;
   }
-}
-
-function loadAuthState() {
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) {
-    return null;
-  }
-
-  const parsed = safeJsonParse(raw);
-  if (!parsed || typeof parsed !== "object") {
-    return null;
-  }
-
-  return parsed;
 }
 
 function getDraftStorageKey(courseId) {
@@ -317,16 +302,11 @@ function isRecruitmentOpen(start, end) {
   return now >= startDate && now <= endDate;
 }
 
-function AdmissionPage() {
+function AdmissionPage({ isLoggedIn, user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
-
-  const authState = useMemo(loadAuthState, []);
-  const token = authState?.token || null;
-  const user = authState?.user || null;
-  const isLoggedIn = Boolean(authState?.isLoggedIn);
 
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
@@ -479,7 +459,7 @@ function AdmissionPage() {
       return;
     }
 
-    if (!token) {
+    if (!isLoggedIn) {
       setSubmitError("Sesja wygasła. Zaloguj się ponownie.");
       return;
     }
@@ -515,7 +495,7 @@ function AdmissionPage() {
         newsletterConsent: Boolean(draft.newsletterConsent),
       };
 
-      await submitApplication({ payload, diplomaFile }, token);
+      await submitApplication({ payload, diplomaFile });
 
       clearDraft(courseId);
       setDiplomaFile(null);
@@ -527,7 +507,7 @@ function AdmissionPage() {
     }
   };
 
-  const missingSession = !token;
+  const missingSession = !isLoggedIn;
   const hasValidationErrors = Object.keys(errors).length > 0;
 
   const showFieldError = (name) => {
@@ -656,7 +636,7 @@ function AdmissionPage() {
           {missingSession ? (
             <div className="admission-session">
               <p className="form-error" role="alert">
-                Brakuje danych sesji (token). Zaloguj się ponownie.
+                Sesja wygasła. Zaloguj się ponownie.
               </p>
               <div className="admission-actions">
                 <Link className="primary-btn" to="/auth">

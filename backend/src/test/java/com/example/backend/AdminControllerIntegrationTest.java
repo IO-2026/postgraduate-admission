@@ -1,5 +1,5 @@
 package com.example.backend;
-import com.example.backend.model.course.AssignRequest;
+import com.example.backend.model.course.dto.AssignRequest;
 
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @ActiveProfiles("test")
+@WithMockUser(roles = "Admin")
 @Import({TestDynamicProperties.class, TestWebClientConfig.class})
 public class AdminControllerIntegrationTest {
 

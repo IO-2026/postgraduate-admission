@@ -5,6 +5,7 @@ import com.example.backend.model.application.Application;
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.dto.CourseBriefDto;
 import com.example.backend.model.user.dto.AdminUserDto;
+import com.example.backend.model.user.dto.CandidateWithApplicationDto;
 import com.example.backend.model.user.dto.CoordinatorWithCoursesDto;
 import com.example.backend.model.user.dto.UserDTO;
 import org.mapstruct.Mapper;
