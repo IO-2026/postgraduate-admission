@@ -36,11 +36,11 @@ public class ApplicationDto {
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate applicantDateOfBirth;
+    private LocalDate candidateDateOfBirth;
 
     @NotBlank
     @Pesel
-    private String applicantPesel;
+    private String candidatePesel;
 
     @NotBlank
     @Size(min = 2, max = 120)
@@ -63,7 +63,7 @@ public class ApplicationDto {
     @GraduationYear
     private Integer graduationYear;
 
-    private String placeOfBirth;
+    private String candidatePlaceOfBirth;
 
     @Size(max = 500)
     private String notes;

@@ -25,8 +25,8 @@ function ApplicationManagementPage() {
     isSemesterPaid: false,
     isDiplomaVerified: false,
     isDeclarationVerified: false,
-    applicantPesel: "",
-    applicantDateOfBirth: "",
+    candidatePesel: "",
+    candidateDateOfBirth: "",
     addressStreet: "",
     addressPostalCode: "",
     addressCity: "",
@@ -81,8 +81,8 @@ function ApplicationManagementPage() {
             isSemesterPaid: data.isSemesterPaid || false,
             isDiplomaVerified: data.isDiplomaVerified || false,
             isDeclarationVerified: data.isDeclarationVerified || false,
-            applicantPesel: data.applicantPesel || "",
-            applicantDateOfBirth: data.applicantDateOfBirth || "",
+            candidatePesel: data.candidatePesel || "",
+            candidateDateOfBirth: data.candidateDateOfBirth || "",
             addressStreet: data.addressStreet || "",
             addressPostalCode: data.addressPostalCode || "",
             addressCity: data.addressCity || "",
@@ -480,37 +480,37 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field">
-              <label htmlFor="applicantPesel">PESEL</label>
+              <label htmlFor="candidatePesel">PESEL</label>
               {isEditMode ? (
                 <input
-                  id="applicantPesel"
+                  id="candidatePesel"
                   type="text"
-                  name="applicantPesel"
-                  value={applicationData.applicantPesel}
+                  name="candidatePesel"
+                  value={applicationData.candidatePesel}
                   onChange={handleChange}
                   className="application-management-input"
                 />
               ) : (
                 <div className="application-management-readonly">
-                  {applicationData.applicantPesel || "Brak danych"}
+                  {applicationData.candidatePesel || "Brak danych"}
                 </div>
               )}
             </div>
 
             <div className="application-management-field">
-              <label htmlFor="applicantDateOfBirth">Data urodzenia</label>
+              <label htmlFor="candidateDateOfBirth">Data urodzenia</label>
               {isEditMode ? (
                 <input
-                  id="applicantDateOfBirth"
+                  id="candidateDateOfBirth"
                   type="date"
-                  name="applicantDateOfBirth"
-                  value={applicationData.applicantDateOfBirth}
+                  name="candidateDateOfBirth"
+                  value={applicationData.candidateDateOfBirth}
                   onChange={handleChange}
                   className="application-management-input"
                 />
               ) : (
                 <div className="application-management-readonly">
-                  {applicationData.applicantDateOfBirth || "Brak danych"}
+                  {applicationData.candidateDateOfBirth || "Brak danych"}
                 </div>
               )}
             </div>

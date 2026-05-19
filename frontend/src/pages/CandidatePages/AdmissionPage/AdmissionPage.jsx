@@ -329,12 +329,15 @@ function AdmissionPage({ isLoggedIn, user }) {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccount(getAccountDefaults(user));
   }, [user]);
 
   useEffect(() => {
     if (courseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(getDraftDefaults(loadDraft(courseId)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiplomaFile(null);
     }
   }, [courseId]);
@@ -405,6 +408,7 @@ function AdmissionPage({ isLoggedIn, user }) {
   }, [courseId, draft]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrors(validateDraft({ account, draft, diplomaFile }));
   }, [account, draft, diplomaFile]);
 
@@ -478,8 +482,9 @@ function AdmissionPage({ isLoggedIn, user }) {
       const payload = {
         university: String(draft.university).trim(),
         courseId,
-        applicantDateOfBirth: String(account.dateOfBirth).trim(),
-        applicantPesel: String(account.pesel).trim(),
+        candidateDateOfBirth: String(account.dateOfBirth).trim(),
+        candidatePlaceOfBirth: String(account.placeOfBirth).trim(),
+        candidatePesel: String(account.pesel).trim(),
         addressStreet: String(draft.street).trim(),
         addressPostalCode: String(draft.postalCode).trim(),
         addressCity: String(draft.city).trim(),
