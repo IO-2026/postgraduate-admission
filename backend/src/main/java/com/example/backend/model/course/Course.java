@@ -47,7 +47,7 @@ public class Course {
     private LocalDate recruitmentEnd = LocalDate.now().plusMonths(3);
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coordinator_id", nullable = true)
+    @JoinColumn(name = "coordinator_id")
     private User coordinator;
 
     @Column(name = "academic_year")

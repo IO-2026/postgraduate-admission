@@ -36,11 +36,6 @@ function AdminHomePage({ isLoggedIn }) {
   const [formError, setFormError] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadCourses();
-    loadCoordinators();
-  }, []);
-
   const loadCourses = async () => {
     try {
       setLoading(true);
@@ -71,6 +66,11 @@ function AdminHomePage({ isLoggedIn }) {
       setCoordinatorsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCourses();
+    loadCoordinators();
+  }, []);
 
   const coordinatorByEmail = useMemo(() => {
     const map = new Map();

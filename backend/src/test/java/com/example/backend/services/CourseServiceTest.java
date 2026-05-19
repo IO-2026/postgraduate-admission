@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,9 +49,7 @@ public class CourseServiceTest {
         Long courseId = 99L;
         when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            courseService.closeRecruitment(courseId);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> courseService.closeRecruitment(courseId));
 
         verify(courseRepository, never()).save(any());
     }
@@ -67,9 +64,7 @@ public class CourseServiceTest {
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            courseService.closeRecruitment(courseId);
-        });
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> courseService.closeRecruitment(courseId));
 
         verify(courseRepository, never()).save(any());
     }
