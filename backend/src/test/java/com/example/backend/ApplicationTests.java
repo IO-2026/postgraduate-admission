@@ -1,5 +1,6 @@
 package com.example.backend;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,9 +102,9 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
         applicationData.put("userId", testUser.getId());
-        applicationData.put("applicantPesel", "90010101234");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -114,6 +115,7 @@ public class ApplicationTests {
         applicationData.put("university", "Test University");
         applicationData.put("truthfulnessConsent", true);
         applicationData.put("gdprConsent", true);
+        applicationData.put("newsletterConsent", false);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
                 "diploma",
@@ -156,8 +158,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(adminUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010101234");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -168,6 +170,7 @@ public class ApplicationTests {
         applicationData.put("university", "Test University");
         applicationData.put("truthfulnessConsent", true);
         applicationData.put("gdprConsent", true);
+        applicationData.put("newsletterConsent", false);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
                 "diploma",
@@ -195,9 +198,9 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "2000-01-01");
+        applicationData.put("candidateDateOfBirth", "2000-01-01");
         applicationData.put("userId", testUser.getId());
-        applicationData.put("applicantPesel", "44051401458");
+        applicationData.put("candidatePesel", "00210122477");
         applicationData.put("addressStreet", "Testowa 1");
         applicationData.put("addressPostalCode", "30-059");
         applicationData.put("addressCity", "Kraków");
@@ -208,6 +211,7 @@ public class ApplicationTests {
         applicationData.put("university", "Test University");
         applicationData.put("truthfulnessConsent", true);
         applicationData.put("gdprConsent", true);
+        applicationData.put("newsletterConsent", false);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
                 "diploma",
@@ -239,6 +243,204 @@ public class ApplicationTests {
         );
 
         applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void submitApplication_ShouldFail_WhenPeselInvalid() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "12345678901");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
+
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void submitApplication_ShouldFail_WhenPostalCodeInvalid() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "99999");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
+
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void submitApplication_ShouldFail_WhenDateOfBirthInFuture() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("candidateDateOfBirth", LocalDate.now().plusDays(1).toString());
+        applicationData.put("candidatePesel", "90010113258");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
+
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void submitApplication_ShouldFail_WhenGdprConsentFalse() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", false);
+
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.pdf",
+                "application/pdf",
+                "PDF".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
+                "application",
+                "",
+                "application/json",
+                objectMapper.writeValueAsString(applicationData).getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/applications/submit")
+                        .file(diplomaFile)
+                        .file(applicationPart)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void submitApplication_ShouldFail_WhenFileIsNotPdf() throws Exception {
+        String token = jwtUtil.generateToken(testUser);
+
+        Map<String, Object> applicationData = new HashMap<>();
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
+        applicationData.put("addressStreet", "Adminowa 1");
+        applicationData.put("addressPostalCode", "00-001");
+        applicationData.put("addressCity", "Warszawa");
+        applicationData.put("previousDegree", "Magister");
+        applicationData.put("fieldOfStudy", "Zarządzanie");
+        applicationData.put("graduationYear", 2015);
+        applicationData.put("courseId", testCourse.getId());
+        applicationData.put("university", "Test University");
+        applicationData.put("truthfulnessConsent", true);
+        applicationData.put("gdprConsent", true);
+
+        MockMultipartFile diplomaFile = new MockMultipartFile(
+                "diploma",
+                "diploma.txt",
+                "text/plain",
+                "not pdf".getBytes()
+        );
+
+        MockMultipartFile applicationPart = new MockMultipartFile(
                 "application",
                 "",
                 "application/json",

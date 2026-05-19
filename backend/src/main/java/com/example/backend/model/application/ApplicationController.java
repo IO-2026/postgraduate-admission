@@ -1,12 +1,15 @@
 package com.example.backend.model.application;
 
 import com.example.backend.model.application.dto.ApplicationDto;
+import com.example.backend.validation.PdfFile;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +26,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.Map;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/api/applications")
 @RequiredArgsConstructor
@@ -37,8 +41,8 @@ public class ApplicationController {
 
     @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('Candidate')")
-    public ResponseEntity<?> submit(@RequestPart("application") ApplicationDto request,
-                                    @RequestPart("diploma") MultipartFile diplomaFile,
+    public ResponseEntity<?> submit(@Valid @RequestPart("application") ApplicationDto request,
+                                    @PdfFile @RequestPart("diploma") MultipartFile diplomaFile,
                                     @AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

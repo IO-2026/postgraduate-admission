@@ -63,8 +63,9 @@ function isBlank(value) {
   return String(value ?? "").trim() === "";
 }
 
-function isValidPesel(value) {
+function isValidPesel(value, dateOfBirth) {
   const pesel = String(value || "").trim();
+
   if (!/^\d{11}$/.test(pesel)) {
     return false;
   }
@@ -75,7 +76,48 @@ function isValidPesel(value) {
     0,
   );
   const checksum = (10 - (sum % 10)) % 10;
-  return checksum === Number.parseInt(pesel[10], 10);
+  if (checksum !== Number.parseInt(pesel[10], 10)) {
+    return false;
+  }
+
+  if (!dateOfBirth || String(dateOfBirth).trim() === "") {
+    return false;
+  }
+
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) {
+    return false;
+  }
+
+  let year = Number(pesel.substring(0, 2));
+  let month = Number(pesel.substring(2, 4));
+  const day = Number(pesel.substring(4, 6));
+
+  let century = 1900;
+
+  if (month > 80) {
+    century = 1800;
+    month -= 80;
+  } else if (month > 60) {
+    century = 2200;
+    month -= 60;
+  } else if (month > 40) {
+    century = 2100;
+    month -= 40;
+  } else if (month > 20) {
+    century = 2000;
+    month -= 20;
+  }
+
+  year = century + year;
+
+  const peselDate = new Date(year, month - 1, day);
+
+  return (
+    peselDate.getFullYear() === dob.getFullYear() &&
+    peselDate.getMonth() === dob.getMonth() &&
+    peselDate.getDate() === dob.getDate()
+  );
 }
 
 function isPastDate(value) {
@@ -94,19 +136,24 @@ function isPastDate(value) {
   return parsed < today;
 }
 
-function validateYear(value) {
-  const raw = String(value || "").trim();
-  if (!raw) {
+function validateGraduationYear(gy, dob) {
+  const gy_raw = String(gy || "").trim();
+  if (!gy_raw) {
     return REQUIRED_ERROR;
   }
 
-  if (!/^\d+$/.test(raw)) {
+  if (!/^\d+$/.test(gy_raw)) {
     return "Rok ukończenia jest nieprawidłowy.";
   }
 
-  const year = Number.parseInt(raw, 10);
-  if (year < 1900 || year > 2100) {
+  const year = Number.parseInt(gy_raw, 10);
+  const currentYear = new Date().getFullYear();
+  if (year < 1900 || year > currentYear) {
     return "Rok ukończenia jest nieprawidłowy.";
+  }
+  const dobYear = new Date(dob).getFullYear();
+  if (year < dobYear) {
+    return "Rok ukończenia nie może być wcześniejszy niż rok urodzenia.";
   }
 
   return "";
@@ -123,8 +170,10 @@ function validateDraft({ account, draft, diplomaFile }) {
 
   if (isBlank(account.pesel)) {
     errors.pesel = "PESEL jest wymagany.";
-  } else if (!isValidPesel(account.pesel)) {
-    errors.pesel = "Podaj poprawny numer PESEL.";
+  } else if (!account.dateOfBirth) {
+    errors.pesel = "Najpierw podaj datę urodzenia.";
+  } else if (!isValidPesel(account.pesel, account.dateOfBirth)) {
+    errors.pesel = "Podaj poprawny numer PESEL zgodny z datą urodzenia.";
   }
 
   const placeOfBirth = String(account.placeOfBirth || "").trim();
@@ -169,7 +218,10 @@ function validateDraft({ account, draft, diplomaFile }) {
     errors.fieldOfStudy = "Nazwa kierunku jest za długa.";
   }
 
-  const yearError = validateYear(draft.graduationYear);
+  const yearError = validateGraduationYear(
+    draft.graduationYear,
+    account.dateOfBirth,
+  );
   if (yearError) {
     errors.graduationYear = yearError;
   }
