@@ -171,13 +171,13 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
-    public ResponseCookie buildJwtCookie(String value, long maxAgeSeconds, boolean secure) {
+    public ResponseCookie buildJwtCookie(String value, long maxAgeSeconds, boolean secure, String sameSite) {
         return ResponseCookie.from("jwt", value)
                 .httpOnly(true)
                 .secure(secure)
                 .path("/")
                 .maxAge(maxAgeSeconds)
-                .sameSite("Lax")
+                .sameSite(sameSite)
                 .build();
     }
 }
