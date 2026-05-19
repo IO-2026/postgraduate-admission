@@ -84,6 +84,7 @@ public class CourseController {
     }
 
     @PostMapping("/courses/{id}/close")
+    @PreAuthorize("hasAnyRole('Coordinator', 'Admin')")
     public ResponseEntity<?> closeRecruitment(@PathVariable Long id) {
         courseService.closeRecruitment(id);
         return ResponseEntity.ok().build();
