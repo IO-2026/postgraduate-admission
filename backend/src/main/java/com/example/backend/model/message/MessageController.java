@@ -70,5 +70,4 @@ public class MessageController {
         }
         return ResponseEntity.ok(messageService.getMessagesSentBy(user.getId()));
     }
-
 }

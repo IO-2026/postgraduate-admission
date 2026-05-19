@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RecipientStatusResponse {
-    private Long  recipientId;
+    private Long recipientId;
+    private String recipientNameAndSurname;
+    private String recipientEmail;
     private Boolean isRead;
 }

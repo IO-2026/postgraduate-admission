@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,11 +113,14 @@ public class MessageService {
                             recipients.stream()
                                     .map(r -> new RecipientStatusResponse(
                                             r.getRecipient().getId(),
+                                            r.getRecipient().getName() + " " + r.getRecipient().getSurname(),
+                                            r.getRecipient().getEmail(),
                                             r.getIsRead()
                                     ))
                                     .toList()
                     );
                 })
+                .sorted((o1, o2) -> o2.getSentAt().compareTo(o1.getSentAt()))
                 .toList();
     }
 }
