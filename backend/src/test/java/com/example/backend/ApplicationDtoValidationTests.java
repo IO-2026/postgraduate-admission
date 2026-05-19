@@ -27,15 +27,15 @@ public class ApplicationDtoValidationTests {
         return ApplicationDto.builder()
                 .courseId(1L)
                 .university("Uniwersytet Jagielloński")
-                .applicantDateOfBirth(LocalDate.of(1999, 5, 10))
-                .applicantPesel("99051073019")
+                .candidateDateOfBirth(LocalDate.of(1999, 5, 10))
+                .candidatePesel("99051073019")
                 .addressStreet("Testowa 1")
                 .addressPostalCode("43-300")
                 .addressCity("Bielsko-Biała")
                 .previousDegree("Inżynier")
                 .fieldOfStudy("Informatyka")
                 .graduationYear(2023)
-                .placeOfBirth("Kraków")
+                .candidatePlaceOfBirth("Kraków")
                 .truthfulnessConsent(true)
                 .gdprConsent(true)
                 .newsletterConsent(false)
@@ -52,9 +52,9 @@ public class ApplicationDtoValidationTests {
     }
 
     @Test
-    void applicantPesel_ShouldFail_WhenInvalidChecksum() {
+    void candidatePesel_ShouldFail_WhenInvalidChecksum() {
         ApplicationDto dto = buildValidDto();
-        dto.setApplicantPesel("12345678901");
+        dto.setCandidatePesel("12345678901");
 
         Set<ConstraintViolation<ApplicationDto>> violations = validator.validate(dto);
 
@@ -62,9 +62,9 @@ public class ApplicationDtoValidationTests {
     }
 
     @Test
-    void applicantPesel_ShouldFail_WhenContainsLetters() {
+    void candidatePesel_ShouldFail_WhenContainsLetters() {
         ApplicationDto dto = buildValidDto();
-        dto.setApplicantPesel("ABC12345678");
+        dto.setCandidatePesel("ABC12345678");
 
         Set<ConstraintViolation<ApplicationDto>> violations = validator.validate(dto);
 
@@ -72,9 +72,9 @@ public class ApplicationDtoValidationTests {
     }
 
     @Test
-    void applicantDateOfBirth_ShouldFail_WhenFuture() {
+    void candidateDateOfBirth_ShouldFail_WhenFuture() {
         ApplicationDto dto = buildValidDto();
-        dto.setApplicantDateOfBirth(LocalDate.now().plusDays(1));
+        dto.setCandidateDateOfBirth(LocalDate.now().plusDays(1));
 
         Set<ConstraintViolation<ApplicationDto>> violations = validator.validate(dto);
 

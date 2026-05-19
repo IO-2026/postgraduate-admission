@@ -102,9 +102,9 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
         applicationData.put("userId", testUser.getId());
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -158,8 +158,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(adminUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -198,9 +198,9 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "2000-01-01");
+        applicationData.put("candidateDateOfBirth", "2000-01-01");
         applicationData.put("userId", testUser.getId());
-        applicationData.put("applicantPesel", "00210122477");
+        applicationData.put("candidatePesel", "00210122477");
         applicationData.put("addressStreet", "Testowa 1");
         applicationData.put("addressPostalCode", "30-059");
         applicationData.put("addressCity", "Kraków");
@@ -261,8 +261,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "12345678901");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "12345678901");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -301,8 +301,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "99999");
         applicationData.put("addressCity", "Warszawa");
@@ -341,8 +341,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", LocalDate.now().plusDays(1).toString());
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidateDateOfBirth", LocalDate.now().plusDays(1).toString());
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -381,8 +381,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");
@@ -420,8 +420,8 @@ public class ApplicationTests {
         String token = jwtUtil.generateToken(testUser);
 
         Map<String, Object> applicationData = new HashMap<>();
-        applicationData.put("applicantDateOfBirth", "1990-01-01");
-        applicationData.put("applicantPesel", "90010113258");
+        applicationData.put("candidateDateOfBirth", "1990-01-01");
+        applicationData.put("candidatePesel", "90010113258");
         applicationData.put("addressStreet", "Adminowa 1");
         applicationData.put("addressPostalCode", "00-001");
         applicationData.put("addressCity", "Warszawa");

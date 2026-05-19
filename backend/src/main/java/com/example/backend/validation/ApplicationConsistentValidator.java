@@ -25,7 +25,7 @@ public class ApplicationConsistentValidator
 
     private boolean dateValidation(ApplicationDto dto) {
 
-        LocalDate dob = dto.getApplicantDateOfBirth();
+        LocalDate dob = dto.getCandidateDateOfBirth();
         if (dob == null) {
             return true;
         }
@@ -51,8 +51,8 @@ public class ApplicationConsistentValidator
     private boolean peselValidation(ApplicationDto dto) {
         if (dto == null) return true;
 
-        String pesel = dto.getApplicantPesel();
-        LocalDate dob = dto.getApplicantDateOfBirth();
+        String pesel = dto.getCandidatePesel();
+        LocalDate dob = dto.getCandidateDateOfBirth();
 
         if (pesel == null || dob == null) return true;
 
