@@ -68,5 +68,4 @@ public class CourseServiceTest {
 
         verify(courseRepository, never()).save(any());
     }
-
 }
