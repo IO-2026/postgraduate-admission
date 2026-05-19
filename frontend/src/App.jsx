@@ -495,16 +495,16 @@ function App() {
             )
           }
         />
-          <Route
-              path="/sent-messages"
-              element={
-                  !isRoleReady ? null : (isAdmin || isCoordinator) ? (
-                      <SentMessagesPage />
-                  ) : (
-                      <Navigate to="/" replace />
-                  )
-              }
-          />
+        <Route
+          path="/sent-messages"
+          element={
+            !isRoleReady ? null : isAdmin || isCoordinator ? (
+              <SentMessagesPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
         <Route
           path="/profile"
           element={

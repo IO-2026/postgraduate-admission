@@ -83,10 +83,10 @@ function Navbar({ isLoggedIn, user, isAdmin, isCoordinator }) {
           to: "/send-message",
           label: "Wyślij wiadomość",
         },
-          {
-              to: "/sent-messages",
-              label: "Wysłane wiadomości",
-          },
+        {
+          to: "/sent-messages",
+          label: "Wysłane wiadomości",
+        },
       ]
     : isCoordinator
       ? [
@@ -99,10 +99,10 @@ function Navbar({ isLoggedIn, user, isAdmin, isCoordinator }) {
             to: "/send-message",
             label: "Wyślij wiadomość",
           },
-              {
-                  to: "/sent-messages",
-                  label: "Wysłane wiadomości",
-              }
+          {
+            to: "/sent-messages",
+            label: "Wysłane wiadomości",
+          },
         ]
       : [
           {
