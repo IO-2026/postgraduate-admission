@@ -21,6 +21,7 @@ const INITIAL_EDIT_FORM_STATE = {
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
+  isRecruitmentOpen: true,
 };
 
 function AdminHomePage({ isLoggedIn }) {
@@ -123,6 +124,7 @@ function AdminHomePage({ isLoggedIn }) {
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
         coordinatorEmailById.get(String(course.coordinatorId)) || "",
+      isRecruitmentOpen: course.isRecruitmentOpen ?? true,
     });
     setEditingId(course.id);
     setFormError("");
@@ -209,6 +211,7 @@ function AdminHomePage({ isLoggedIn }) {
         description: formData.description,
         price: parseFloat(formData.price),
         placesLimit: parseInt(formData.placesLimit, 10),
+        isRecruitmentOpen: formData.isRecruitmentOpen,
         ...(formData.academicYear && {
           academicYear: parseInt(formData.academicYear, 10),
         }),
@@ -346,6 +349,45 @@ function AdminHomePage({ isLoggedIn }) {
                   onChange={handleInputChange}
                 />
               </div>
+            </div>
+            <div className="form-group">
+              <label>Status rekrutacji</label>
+              <select
+                name="isRecruitmentOpen"
+                value={formData.isRecruitmentOpen ? "true" : "false"}
+                onChange={(e) =>
+                  handleInputChange({
+                    target: {
+                      name: "isRecruitmentOpen",
+                      value: e.target.value === "true",
+                    },
+                  })
+                }
+                style={
+                  formData.isRecruitmentOpen === false
+                    ? {
+                        borderColor: "#e11d48",
+                        color: "#e11d48",
+                        fontWeight: "bold",
+                      }
+                    : {}
+                }
+              >
+                {/* Wymuszamy neutralny kolor na opcjach w dropdownie,
+                    aby nie dziedziczyły czerwonego z wybranego selecta */}
+                <option
+                  value="true"
+                  style={{ color: "#1f2937", fontWeight: "normal" }}
+                >
+                  Otwarta
+                </option>
+                <option
+                  value="false"
+                  style={{ color: "#1f2937", fontWeight: "normal" }}
+                >
+                  Zamknięta
+                </option>
+              </select>
             </div>
 
             <div className="form-group">
