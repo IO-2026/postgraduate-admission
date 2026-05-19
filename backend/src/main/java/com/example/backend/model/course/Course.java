@@ -62,4 +62,7 @@ public class Course {
     public String toString() {
         return name;
     }
+
+    @Column(name = "is_recruitment_open", nullable = false)
+    private Boolean isRecruitmentOpen = true;
 }

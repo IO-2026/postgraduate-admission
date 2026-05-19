@@ -414,12 +414,23 @@ function AdminHomePage({ isLoggedIn }) {
                   {course.description || "Brak opisu dla tego programu."}
                 </p>
                 <div className="course-meta">
-                  {course.recruitmentStart && course.recruitmentEnd ? (
+                  {course.isRecruitmentOpen === false ? (
+                    <span
+                      className="meta-tag"
+                      style={{ color: "#e11d48", fontWeight: "bold" }}
+                    >
+                      Rekrutacja: zamknięta
+                    </span>
+                  ) : course.recruitmentStart && course.recruitmentEnd ? (
                     <span className="meta-tag">
                       Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
                       {formatDisplayDate(course.recruitmentEnd)}
                     </span>
-                  ) : null}
+                  ) : (
+                    <span className="meta-tag">
+                      Termin rekrutacji nie został podany.
+                    </span>
+                  )}
                   {course.placesLimit != null ? (
                     <span className="meta-tag">
                       Limit miejsc: {course.placesLimit}

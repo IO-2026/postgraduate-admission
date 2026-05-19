@@ -38,6 +38,11 @@ public class CourseService {
 
     public CourseDTO saveCourse(CourseDTO courseDTO) {
         Course course = courseMapper.toEntity(courseDTO);
+
+        if (course.getIsRecruitmentOpen() == null) {
+            course.setIsRecruitmentOpen(true);
+        }
+
         if (courseDTO.getCoordinatorId() != null) {
             User u = userRepository.findById(courseDTO.getCoordinatorId())
                     .orElseThrow(() -> new RuntimeException("Koordynator nie znaleziony"));
@@ -92,5 +97,18 @@ public class CourseService {
                 .map(a -> userMapper.toCandidateWithApplicationDto(a.getUser(), a))
                 .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void closeRecruitment(Long courseId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
+
+        if(!course.getIsRecruitmentOpen()){
+            throw new IllegalStateException("Rekrutacja na ten kierunek jest już zamknięta.");
+        }
+
+        course.setIsRecruitmentOpen(false);
+        courseRepository.save(course);
     }
 }
