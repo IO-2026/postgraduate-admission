@@ -586,7 +586,16 @@ function AdmissionPage({ isLoggedIn, user }) {
                       <span className="course-price">{course.price} PLN</span>
                     </div>
                     <div className="course-meta">
-                      {hasRecruitmentRange && (
+                      {course.isRecruitmentOpen === false ? (
+                        <span className="meta-tag meta-tag--dates">
+                          <span
+                            className="meta-label"
+                            style={{ color: "#e11d48" }}
+                          >
+                            Rekrutacja zamknięta
+                          </span>
+                        </span>
+                      ) : hasRecruitmentRange ? (
                         <span className="meta-tag meta-tag--dates">
                           <span className="meta-label">
                             {recruitmentOpen
@@ -608,11 +617,23 @@ function AdmissionPage({ isLoggedIn, user }) {
                             </span>
                           </span>
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        {appliedCourseIds.includes(Number(course.id)) ? (
+                        {course.isRecruitmentOpen === false ? (
+                          <button
+                            disabled
+                            className="primary-btn"
+                            style={{
+                              backgroundColor: "#9ca3af",
+                              borderColor: "#9ca3af",
+                              cursor: "not-allowed",
+                            }}
+                          >
+                            Rekrutacja zamknięta
+                          </button>
+                        ) : appliedCourseIds.includes(Number(course.id)) ? (
                           <button
                             disabled
                             className="primary-btn"
