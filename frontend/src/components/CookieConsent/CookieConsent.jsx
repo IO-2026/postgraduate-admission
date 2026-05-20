@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./CookieConsent.css";
 
 const STORAGE_KEY = "cookieConsent";
 
 function CookieConsent() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const storedValue = window.localStorage.getItem(STORAGE_KEY);
-    if (!storedValue) {
-      setIsVisible(true);
+  const [isVisible, setIsVisible] = useState(() => {
+    try {
+      const storedValue = window.localStorage.getItem(STORAGE_KEY);
+      return !storedValue;
+    } catch {
+      return true;
     }
-  }, []);
+  });
 
   const handleAccept = (value) => {
     window.localStorage.setItem(STORAGE_KEY, value);
