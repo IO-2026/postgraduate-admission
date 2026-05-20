@@ -7,6 +7,7 @@ function SentMessagesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState(null);
+  const [showRecipientsFor, setShowRecipientsFor] = useState(null);
 
   useEffect(() => {
     const loadSentMessages = async () => {
@@ -37,6 +38,11 @@ function SentMessagesPage() {
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
+    setShowRecipientsFor(null);
+  };
+
+  const toggleRecipients = (id) => {
+    setShowRecipientsFor(showRecipientsFor === id ? null : id);
   };
 
   if (loading)
@@ -78,25 +84,39 @@ function SentMessagesPage() {
                       <strong>Treść:</strong>
                       <p>{msg.content}</p>
                     </div>
-                    <div className="sent-message-recipients">
-                      <strong>Odbiorcy:</strong>
-                      <ul>
-                        {msg.recipients.map((rec) => (
-                          <li key={rec.recipientId}>
-                            {rec.recipientNameAndSurname ||
-                              `ID: ${rec.recipientId}`}
-                            {rec.recipientEmail && ` (${rec.recipientEmail})`}
-                            <span
-                              className={`recipient-status ${rec.isRead ? "read" : "unread"}`}
-                            >
-                              {rec.isRead
-                                ? "✓ przeczytano"
-                                : "○ nieprzeczytana"}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="sent-message-recipients-header">
+                      <button
+                        className="ghost-btn-small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleRecipients(msg.messageId);
+                        }}
+                      >
+                        {showRecipientsFor === msg.messageId
+                          ? "Ukryj listę odbiorców"
+                          : `Pokaż odbiorców (${msg.recipients.length})`}
+                      </button>
                     </div>
+
+                    {showRecipientsFor === msg.messageId && (
+                      <div className="sent-message-recipients">
+                        <ul>
+                          {msg.recipients.map((rec) => (
+                            <li key={rec.recipientId}>
+                              {rec.recipientName || `ID: ${rec.recipientId}`}
+                              {rec.recipientEmail && ` (${rec.recipientEmail})`}
+                              <span
+                                className={`recipient-status ${rec.isRead ? "read" : "unread"}`}
+                              >
+                                {rec.isRead
+                                  ? "✓ przeczytano"
+                                  : "○ nieprzeczytana"}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
