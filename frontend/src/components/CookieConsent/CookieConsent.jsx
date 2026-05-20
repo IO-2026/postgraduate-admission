@@ -31,8 +31,8 @@ function CookieConsent() {
           cookies to improve the experience. Read our{" "}
           <Link className="cookie-consent__link" to="/cookies">
             Cookie Policy
-          </Link>
-          {" "}for details.
+          </Link>{" "}
+          for details.
         </p>
         <div className="cookie-consent__actions">
           <button
