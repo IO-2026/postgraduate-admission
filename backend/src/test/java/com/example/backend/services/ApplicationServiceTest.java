@@ -6,6 +6,8 @@ import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
+import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseRepository;
 import com.example.backend.model.user.User;
 import com.example.backend.storage.SupabaseStorageService;
 import org.junit.jupiter.api.Test;
@@ -44,6 +46,9 @@ public class ApplicationServiceTest {
 
     @Mock
     private SupabaseStorageService storageService;
+
+    @Mock
+    private CourseRepository courseRepository;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -238,10 +243,16 @@ public class ApplicationServiceTest {
         Long id = 1L;
         Application application = new Application();
         application.setId(id);
+        application.setCourseId(100L);
         application.setIsWithdrawn(false);
         application.setIsEntryFeePaid(false);
 
+        Course course = new Course();
+        course.setId(100L);
+        course.setPrice(1200.0);
+
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
 
         applicationService.payEntryFee(id);
 
@@ -249,21 +260,126 @@ public class ApplicationServiceTest {
     }
 
     @Test
+    void shouldReturnSuccessfullyWhenEntryFeeAlreadyPaid() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setCourseId(100L);
+        application.setIsWithdrawn(false);
+        application.setIsEntryFeePaid(true);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        applicationService.payEntryFee(id);
+
+        assertTrue(application.getIsEntryFeePaid());
+        verify(courseRepository, times(0)).findById(any());
+    }
+
+    @Test
+    void shouldThrowWhenEntryFeeCourseHasInvalidPrice() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setCourseId(100L);
+        application.setIsWithdrawn(false);
+        application.setIsEntryFeePaid(false);
+
+        Course course = new Course();
+        course.setId(100L);
+        course.setPrice(0.0);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
+
+        assertThrows(IllegalStateException.class, () -> applicationService.payEntryFee(id));
+        assertFalse(application.getIsEntryFeePaid());
+    }
+
+    @Test
+    void shouldThrowWhenPayingEntryFeeForWithdrawnApplication() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setCourseId(100L);
+        application.setIsWithdrawn(true);
+        application.setIsEntryFeePaid(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        assertThrows(IllegalStateException.class, () -> applicationService.payEntryFee(id));
+        assertFalse(application.getIsEntryFeePaid());
+    }
+
+    @Test
     void shouldAcceptApplicationSuccessfullyAfterDiplomaAndEntryFee() {
         Long id = 1L;
         Application application = new Application();
         application.setId(id);
+        application.setCourseId(100L);
         application.setIsAccepted(false);
         application.setIsEntryFeePaid(false);
         application.setIsDiplomaVerified(false);
 
+        Course course = new Course();
+        course.setId(100L);
+        course.setPrice(1200.0);
+
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
         applicationService.markDiplomaAsVerified(id);
         applicationService.payEntryFee(id);
 
         applicationService.acceptApplication(id);
 
         assertTrue(application.getIsAccepted());
+    }
+
+    @Test
+    void shouldPaySemesterSuccessfullyWhenAccepted() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsWithdrawn(false);
+        application.setIsAccepted(true);
+        application.setIsSemesterPaid(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        applicationService.paySemester(id);
+
+        assertTrue(application.getIsSemesterPaid());
+    }
+
+    @Test
+    void shouldReturnSuccessfullyWhenSemesterAlreadyPaid() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsWithdrawn(false);
+        application.setIsAccepted(true);
+        application.setIsSemesterPaid(true);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        applicationService.paySemester(id);
+
+        assertTrue(application.getIsSemesterPaid());
+    }
+
+    @Test
+    void shouldThrowWhenPayingSemesterBeforeAcceptance() {
+        Long id = 1L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsWithdrawn(false);
+        application.setIsAccepted(false);
+        application.setIsSemesterPaid(false);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        assertThrows(IllegalStateException.class, () -> applicationService.paySemester(id));
+        assertFalse(application.getIsSemesterPaid());
     }
 
     @Test

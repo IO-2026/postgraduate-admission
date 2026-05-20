@@ -500,11 +500,13 @@ function AdmissionPage({ isLoggedIn, user }) {
         newsletterConsent: Boolean(draft.newsletterConsent),
       };
 
-      await submitApplication({ payload, diplomaFile });
+      const response = await submitApplication({ payload, diplomaFile });
+      const applicationId = response?.id ?? response?.applicationId ?? null;
 
       clearDraft(courseId);
       setDiplomaFile(null);
-      navigate("/admission/success");
+      const query = applicationId ? `?applicationId=${applicationId}` : "";
+      navigate(`/admission/success${query}`);
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
     } finally {

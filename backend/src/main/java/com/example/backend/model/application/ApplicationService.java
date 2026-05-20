@@ -2,6 +2,8 @@ package com.example.backend.model.application;
 
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.notification.EmailService;
+import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseRepository;
 import com.example.backend.model.user.User;
 import com.example.backend.storage.SupabaseStorageService;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,6 +22,7 @@ public class ApplicationService {
     private final EmailService emailService;
     private final ApplicationMapper applicationMapper;
     private final SupabaseStorageService storageService;
+    private final CourseRepository courseRepository;
 
     @Transactional
     public Application saveApplication(ApplicationDto admissionRequest, MultipartFile diplomaFile, User user) {
@@ -110,6 +113,15 @@ public class ApplicationService {
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
         }
+        if (Boolean.TRUE.equals(application.getIsEntryFeePaid())) {
+            return;
+        }
+
+        Course course = courseRepository.findById(application.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Kierunek nie znaleziony"));
+        if (course.getPrice() == null || course.getPrice() <= 0) {
+            throw new IllegalStateException("Nieprawidłowa kwota wpisowego.");
+        }
         application.setIsEntryFeePaid(true);
     }
 
@@ -119,6 +131,8 @@ public class ApplicationService {
 
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest wycofany - dalsze akcje niemożliwe");
+        } else if (Boolean.TRUE.equals(application.getIsSemesterPaid())) {
+            return;
         } else if (!application.getIsAccepted()) {
             throw new IllegalStateException("Nie można opłacić pierwszego semestru dopóki wniosek nie zostanie zaakceptowany");
         }

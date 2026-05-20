@@ -1,7 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import "./SuccessPage.css";
 
 function SuccessPage() {
+  const [searchParams] = useSearchParams();
+  const applicationId = searchParams.get("applicationId");
+  const paymentLink = applicationId
+    ? `/payment/${applicationId}?type=entry`
+    : null;
+
   return (
     <section
       className="success-view"
@@ -34,8 +40,27 @@ function SuccessPage() {
           aplikacji.
         </p>
 
+        {paymentLink ? (
+          <p className="success-info">
+            Aby dokończyć rekrutację, opłać wpisowe dla świeżo złożonego
+            wniosku.
+          </p>
+        ) : (
+          <p className="success-info">
+            Aby opłacić wpisowe, przejdź do listy swoich aplikacji.
+          </p>
+        )}
+
         <div className="success-actions">
-          <Link to="/" className="primary-btn">
+          {paymentLink ? (
+            <Link to={paymentLink} className="primary-btn">
+              Opłać wpisowe teraz
+            </Link>
+          ) : null}
+          <Link
+            to="/"
+            className={paymentLink ? "ghost-link" : "primary-btn"}
+          >
             Wróć do strony głównej
           </Link>
           <Link to="/admission" className="ghost-link">

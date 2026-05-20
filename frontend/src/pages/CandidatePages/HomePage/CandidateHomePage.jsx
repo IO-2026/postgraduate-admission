@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   fetchApplicationsOfUser,
   withdrawApplication,
-  payEntryFee,
-  paySemester,
   fetchDeclaration,
 } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
@@ -25,6 +23,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [applicationsError, setApplicationsError] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,21 +54,8 @@ function CandidateHomePage({ isLoggedIn, user }) {
     }
   };
 
-  const handlePayEntryFee = async (applicationId) => {
-    if (!window.confirm("Czy chcesz potwierdzić dokonanie opłaty wpisowej?")) {
-      return;
-    }
-
-    try {
-      setLoadingApplications(true);
-      await payEntryFee(applicationId);
-      const data = await fetchApplicationsOfUser(userId);
-      setApplications(Array.isArray(data) ? data : []);
-    } catch (error) {
-      alert(error.message || "Wystąpił błąd podczas opłacania wpisowego.");
-    } finally {
-      setLoadingApplications(false);
-    }
+  const handlePayEntryFee = (applicationId) => {
+    navigate(`/payment/${applicationId}?type=entry`);
   };
 
   const handleDownloadDeclaration = async (applicationId) => {
@@ -83,25 +69,8 @@ function CandidateHomePage({ isLoggedIn, user }) {
     }
   };
 
-  const handlePaySemester = async (applicationId) => {
-    if (
-      !window.confirm(
-        "Czy chcesz potwierdzić dokonanie opłaty za pierwszy semestr?",
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setLoadingApplications(true);
-      await paySemester(applicationId);
-      const data = await fetchApplicationsOfUser(userId);
-      setApplications(Array.isArray(data) ? data : []);
-    } catch (error) {
-      alert(error.message || "Wystąpił błąd podczas opłacania semestru.");
-    } finally {
-      setLoadingApplications(false);
-    }
+  const handlePaySemester = (applicationId) => {
+    navigate(`/payment/${applicationId}?type=semester`);
   };
 
   const formatDate = (dateString) => {
@@ -296,6 +265,32 @@ function CandidateHomePage({ isLoggedIn, user }) {
                       </div>
 
                       <div className="application-item-actions">
+                        <div className="application-meta-tags">
+                          <span
+                            className={`application-payment ${
+                              isEntryFeePaid
+                                ? "application-payment-paid"
+                                : "application-payment-unpaid"
+                            }`}
+                          >
+                            {isEntryFeePaid
+                              ? "Wpisowe opłacone"
+                              : "Wpisowe nieopłacone"}
+                          </span>
+                          {isAccepted ? (
+                            <span
+                              className={`application-payment ${
+                                isSemesterPaid
+                                  ? "application-payment-paid"
+                                  : "application-payment-unpaid"
+                              }`}
+                            >
+                              {isSemesterPaid
+                                ? "Semestr opłacony"
+                                : "Semestr nieopłacony"}
+                            </span>
+                          ) : null}
+                        </div>
                         {!isEntryFeePaid && !isWithdrawn && (
                           <button
                             className="primary-btn application-pay-btn"
