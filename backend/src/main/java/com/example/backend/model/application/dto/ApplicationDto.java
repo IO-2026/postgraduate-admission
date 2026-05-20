@@ -1,5 +1,9 @@
 package com.example.backend.model.application.dto;
 
+import com.example.backend.validation.ApplicationConsistent;
+import com.example.backend.validation.GraduationYear;
+import com.example.backend.validation.Pesel;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,27 +22,61 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ApplicationConsistent
 public class ApplicationDto {
     private Long id;
     private Long userId;
+
+    @NotBlank
+    @Size(min = 2, max = 200)
     private String university;
+
+    @NotNull
     private Long courseId;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate candidateDateOfBirth;
 
+    @NotBlank
+    @Pesel
     private String candidatePesel;
+
+    @NotBlank
+    @Size(min = 2, max = 120)
     private String addressStreet;
+
+    @NotBlank
+    @Pattern(regexp = "\\d{2}-\\d{3}", message = "Nieprawidłowy kod pocztowy.")
     private String addressPostalCode;
+
+    @NotBlank
+    @Size(min = 2, max = 80)
     private String addressCity;
+
+    @Size(max = 120)
     private String previousDegree;
+
+    @Size(max = 120)
     private String fieldOfStudy;
+
+    @GraduationYear
     private Integer graduationYear;
+
     private String candidatePlaceOfBirth;
+
+    @Size(max = 500)
     private String notes;
+
+    @NotNull
+    @AssertTrue
     private Boolean truthfulnessConsent;
+
+    @NotNull
+    @AssertTrue
     private Boolean gdprConsent;
+
+    @NotNull
     private Boolean newsletterConsent;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)

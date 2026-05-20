@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,10 +119,12 @@ public class AdminControllerIntegrationTest {
         payload.put("recruitmentStart", "2026-06-01");
         payload.put("recruitmentEnd", "2026-07-31");
         payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(post("/api/courses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.placesLimit").value(40));
     }
@@ -135,6 +138,7 @@ public class AdminControllerIntegrationTest {
         payload.put("recruitmentStart", "2026-06-01");
         payload.put("recruitmentEnd", "2026-07-31");
         payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(post("/api/courses")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -162,6 +166,7 @@ public class AdminControllerIntegrationTest {
         payload.put("recruitmentStart", "2026-05-01");
         payload.put("recruitmentEnd", "2026-08-01");
         payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(patch("/api/courses/" + course.getId())
                         .contentType(MediaType.APPLICATION_JSON)

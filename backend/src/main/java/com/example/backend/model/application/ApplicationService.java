@@ -26,8 +26,6 @@ public class ApplicationService {
         if (user == null) {
             throw new IllegalArgumentException("Zalogowany użytkownik nie znaleziony");
         }
-        validateProfileCompleteness(user);
-        validateDiplomaFile(diplomaFile);
 
         long courseId = admissionRequest.getCourseId();
         long userId = user.getId();
@@ -73,15 +71,6 @@ public class ApplicationService {
         return storageService.createSignedUrl(storageService.getDiplomasBucket(), objectKey);
     }
 
-    private void validateProfileCompleteness(User user) {
-        if (isBlank(user.getName()) || isBlank(user.getSurname()) || isBlank(user.getEmail()) || isBlank(user.getTelNumber())) {
-            throw new IllegalArgumentException("Profil użytkownika jest niekompletny. Uzupełnij imię, nazwisko, e-mail i numer telefonu.");
-        }
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
-    }
 
     @Transactional
     public void withdrawApplication(Long applicationId) {
@@ -171,17 +160,6 @@ public class ApplicationService {
                 .toList();
     }
 
-    private void validateDiplomaFile(MultipartFile diplomaFile) {
-        if (diplomaFile == null || diplomaFile.isEmpty()) {
-            throw new IllegalArgumentException("Plik dyplomu jest wymagany.");
-        }
-        if (!"application/pdf".equalsIgnoreCase(diplomaFile.getContentType())) {
-            throw new IllegalArgumentException("Dozwolony jest wyłącznie plik PDF.");
-        }
-        if (diplomaFile.getSize() > storageService.getMaxDiplomaBytes()) {
-            throw new IllegalArgumentException("Plik PDF przekracza dopuszczalny rozmiar.");
-        }
-    }
 
     private void registerRollbackCleanup(String bucket, String objectKey) {
         // Only register synchronization when a transaction is active.

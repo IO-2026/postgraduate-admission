@@ -73,7 +73,11 @@ function CoordinatorHomePage({ user }) {
                   {course.description || "Brak opisu dla tego programu."}
                 </p>
                 <div className="coordinator-course-meta">
-                  {course.recruitmentStart && course.recruitmentEnd ? (
+                  {course.isRecruitmentOpen === false ? (
+                    <span style={{ color: "#e11d48", fontWeight: "bold" }}>
+                      Rekrutacja zamknięta
+                    </span>
+                  ) : course.recruitmentStart && course.recruitmentEnd ? (
                     <span>
                       Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
                       {formatDisplayDate(course.recruitmentEnd)}
