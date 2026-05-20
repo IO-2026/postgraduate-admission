@@ -77,7 +77,9 @@ function PaymentPage() {
         }
       } catch (loadError) {
         if (!isMounted) return;
-        setError(loadError?.message || "Nie udało się pobrać danych płatności.");
+        setError(
+          loadError?.message || "Nie udało się pobrać danych płatności.",
+        );
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -106,9 +108,7 @@ function PaymentPage() {
       }
       navigate(`/admission/success?applicationId=${application.id}`);
     } catch (paymentError) {
-      setError(
-        paymentError?.message || "Nie udało się zrealizować płatności.",
-      );
+      setError(paymentError?.message || "Nie udało się zrealizować płatności.");
     } finally {
       setIsProcessing(false);
     }
@@ -120,7 +120,8 @@ function PaymentPage() {
         <BackButton to="/" label="Wróć do strony głównej" />
         <h1>Mock płatność</h1>
         <p className="payment-subtitle">
-          {isEntryPayment ? "Wpisowe" : "Pierwszy semestr"} dla aplikacji nr {id}
+          {isEntryPayment ? "Wpisowe" : "Pierwszy semestr"} dla aplikacji nr{" "}
+          {id}
         </p>
 
         {loading ? <p className="payment-info">Ładowanie danych...</p> : null}
@@ -143,9 +144,7 @@ function PaymentPage() {
             </div>
             <div className="payment-row">
               <span>Status</span>
-              <strong>
-                {isPaid ? "Opłacone" : "Do opłacenia"}
-              </strong>
+              <strong>{isPaid ? "Opłacone" : "Do opłacenia"}</strong>
             </div>
             {!isEligible ? (
               <p className="payment-info">

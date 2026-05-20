@@ -57,10 +57,7 @@ function SuccessPage() {
               Opłać wpisowe teraz
             </Link>
           ) : null}
-          <Link
-            to="/"
-            className={paymentLink ? "ghost-link" : "primary-btn"}
-          >
+          <Link to="/" className={paymentLink ? "ghost-link" : "primary-btn"}>
             Wróć do strony głównej
           </Link>
           <Link to="/admission" className="ghost-link">
