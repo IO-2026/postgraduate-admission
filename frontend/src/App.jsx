@@ -16,6 +16,8 @@ import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/Footer";
+import CookieConsent from "./components/CookieConsent/CookieConsent";
 import "./styles/layout.css";
 import InboxPage from "./pages/CandidatePages/InboxPage/InboxPage.jsx";
 import SendMessagePage from "./pages/SendMessagePage/SendMessagePage.jsx";
@@ -28,6 +30,9 @@ import {
   storeAuthState,
 } from "./config/auth";
 import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
+import PrivacyPolicyPage from "./pages/LegalPages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/LegalPages/TermsOfServicePage";
+import CookiePolicyPage from "./pages/LegalPages/CookiePolicyPage";
 
 function getInitialAuthState() {
   try {
@@ -505,8 +510,13 @@ function App() {
           }
         />
         <Route path="/contact" element={<ContactFormPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer />
+      <CookieConsent />
     </div>
   );
 }
