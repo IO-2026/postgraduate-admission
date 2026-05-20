@@ -1,108 +1,85 @@
 .gate-view {
-  min-height: calc(100svh - 64px);
+  min-height: calc(100svh - 160px);
   display: grid;
   place-items: center;
 }
 
 .guest-panel {
-  width: min(760px, 100%);
-  border-radius: 28px;
-  border: 1px solid var(--panel-border);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.82),
-    rgba(230, 244, 241, 0.84)
-  );
-  box-shadow: var(--shadow-soft);
-  padding: 34px;
-  text-align: left;
+  width: min(640px, 100%);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .guest-tag {
   margin: 0 0 8px;
-  font-family: var(--font-display);
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--text-light);
 }
 
 .guest-panel h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.9rem, 3.6vw, 2.8rem);
-  line-height: 1.12;
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  line-height: 1.15;
   color: var(--text-strong);
 }
 
 .guest-subtitle {
-  margin: 24px 0 48px;
-  max-width: 50ch;
-  font-size: 1.02rem;
+  margin: 16px 0 28px;
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .admin-home-view {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   align-content: start;
 }
 
 .admin-home-header {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
-  border: 1px solid var(--panel-border);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.8),
-    rgba(230, 244, 241, 0.82)
-  );
-  box-shadow: var(--shadow-soft);
-  padding: 36px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .admin-home-header::after {
-  content: "";
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  right: -120px;
-  top: -120px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(15, 127, 115, 0.25),
-    rgba(15, 127, 115, 0)
-  );
+  display: none;
 }
 
 .admin-home-tag {
   margin-bottom: 6px;
-  font-family: var(--font-display);
-  font-size: 0.86rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--text-light);
 }
 
 .admin-home-header h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.6vw, 3rem);
-  line-height: 1.1;
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  line-height: 1.15;
   color: var(--text-strong);
+  border-left: 3px solid var(--primary); /* Teal vertical bar */
+  padding-left: 12px;
 }
 
 .admin-home-subtitle {
-  margin: 12px 0 22px;
-  max-width: 52ch;
-  font-size: 1.05rem;
-}
-
-@media (max-width: 640px) {
-  .admin-home-header {
-    padding: 20px;
-  }
+  margin: 10px 0 20px;
+  max-width: 60ch;
+  font-size: 1rem;
+  color: var(--text-muted);
+  padding-left: 15px;
 }

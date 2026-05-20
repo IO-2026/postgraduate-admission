@@ -1,6 +1,6 @@
 .course-management-view {
   display: grid;
-  gap: 18px;
+  gap: 24px;
   align-content: start;
   padding-bottom: 80px;
 }
@@ -10,36 +10,36 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border-radius: 999px;
-  background: var(--ghost-bg);
-  padding: 10px 16px;
+  border-radius: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 8px 14px;
   color: var(--text-strong);
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.85rem;
   text-decoration: none;
+  transition: all 0.15s ease;
 }
 
 .course-management-back-link:hover {
-  background: var(--ghost-hover);
+  background: var(--bg-accent);
+  border-color: #cbd5e1;
 }
 
 .course-management-back-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .course-management-header {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--panel-border);
-  border-radius: 28px;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.82),
-    rgba(230, 244, 241, 0.85)
-  );
-  box-shadow: var(--shadow-soft);
-  padding: 36px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .course-management-header h1 {
@@ -48,30 +48,40 @@
   font-size: clamp(2rem, 3.4vw, 3rem);
   line-height: 1.1;
   color: var(--text-strong);
+  border-left: 3px solid var(--primary); /* Teal vertical bar */
+  padding-left: 12px;
 }
 
 .course-management-header p {
   margin-top: 12px;
   font-size: 1.05rem;
   line-height: 1.6;
+  padding-left: 15px;
+  color: var(--text-light);
 }
 
 .course-management-state,
 .course-management-form {
-  border: 1px solid var(--panel-border);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--shadow-soft);
-  padding: 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .course-management-state {
   color: var(--text-muted);
+  border-top: 1px solid var(--panel-border);
+  padding-top: 24px;
+  margin-top: 12px;
 }
 
 .course-management-form {
   display: grid;
   gap: 18px;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 32px;
+  margin-top: 12px;
 }
 
 .course-management-form-grid {
@@ -91,7 +101,8 @@
 
 .course-management-field label {
   color: var(--text-strong);
-  font-weight: 700;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .course-management-field input,
@@ -99,54 +110,57 @@
 .course-management-field select {
   width: 100%;
   border: 1px solid var(--field-border);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--field-bg);
-  padding: 0.75rem 1rem;
+  padding: 10px 12px;
   color: var(--text-strong);
-  font: inherit;
+  font-size: 0.95rem;
   line-height: 1.35;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
 }
 
 .course-management-field input,
 .course-management-field select {
-  min-height: 44px;
+  height: 40px;
 }
 
 .course-management-field textarea {
-  min-height: 160px;
+  min-height: 140px;
   resize: vertical;
 }
 
 .course-management-field input:focus,
 .course-management-field textarea:focus,
 .course-management-field select:focus {
-  outline: 3px solid rgba(15, 127, 115, 0.18);
+  outline: none;
   border-color: var(--field-focus);
 }
 
 .course-management-field input:disabled,
 .course-management-field select:disabled {
-  color: var(--text-muted);
-  background: rgba(223, 233, 240, 0.55);
+  color: var(--text-light);
+  background: var(--bg-accent);
   cursor: not-allowed;
 }
 
 .course-management-message {
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-weight: 600;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-weight: 500;
+  border: 1px solid;
 }
 
 .course-management-error {
+  background-color: #fff1f2;
   color: var(--error);
+  border-color: #ffe4e6;
 }
 
 .course-management-success {
-  background: rgba(15, 127, 115, 0.12);
+  background: #f0fdfa;
   color: var(--primary);
+  border-color: #ccfbf1;
 }
 
 .course-management-actions {
@@ -155,99 +169,193 @@
 }
 
 .course-management-submit {
-  min-height: 44px;
-  border: 1px solid var(--primary-hover);
-  border-radius: 999px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
   background: var(--primary);
   padding: 10px 20px;
   color: var(--primary-text);
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .course-management-submit:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 8px 18px rgba(15, 127, 115, 0.2);
-  transform: translateY(-1px);
+  border-color: var(--primary-hover);
 }
 
 .course-management-submit:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .course-candidates-panel {
   display: grid;
-  gap: 16px;
+  gap: 20px;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 32px;
+  margin-top: 16px;
 }
 
 .course-candidates-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
-.course-candidates-header h2 {
+.course-candidates-header-left h2 {
   margin: 0;
   color: var(--text-strong);
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   line-height: 1.2;
+  border-left: 3px solid var(--primary); /* Teal vertical bar */
+  padding-left: 10px;
 }
 
-.course-candidates-header p {
+.course-candidates-header-left p {
   margin-top: 6px;
   line-height: 1.5;
+  padding-left: 13px;
+  color: var(--text-light);
+  font-size: 0.9rem;
 }
 
 .course-candidates-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 42px;
-  min-height: 34px;
-  border-radius: 999px;
-  background: var(--primary);
-  color: var(--primary-text);
-  font-family: var(--font-display);
-  font-weight: 700;
+  min-width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--bg-accent);
+  color: var(--primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--panel-border);
 }
 
 .course-candidates-list {
   display: grid;
-  gap: 12px;
+  gap: 6px;
 }
 
 .course-candidate-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 3.5fr 4fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   border: 1px solid var(--panel-border);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 8px 18px rgba(17, 47, 74, 0.08);
-  padding: 18px 20px;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  padding: 16px 20px;
+  transition: all 0.15s ease;
 }
+
+.candidate-edit-arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  color: var(--primary);
+  background: transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.candidate-edit-arrow-btn:hover {
+  background: var(--bg-accent);
+  color: var(--primary-hover);
+  border-color: var(--primary);
+  transform: translateX(3px);
+}
+
+.course-candidate-statuses {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 6px 10px;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.course-candidate-statuses--simple {
+  grid-template-columns: auto 1fr;
+}
+
+.course-candidate-status-label {
+  color: var(--text-light);
+  text-align: right;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge--success {
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+}
+
+.status-badge--disabled {
+  background-color: rgba(13, 33, 55, 0.05);
+  color: rgba(13, 33, 55, 0.55);
+}
+
+.status-badge--submitted {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #d97706;
+}
+
+.status-badge--accepted {
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+}
+
+.status-badge--withdrawn {
+  background-color: rgba(225, 29, 72, 0.1);
+  color: #e11d48;
+}
+
+@media (max-width: 1024px) {
+  .course-candidate-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .course-candidate-status-label {
+    text-align: left;
+  }
+}
+
+
 
 .course-candidate-main {
   display: grid;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
-  flex: 0 0 280px;
+  flex: 1;
 }
 
 .course-candidate-main h3 {
   margin: 0;
   color: var(--text-strong);
-  font-family: var(--font-display);
-  font-size: 1.08rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
   line-height: 1.25;
 }
 
@@ -255,47 +363,56 @@
   color: var(--primary);
   overflow-wrap: anywhere;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .course-candidate-main a:hover {
   text-decoration: underline;
 }
 
+.course-candidate-date {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
 .course-candidate-meta {
   display: flex;
-  flex: 0 0 auto;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  align-items: center;
   gap: 8px;
 }
 
 .course-candidate-meta span {
-  border-radius: 999px;
-  background: rgba(17, 47, 74, 0.08);
-  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--bg-accent);
+  border: 1px solid var(--panel-border);
+  padding: 4px 10px;
   color: var(--text-strong);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .course-candidate-meta .course-candidate-paid {
-  background: rgba(15, 127, 115, 0.14);
-  color: var(--primary);
+  background: #f0fdfa;
+  color: #0f766e;
+  border-color: #ccfbf1;
 }
 
 .course-candidate-meta .course-candidate-unpaid {
-  background: rgba(184, 51, 51, 0.12);
-  color: var(--error);
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fef3c7;
 }
 
 @media (max-width: 640px) {
   .course-management-header {
-    padding: 20px;
+    padding: 0;
   }
 
   .course-management-form,
   .course-management-state {
-    padding: 20px;
+    padding: 0;
   }
 
   .course-management-form-grid {
@@ -313,65 +430,114 @@
   .course-candidates-header,
   .course-candidate-card {
     display: grid;
+    padding: 16px;
   }
 
   .course-candidate-meta {
     justify-content: flex-start;
+    margin-top: 8px;
   }
 }
 
 .course-candidate-actions {
-  position: relative;
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
-  margin-left: auto;
 }
 
-.candidate-edit-application {
+.candidate-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  border: 1px solid var(--primary-hover);
-  border-radius: 999px;
-  background: var(--primary);
-  padding: 10px 20px;
-  color: var(--primary-text);
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 6px;
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
 }
 
-.candidate-edit-application:hover {
+.candidate-action-btn--primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.candidate-action-btn--primary:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 8px 18px rgba(15, 127, 115, 0.2);
-  transform: translateY(-1px);
+  border-color: var(--primary-hover);
 }
 
-.candidate-edit-application:focus-visible {
-  outline: 3px solid rgba(15, 127, 115, 0.18);
-  outline-offset: 2px;
+.candidate-action-btn--outline {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.candidate-action-btn--outline:hover:not(:disabled) {
+  background: var(--bg-accent);
+}
+
+.candidate-action-btn--secondary {
+  background: var(--panel-bg);
+  color: var(--text-strong);
+  border-color: var(--panel-border);
+}
+
+.candidate-action-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-accent);
+  border-color: #cbd5e1;
+}
+
+.candidate-action-btn:disabled {
+  background: rgba(13, 33, 55, 0.03) !important;
+  color: rgba(13, 33, 55, 0.4) !important;
+  border-color: rgba(13, 33, 55, 0.1) !important;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.candidate-edit-link {
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  transition: color 0.15s ease;
+}
+
+.candidate-edit-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.candidate-card-error {
+  flex-basis: 100%;
+  color: var(--error);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 4px;
 }
 
 .candidate-dropdown-toggle {
   list-style: none;
   cursor: pointer;
-  background: var(--ghost-bg, #f3f4f6);
-  border: none;
-  border-radius: 999px;
-  width: 32px;
-  height: 32px;
+  background: var(--ghost-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-strong);
+  color: var(--text-light);
   padding: 0;
+  transition: all 0.15s ease;
 }
 
 .candidate-dropdown-toggle::-webkit-details-marker {
@@ -379,23 +545,25 @@
 }
 
 .candidate-dropdown-toggle:hover {
-  background: var(--ghost-hover, #e5e7eb);
+  background: var(--bg-accent);
+  color: var(--primary);
 }
 
 .candidate-dropdown[open] .candidate-dropdown-toggle {
-  background: var(--ghost-hover, #e5e7eb);
+  background: var(--bg-accent);
+  color: var(--primary);
 }
 
 .candidate-dropdown-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 8px;
-  background: #fff;
-  border: 1px solid var(--panel-border, #e5e7eb);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 8px;
+  margin-top: 6px;
+  background: white;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -409,25 +577,26 @@
   border: none;
   text-align: left;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--text-strong);
-  transition: background-color 0.2s;
+  transition: background-color 0.15s ease;
   text-decoration: none;
   display: block;
 }
 
 .candidate-dropdown-menu button:hover,
 .candidate-dropdown-menu a:hover {
-  background: var(--ghost-bg, #f3f4f6);
+  background: var(--bg-accent);
 }
 
 .candidate-dropdown-menu .candidate-dropdown-delete {
-  color: var(--error, #dc2626);
+  color: var(--error);
 }
 
-.candidate-edit-application {
-  width: 100%;
+.candidate-dropdown-menu .candidate-dropdown-delete:hover {
+  background: rgba(225, 29, 72, 0.04);
 }

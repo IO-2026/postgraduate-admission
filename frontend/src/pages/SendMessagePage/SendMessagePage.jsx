@@ -267,6 +267,31 @@ function SendMessagePage({ user }) {
                   </button>
                 </div>
 
+                {selectedIds.length > 0 && (
+                  <div className="selected-recipients-tags">
+                    {selectedIds.map((id) => {
+                      const r = recipients.find((x) => x.id === id)
+                        || courseCandidates.find((x) => x.id === id);
+                      const label = r
+                        ? `${r.name || ""} ${r.surname || ""}`.trim() || r.email
+                        : `#${id}`;
+                      return (
+                        <span key={id} className="recipient-tag">
+                          {label}
+                          <button
+                            type="button"
+                            className="recipient-tag-remove"
+                            onClick={() => toggleRecipient(id)}
+                            aria-label={`Usuń ${label}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <input
                   type="search"
                   className="recipients-search"
@@ -326,10 +351,9 @@ function SendMessagePage({ user }) {
             </div>
           )}
 
-          {error && <div className="form-error">{error}</div>}
-          {success && <div className="form-info">{success}</div>}
-
           <div className="form-actions">
+            {error && <div className="form-error">{error}</div>}
+            {success && <div className="form-info">{success}</div>}
             <button type="submit" className="primary-btn" disabled={sending}>
               {sending ? "Wysyłanie..." : "Wyślij wiadomość"}
             </button>

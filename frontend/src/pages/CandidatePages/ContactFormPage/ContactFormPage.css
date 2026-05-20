@@ -1,34 +1,37 @@
 .contact-form-view {
   display: grid;
-  justify-items: center;
+  justify-items: start;
   align-items: start;
-  padding: 0 0 40px;
 }
 
 .contact-form-card {
   width: min(680px, 100%);
-  border-radius: 24px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  box-shadow: var(--shadow-soft);
-  padding: 28px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .contact-form-card h1 {
-  margin: 0 0 8px;
+  margin: 0 0 16px;
   font-family: var(--font-display);
   color: var(--text-strong);
+  border-left: 3px solid var(--primary); /* Teal vertical bar */
+  padding-left: 12px;
 }
 
 .contact-subtitle {
   margin-bottom: 24px;
-  color: var(--text-muted);
+  color: var(--text-light);
+  padding-left: 15px;
 }
 
 .contact-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 24px;
 }
 
 .contact-form .form-group {
@@ -38,21 +41,20 @@
 }
 
 .contact-form .form-group label {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-strong);
 }
 
 .contact-form input,
 .contact-form textarea {
-  padding: 12px 16px;
+  padding: 10px 12px;
   border: 1px solid var(--field-border);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--field-bg);
   font-family: inherit;
-  font-size: 1rem;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  font-size: 0.95rem;
+  color: var(--text-strong);
+  transition: border-color 0.15s ease;
 }
 
 .contact-form textarea {
@@ -61,25 +63,27 @@
 
 .contact-form input:focus,
 .contact-form textarea:focus {
-  outline: 3px solid rgba(15, 127, 115, 0.18);
+  outline: none;
   border-color: var(--field-focus);
 }
 
 .contact-error {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(184, 51, 51, 0.12);
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: #fff1f2;
   color: var(--error);
   font-weight: 500;
+  border: 1px solid #ffe4e6;
 }
 
 .contact-success {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(15, 127, 115, 0.12);
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: #f0fdfa;
   color: var(--primary);
   font-weight: 500;
   margin-bottom: 20px;
+  border: 1px solid #ccfbf1;
 }
 
 .contact-actions {
@@ -90,6 +94,6 @@
 
 @media (max-width: 640px) {
   .contact-form-card {
-    padding: 20px;
+    padding: 0;
   }
 }

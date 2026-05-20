@@ -585,38 +585,35 @@ function AdmissionPage({ isLoggedIn, user }) {
                       </div>
                       <span className="course-price">{course.price} PLN</span>
                     </div>
-                    <div className="course-meta">
-                      {hasRecruitmentRange && (
-                        <span className="meta-tag meta-tag--dates">
-                          <span className="meta-label">
-                            {recruitmentOpen
-                              ? "Rekrutacja otwarta"
-                              : "Rekrutacja"}
+
+                    {hasRecruitmentRange && (
+                      <div className="course-meta">
+                        <div className="course-recruitment-block">
+                          <span className={`course-recruitment-status ${recruitmentOpen ? "open" : "closed"}`}>
+                            {recruitmentOpen ? "Otwarta" : "Zamknięta"}
                           </span>
-                          <span className="meta-dates">
-                            <span>
-                              Od{" "}
-                              <strong>
-                                {formatDisplayDate(course.recruitmentStart)}
-                              </strong>
-                            </span>
-                            <span>
-                              Do{" "}
-                              <strong>
-                                {formatDisplayDate(course.recruitmentEnd)}
-                              </strong>
-                            </span>
-                          </span>
-                        </span>
-                      )}
-                    </div>
+                          <div className="course-recruitment-dates">
+                            <div className="course-date-item">
+                              <span className="course-date-label">Od</span>
+                              <span className="course-date-value">{formatDisplayDate(course.recruitmentStart)}</span>
+                            </div>
+                            <span className="course-date-sep">→</span>
+                            <div className="course-date-item">
+                              <span className="course-date-label">Do</span>
+                              <span className="course-date-value">{formatDisplayDate(course.recruitmentEnd)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {isLoggedIn ? (
                       <div className="course-card-actions">
                         {appliedCourseIds.includes(Number(course.id)) ? (
                           <button
                             disabled
                             className="primary-btn"
-                            style={{ opacity: 0.6, cursor: "not-allowed" }}
+                            style={{ opacity: 0.5, cursor: "not-allowed" }}
                           >
                             Już aplikowano
                           </button>
@@ -846,20 +843,38 @@ function AdmissionPage({ isLoggedIn, user }) {
               <section className="admission-section" aria-label="Dokumenty">
                 <h2>Dokumenty</h2>
 
-                <label>
+                <div className="file-upload-field">
                   <span>
                     Dyplom (PDF) <span className="required-star">*</span>
                   </span>
-                  <input
-                    type="file"
-                    name="diplomaFile"
-                    accept="application/pdf"
-                    onChange={onDiplomaChange}
-                    disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("diplomaFile")}
-                  />
+                  <label className={`admission-file-upload ${diplomaFile ? 'has-file' : ''}`}>
+                    <input
+                      type="file"
+                      name="diplomaFile"
+                      accept="application/pdf"
+                      onChange={onDiplomaChange}
+                      disabled={isSubmitting}
+                      style={{ display: "none" }}
+                      aria-invalid={getInputAriaInvalid("diplomaFile")}
+                    />
+                    <div className="upload-content">
+                      <svg className="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      {diplomaFile ? (
+                        <div className="file-info animate-fade-in">
+                          <span className="file-name">{diplomaFile.name}</span>
+                          <span className="file-size">({(diplomaFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        </div>
+                      ) : (
+                        <span className="upload-label">Wybierz plik PDF lub przeciągnij go tutaj</span>
+                      )}
+                    </div>
+                  </label>
                   {renderFieldError("diplomaFile")}
-                </label>
+                </div>
                 <p className="admission-hint">
                   Dodaj skan dyplomu w formacie PDF (maksymalnie 10 MB).
                 </p>

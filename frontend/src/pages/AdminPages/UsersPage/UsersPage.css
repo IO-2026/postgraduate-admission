@@ -1,6 +1,6 @@
 .users-page {
   display: grid;
-  gap: 16px;
+  gap: 24px;
   align-content: start;
   width: 100%;
 }
@@ -9,135 +9,96 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  min-height: 48px;
-  margin: 8px 0 0;
+  margin: 0 0 10px;
 }
 
 .users-back-link {
-  gap: 8px;
+  gap: 6px;
   padding: 8px 14px;
   font-size: 0.85rem;
 }
 
 .users-back-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .users-header {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
-  border: 1px solid var(--panel-border);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.8),
-    rgba(230, 244, 241, 0.82)
-  );
-  box-shadow: var(--shadow-soft);
-  padding: 36px;
-}
-
-.header-top {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  min-height: 48px;
-  margin: 0 0 16px;
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--ghost-bg);
-  color: var(--text-strong);
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-decoration: none;
-  font-size: 0.85rem;
-  transition: background-color 0.2s ease;
-}
-
-.back-link:hover {
-  background: var(--ghost-hover);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .users-header::after {
-  content: "";
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  right: -120px;
-  top: -120px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(15, 127, 115, 0.25),
-    rgba(15, 127, 115, 0)
-  );
+  display: none;
 }
 
 .users-header h1 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.6vw, 3rem);
-  line-height: 1.1;
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  line-height: 1.15;
   color: var(--text-strong);
+  border-left: 3px solid var(--primary); /* Teal left border accent */
+  padding-left: 12px;
 }
 
 .users-subtitle {
-  margin-top: 12px;
+  margin-top: 10px;
   max-width: 60ch;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--text-muted);
+  padding-left: 15px;
 }
 
 .error-message {
   padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(184, 51, 51, 0.2);
-  background: rgba(184, 51, 51, 0.12);
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
   color: var(--error);
+  font-size: 0.9rem;
 }
 
 .users-controls {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 16px;
-  padding: 18px;
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  background: var(--panel-bg);
-  box-shadow: var(--shadow-soft);
+  padding: 24px 0;
+  border: 0;
+  border-bottom: 1px solid var(--panel-border);
+  background: transparent;
+  box-shadow: none;
 }
 
 .users-search-field {
   display: grid;
-  gap: 8px;
-  min-width: min(360px, 100%);
+  gap: 6px;
+  min-width: min(320px, 100%);
   color: var(--text-strong);
-  font-weight: 600;
-  font-size: 0.92rem;
+  font-weight: 500;
+  font-size: 0.85rem;
 }
 
 .users-search-field input {
-  height: 42px;
+  height: 40px;
   border: 1px solid var(--field-border);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--field-bg);
   color: var(--text-strong);
-  padding: 0 14px;
+  padding: 0 12px;
   font: inherit;
   font-weight: 400;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease;
 }
 
 .users-search-field input:focus {
   border-color: var(--field-focus);
-  box-shadow: 0 0 0 3px rgba(15, 127, 115, 0.18);
   outline: none;
 }
 
@@ -151,32 +112,37 @@
 .users-role-filter button {
   min-height: 38px;
   border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  background: var(--ghost-bg);
-  color: var(--text-strong);
-  padding: 0 14px;
-  font-family: var(--font-display);
-  font-weight: 700;
+  border-radius: 6px;
+  background: var(--panel-bg);
+  color: var(--text-muted);
+  padding: 0 16px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.users-role-filter button:hover,
+.users-role-filter button:hover {
+  color: var(--text-strong);
+  background: var(--bg-accent);
+}
+
 .users-role-filter button.active {
   border-color: var(--primary);
   background: var(--primary);
   color: var(--primary-text);
+  font-weight: 600;
 }
 
 .table-container {
   overflow-x: auto;
-  background: var(--panel-bg);
-  border-radius: 22px;
-  box-shadow: var(--shadow-soft);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
   border: 1px solid var(--panel-border);
+  border-radius: 6px;
 }
 
 .users-table {
@@ -187,55 +153,60 @@
 
 .users-table th,
 .users-table td {
-  padding: 14px 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--panel-border);
+  font-size: 0.95rem;
 }
 
 .users-table th {
-  background-color: var(--field-bg);
+  background-color: var(--bg-accent);
   font-weight: 600;
   color: var(--text-strong);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--primary);
 }
 
 .users-table tr:last-child td {
   border-bottom: none;
 }
 
-.users-table tbody tr:hover {
-  background-color: rgba(15, 127, 115, 0.08);
+.users-table tbody tr {
+  transition: background-color 0.1s ease;
 }
 
+
+
 .role-select {
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
   border: 1px solid var(--field-border);
   background-color: var(--field-bg);
   color: var(--text-strong);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   cursor: pointer;
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
 .role-select:focus {
   border-color: var(--field-focus);
-  box-shadow: 0 0 0 3px rgba(15, 127, 115, 0.18);
 }
 
 .empty-table {
   text-align: center;
-  color: var(--text-muted);
-  padding: 2rem !important;
+  color: var(--text-light);
+  padding: 2.5rem 0 !important;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 640px) {
-  .users-header,
-  .table-container {
-    padding: 20px;
-  }
-
   .users-controls {
+    padding: 16px 0;
     align-items: stretch;
     flex-direction: column;
+    gap: 16px;
   }
 
   .users-role-filter {
@@ -244,6 +215,7 @@
 
   .users-table th,
   .users-table td {
-    padding: 12px 14px;
+    padding: 12px;
+    font-size: 0.85rem;
   }
 }

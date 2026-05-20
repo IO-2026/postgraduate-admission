@@ -5,6 +5,13 @@ import {
   fetchCourses,
   updateCourse,
 } from "../../../services/courseApi";
+import {
+  getApplication,
+  verifyDiploma,
+  verifyDeclaration,
+  acceptApplication,
+  getApplicationDiplomaUrl,
+} from "../../../services/applicationApi";
 import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./CourseManagementPage.css";
@@ -92,8 +99,26 @@ function CourseManagementPage() {
         setCandidatesLoading(true);
         setCandidatesError("");
         const data = await fetchCourseCandidates(courseId);
-        if (isMounted) {
-          setCandidates(Array.isArray(data) ? data : []);
+        if (isMounted && Array.isArray(data)) {
+          const candidatesWithDates = await Promise.all(
+            data.map(async (candidate) => {
+              try {
+                if (candidate.applicationId) {
+                  const appData = await getApplication(candidate.applicationId);
+                  return {
+                    ...candidate,
+                    submissionDateTime: appData.submissionDateTime || null,
+                  };
+                }
+              } catch (e) {
+                console.error("Error fetching application details for candidate", candidate.id, e);
+              }
+              return candidate;
+            })
+          );
+          setCandidates(candidatesWithDates);
+        } else if (isMounted) {
+          setCandidates([]);
         }
       } catch (err) {
         if (isMounted) {
@@ -112,6 +137,90 @@ function CourseManagementPage() {
       isMounted = false;
     };
   }, [courseId]);
+
+  const [candidateActionsLoading, setCandidateActionsLoading] = useState({});
+  const [candidateDiplomaLoading, setCandidateDiplomaLoading] = useState({});
+  const [candidateError, setCandidateError] = useState({});
+
+  const handleVerifyDiploma = async (candidateId, applicationId) => {
+    setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
+    try {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
+      await verifyDiploma(applicationId);
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((c) =>
+          c.id === candidateId ? { ...c, isDiplomaVerified: true } : c
+        )
+      );
+    } catch (err) {
+      setCandidateError((prev) => ({
+        ...prev,
+        [candidateId]: err.message || "Nie udało się zweryfikować dyplomu.",
+      }));
+    } finally {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: false }));
+    }
+  };
+
+  const handleVerifyDeclaration = async (candidateId, applicationId) => {
+    setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
+    try {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
+      await verifyDeclaration(applicationId);
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((c) =>
+          c.id === candidateId ? { ...c, isDeclarationVerified: true } : c
+        )
+      );
+    } catch (err) {
+      setCandidateError((prev) => ({
+        ...prev,
+        [candidateId]: err.message || "Nie udało się zweryfikować oświadczenia.",
+      }));
+    } finally {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: false }));
+    }
+  };
+
+  const handleAcceptApplication = async (candidateId, applicationId) => {
+    setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
+    try {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
+      await acceptApplication(applicationId);
+      setCandidates((prevCandidates) =>
+        prevCandidates.map((c) =>
+          c.id === candidateId ? { ...c, isAccepted: true } : c
+        )
+      );
+    } catch (err) {
+      setCandidateError((prev) => ({
+        ...prev,
+        [candidateId]: err.message || "Nie udało się zaakceptować wniosku.",
+      }));
+    } finally {
+      setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: false }));
+    }
+  };
+
+  const handleDiplomaDownload = async (candidateId, applicationId) => {
+    setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
+    try {
+      setCandidateDiplomaLoading((prev) => ({ ...prev, [candidateId]: true }));
+      const response = await getApplicationDiplomaUrl(applicationId);
+      const url = response?.url;
+      if (!url) {
+        throw new Error("Brak linku do dyplomu");
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setCandidateError((prev) => ({
+        ...prev,
+        [candidateId]: err.message || "Nie udało się pobrać dyplomu.",
+      }));
+    } finally {
+      setCandidateDiplomaLoading((prev) => ({ ...prev, [candidateId]: false }));
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -443,181 +552,179 @@ function CourseManagementPage() {
                   <div className="course-candidate-main">
                     <h3>{fullName || "Kandydat bez danych"}</h3>
                     <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: isFullyAccepted
-                        ? "auto 1fr"
-                        : [
-                              true,
-                              !isWithdrawn,
-                              isAccepted && !isWithdrawn,
-                              isEntryFeePaid && !isWithdrawn,
-                              isAccepted && isSemesterPaid && !isWithdrawn,
-                            ].filter(Boolean).length > 3
-                          ? "auto 1fr auto 1fr"
-                          : "auto 1fr",
-                      gap: "6px 10px",
-                      alignItems: "center",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    {isFullyAccepted ? (
-                      <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>
-                          Aplikacja:
-                        </span>
-                        <div>
-                          <span
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              backgroundColor: "#16a34a20",
-                              color: "#16a34a",
-                              fontWeight: "bold",
-                              display: "inline-block",
-                            }}
-                          >
-                            kandydat przyjęty
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>
-                          Aplikacja:
-                        </span>
-                        <div>
-                          <span
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              backgroundColor: `${statusColor}20`,
-                              color: statusColor,
-                              display: "inline-block",
-                            }}
-                          >
-                            {displayStatus}
-                          </span>
-                        </div>
-
-                        {!isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Dyplom:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: isDiplomaVerified
-                                    ? "#16a34a20"
-                                    : "#eab30820",
-                                  color: isDiplomaVerified
-                                    ? "#16a34a"
-                                    : "#eab308",
-                                  display: "inline-block",
-                                }}
-                              >
-                                {isDiplomaVerified
-                                  ? "zweryfikowany"
-                                  : "w trakcie weryfikacji"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isAccepted && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Oświadczenie:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: isDeclarationVerified
-                                    ? "#16a34a20"
-                                    : "#eab30820",
-                                  color: isDeclarationVerified
-                                    ? "#16a34a"
-                                    : "#eab308",
-                                  display: "inline-block",
-                                }}
-                              >
-                                {isDeclarationVerified
-                                  ? "zweryfikowane"
-                                  : "w trakcie weryfikacji"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isEntryFeePaid && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Wpisowe:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: "#16a34a20",
-                                  color: "#16a34a",
-                                  display: "inline-block",
-                                }}
-                              >
-                                opłacone
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isAccepted && isSemesterPaid && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Semestr:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: "#16a34a20",
-                                  color: "#16a34a",
-                                  display: "inline-block",
-                                }}
-                              >
-                                opłacony
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </>
+                    {candidate.submissionDateTime && (
+                      <span className="course-candidate-date">
+                        {new Intl.DateTimeFormat("pl-PL", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }).format(new Date(candidate.submissionDateTime))}
+                      </span>
                     )}
                   </div>
 
-                  <div className="course-candidate-actions">
-                    <Link
-                      to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
-                      className="candidate-edit-application"
-                    >
-                      Edytuj aplikację
-                    </Link>
+                  <div className="course-candidate-statuses">
+                    {/* 1. Aplikacja */}
+                    <span className="course-candidate-status-label">Aplikacja:</span>
+                    <div>
+                      <span
+                        className={`status-badge ${
+                          isWithdrawn
+                            ? "status-badge--withdrawn"
+                            : isAccepted
+                            ? "status-badge--accepted"
+                            : "status-badge--submitted"
+                        }`}
+                      >
+                        {displayStatus}
+                      </span>
+                    </div>
+
+                    {/* 2. Dyplom */}
+                    <span className="course-candidate-status-label">Dyplom:</span>
+                    <div>
+                      <span
+                        className={`status-badge ${
+                          isDiplomaVerified ? "status-badge--success" : "status-badge--disabled"
+                        }`}
+                      >
+                        {isDiplomaVerified ? "zweryfikowany" : "niezweryfikowany"}
+                      </span>
+                    </div>
+
+                    {/* 3. Oświadczenie */}
+                    <span className="course-candidate-status-label">Oświadczenie:</span>
+                    <div>
+                      <span
+                        className={`status-badge ${
+                          isDeclarationVerified ? "status-badge--success" : "status-badge--disabled"
+                        }`}
+                      >
+                        {isDeclarationVerified ? "zweryfikowane" : "niezweryfikowane"}
+                      </span>
+                    </div>
+
+                    {/* 4. Wpisowe */}
+                    <span className="course-candidate-status-label">Wpisowe:</span>
+                    <div>
+                      <span
+                        className={`status-badge ${
+                          isEntryFeePaid ? "status-badge--success" : "status-badge--disabled"
+                        }`}
+                      >
+                        {isEntryFeePaid ? "opłacone" : "nieopłacone"}
+                      </span>
+                    </div>
+
+                    {/* 5. Semestr */}
+                    <span className="course-candidate-status-label">Semestr:</span>
+                    <div>
+                      <span
+                        className={`status-badge ${
+                          isSemesterPaid ? "status-badge--success" : "status-badge--disabled"
+                        }`}
+                      >
+                        {isSemesterPaid ? "opłacony" : "nieopłacony"}
+                      </span>
+                    </div>
                   </div>
+
+                  <div className="course-candidate-actions">
+                    {/* Show diploma button */}
+                    <button
+                      type="button"
+                      className="candidate-action-btn candidate-action-btn--secondary"
+                      onClick={() =>
+                        handleDiplomaDownload(candidate.id, candidate.applicationId)
+                      }
+                      disabled={isWithdrawn || !candidate.applicationId || candidateDiplomaLoading[candidate.id]}
+                    >
+                      {candidateDiplomaLoading[candidate.id]
+                        ? "Pobieranie..."
+                        : "Wyświetl dyplom"}
+                    </button>
+
+                    {/* Verify diploma button */}
+                    <button
+                      type="button"
+                      className="candidate-action-btn candidate-action-btn--outline"
+                      onClick={() =>
+                        handleVerifyDiploma(candidate.id, candidate.applicationId)
+                      }
+                      disabled={
+                        isDiplomaVerified ||
+                        isWithdrawn ||
+                        !candidate.applicationId ||
+                        candidateActionsLoading[candidate.id]
+                      }
+                    >
+                      {isDiplomaVerified ? "Dyplom zweryfikowany" : "Zweryfikuj dyplom"}
+                    </button>
+
+                    {/* Verify declaration button */}
+                    <button
+                      type="button"
+                      className="candidate-action-btn candidate-action-btn--outline"
+                      onClick={() =>
+                        handleVerifyDeclaration(candidate.id, candidate.applicationId)
+                      }
+                      disabled={
+                        !isAccepted ||
+                        isDeclarationVerified ||
+                        isWithdrawn ||
+                        !candidate.applicationId ||
+                        candidateActionsLoading[candidate.id]
+                      }
+                    >
+                      {isDeclarationVerified ? "Oświadczenie zweryfikowane" : "Zweryfikuj oświadczenie"}
+                    </button>
+
+                    {/* Accept application button */}
+                    <button
+                      type="button"
+                      className="candidate-action-btn candidate-action-btn--primary"
+                      onClick={() =>
+                        handleAcceptApplication(candidate.id, candidate.applicationId)
+                      }
+                      disabled={
+                        isAccepted ||
+                        !isDiplomaVerified ||
+                        !isEntryFeePaid ||
+                        isWithdrawn ||
+                        !candidate.applicationId ||
+                        candidateActionsLoading[candidate.id]
+                      }
+                    >
+                      {isAccepted ? "Wniosek zaakceptowany" : "Akceptuj wniosek"}
+                    </button>
+
+                    {candidateError[candidate.id] && (
+                      <div className="candidate-card-error">
+                        {candidateError[candidate.id]}
+                      </div>
+                    )}
+                  </div>
+
+                  <Link
+                    to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
+                    className="candidate-edit-arrow-btn"
+                    aria-label="Edytuj aplikację"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </Link>
                 </article>
               );
             })}
