@@ -110,7 +110,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('Admin', 'Coordinator') or (hasRole('Candidate') and #id == authentication.principal.id)")
+    @PreAuthorize("hasAnyRole('Admin', 'Coordinator') or (hasRole('Candidate') and @securityService.isApplicationOwner(authentication, #id))")
     public ApplicationDto getApplication(@PathVariable Long id) {
         return applicationService.getApplication(id);
     }

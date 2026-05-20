@@ -106,7 +106,7 @@ function PaymentPage() {
       } else {
         await paySemester(application.id);
       }
-      navigate(`/admission/success?applicationId=${application.id}`);
+      navigate("/");
     } catch (paymentError) {
       setError(paymentError?.message || "Nie udało się zrealizować płatności.");
     } finally {
