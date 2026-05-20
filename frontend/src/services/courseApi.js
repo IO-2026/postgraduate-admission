@@ -82,3 +82,14 @@ export async function deleteCourse(id) {
   }
   return true;
 }
+
+export async function closeCourseRecruitment(id) {
+  const response = await authFetch(`${API_URL}/courses/${id}/close`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("Nie udało się zamknąć rekrutacji");
+  }
+  return true;
+}

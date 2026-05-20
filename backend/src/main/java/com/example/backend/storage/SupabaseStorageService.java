@@ -1,5 +1,6 @@
 package com.example.backend.storage;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -19,7 +20,9 @@ public class SupabaseStorageService {
     private final WebClient webClient;
     private final String supabaseUrl;
     private final String serviceRoleKey;
+    @Getter
     private final String diplomasBucket;
+    @Getter
     private final long maxDiplomaBytes;
     private final int signedUrlTtlSeconds;
 
@@ -35,14 +38,6 @@ public class SupabaseStorageService {
         this.maxDiplomaBytes = maxDiplomaBytes;
         this.signedUrlTtlSeconds = signedUrlTtlSeconds;
         this.webClient = webClientBuilder.baseUrl(this.supabaseUrl).build();
-    }
-
-    public String getDiplomasBucket() {
-        return diplomasBucket;
-    }
-
-    public long getMaxDiplomaBytes() {
-        return maxDiplomaBytes;
     }
 
     public void uploadDiploma(String objectKey, Resource content) {
@@ -78,7 +73,7 @@ public class SupabaseStorageService {
 
     public String createSignedUrl(String bucket, String objectKey) {
         ResponseEntity<SignedUrlResponse> response = webClient.post()
-                .uri("/storage/v1/object/sign/{bucket}/{objectKey}", bucket, objectKey)
+                .uri("/storage/v1/object/sign/" + bucket + "/" + objectKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + serviceRoleKey)
                 .header("apikey", serviceRoleKey)
@@ -93,9 +88,15 @@ public class SupabaseStorageService {
         }
 
         String signedUrl = body.signedURL();
+
         if (signedUrl.startsWith("http")) {
             return signedUrl;
         }
+
+        if (!signedUrl.startsWith("/storage/v1")) {
+            signedUrl = signedUrl.startsWith("/") ? "/storage/v1" + signedUrl : "/storage/v1/" + signedUrl;
+        }
+
         return supabaseUrl + signedUrl;
     }
 

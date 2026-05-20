@@ -34,7 +34,7 @@ function ApplicationManagementPage() {
     fieldOfStudy: "",
     university: "",
     graduationYear: "",
-    placeOfBirth: "",
+    candidatePlaceOfBirth: "",
     notes: "",
     truthfulnessConsent: false,
     gdprConsent: false,
@@ -90,7 +90,7 @@ function ApplicationManagementPage() {
             fieldOfStudy: data.fieldOfStudy || "",
             university: data.university || "",
             graduationYear: data.graduationYear || "",
-            placeOfBirth: data.placeOfBirth || "",
+            candidatePlaceOfBirth: data.candidatePlaceOfBirth || "",
             notes: data.notes || "",
             truthfulnessConsent: data.truthfulnessConsent || false,
             gdprConsent: data.gdprConsent || false,
@@ -482,13 +482,13 @@ function ApplicationManagementPage() {
                   id="placeOfBirth"
                   type="text"
                   name="placeOfBirth"
-                  value={applicationData.placeOfBirth}
+                  value={applicationData.candidatePlaceOfBirth}
                   onChange={handleChange}
                   className="application-management-input"
                 />
               ) : (
                 <div className="application-management-readonly">
-                  {applicationData.placeOfBirth || "Brak danych"}
+                  {applicationData.candidatePlaceOfBirth || "Brak danych"}
                 </div>
               )}
             </div>

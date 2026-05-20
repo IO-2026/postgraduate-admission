@@ -82,4 +82,11 @@ public class CourseController {
     public List<CandidateWithApplicationDto> getCourseCandidates(@PathVariable Long id) {
         return courseService.getCourseCandidates(id);
     }
+
+    @PostMapping("/courses/{id}/close")
+    @PreAuthorize("hasAnyRole('Coordinator', 'Admin')")
+    public ResponseEntity<?> closeRecruitment(@PathVariable Long id) {
+        courseService.closeRecruitment(id);
+        return ResponseEntity.ok().build();
+    }
 }

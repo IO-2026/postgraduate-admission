@@ -4,6 +4,7 @@ import {
   fetchCourseCandidates,
   fetchCourses,
   updateCourse,
+  closeCourseRecruitment,
 } from "../../../services/courseApi";
 import {
   getApplication,
@@ -28,6 +29,7 @@ const INITIAL_FORM_STATE = {
   coordinatorId: "",
   coordinatorName: "",
   coordinatorEmail: "",
+  isRecruitmentOpen: true,
 };
 
 function CourseManagementPage() {
@@ -41,6 +43,7 @@ function CourseManagementPage() {
   const [candidates, setCandidates] = useState([]);
   const [candidatesLoading, setCandidatesLoading] = useState(true);
   const [candidatesError, setCandidatesError] = useState("");
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -71,6 +74,7 @@ function CourseManagementPage() {
             coordinatorId: course.coordinatorId ?? "",
             coordinatorName: course.coordinatorName || "",
             coordinatorEmail: course.coordinatorEmail || "",
+            isRecruitmentOpen: course.isRecruitmentOpen ?? true,
           });
         }
       } catch (err) {
@@ -329,12 +333,41 @@ function CourseManagementPage() {
         coordinatorName: updatedCourse.coordinatorName || prev.coordinatorName,
         coordinatorEmail:
           updatedCourse.coordinatorEmail || prev.coordinatorEmail,
+        isRecruitmentOpen:
+          updatedCourse.isRecruitmentOpen ?? prev.isRecruitmentOpen,
       }));
       setSuccessMessage("Zapisano zmiany kierunku.");
     } catch (err) {
       setFormError(err.message || "Nie udało się zapisać zmian.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleCloseRecruitment = async () => {
+    if (
+      !window.confirm(
+        "Czy na pewno chcesz zamknąć rekrutację na ten kierunek? Kandydaci stracą możliwość aplikowania.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsClosing(true);
+      setFormError("");
+      setSuccessMessage("");
+
+      await closeCourseRecruitment(courseId);
+
+      setFormData((prev) => ({ ...prev, isRecruitmentOpen: false }));
+      setSuccessMessage("Rekrutacja została pomyślnie zamknięta.");
+    } catch (err) {
+      setFormError(
+        err.message || "Wystąpił błąd podczas zamykania rekrutacji.",
+      );
+    } finally {
+      setIsClosing(false);
     }
   };
 
@@ -480,11 +513,37 @@ function CourseManagementPage() {
             </div>
           ) : null}
 
-          <div className="course-management-actions">
+          <div
+            className="course-management-actions"
+            style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}
+          >
+            {formData.isRecruitmentOpen ? (
+              <button
+                type="button"
+                className="course-management-submit"
+                style={{ backgroundColor: "#e11d48", borderColor: "#e11d48" }}
+                onClick={handleCloseRecruitment}
+                disabled={isClosing || submitting}
+              >
+                {isClosing ? "Zamykanie..." : "Zamknij rekrutację"}
+              </button>
+            ) : (
+              <span
+                style={{
+                  color: "#e11d48",
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                Rekrutacja zamknięta
+              </span>
+            )}
+
             <button
               type="submit"
               className="course-management-submit"
-              disabled={submitting}
+              disabled={submitting || isClosing}
             >
               {submitting ? "Zapisywanie..." : "Zapisz zmiany"}
             </button>

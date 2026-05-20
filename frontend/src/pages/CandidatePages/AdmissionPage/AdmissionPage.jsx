@@ -609,7 +609,19 @@ function AdmissionPage({ isLoggedIn, user }) {
 
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        {appliedCourseIds.includes(Number(course.id)) ? (
+                        {course.isRecruitmentOpen === false ? (
+                          <button
+                            disabled
+                            className="primary-btn"
+                            style={{
+                              backgroundColor: "#9ca3af",
+                              borderColor: "#9ca3af",
+                              cursor: "not-allowed",
+                            }}
+                          >
+                            Rekrutacja zamknięta
+                          </button>
+                        ) : appliedCourseIds.includes(Number(course.id)) ? (
                           <button
                             disabled
                             className="primary-btn"
@@ -672,7 +684,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                   <input
                     type="date"
                     name="dateOfBirth"
-                    value={account.dateOfBirth}
+                    value={account.candidateDateOfBirth}
                     onChange={onAccountInput}
                     onBlur={onFieldBlur}
                     disabled={isSubmitting}
@@ -689,7 +701,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                     <input
                       type="text"
                       name="pesel"
-                      value={account.pesel}
+                      value={account.candidatePesel}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}
@@ -705,7 +717,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                     <input
                       type="text"
                       name="placeOfBirth"
-                      value={account.placeOfBirth}
+                      value={account.candidatePlaceOfBirth}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}

@@ -35,4 +35,5 @@ public class CourseDTO {
     @NotNull(message = "Rok akademicki jest wymagany.")
     @ValidAcademicYear
     private Integer academicYear;
+    private Boolean isRecruitmentOpen;
 }

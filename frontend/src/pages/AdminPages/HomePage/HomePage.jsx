@@ -21,6 +21,7 @@ const INITIAL_EDIT_FORM_STATE = {
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorEmail: "",
+  isRecruitmentOpen: true,
 };
 
 function AdminHomePage({ isLoggedIn }) {
@@ -35,11 +36,6 @@ function AdminHomePage({ isLoggedIn }) {
   const [formData, setFormData] = useState(INITIAL_EDIT_FORM_STATE);
   const [formError, setFormError] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
-
-  useEffect(() => {
-    loadCourses();
-    loadCoordinators();
-  }, []);
 
   const loadCourses = async () => {
     try {
@@ -71,6 +67,11 @@ function AdminHomePage({ isLoggedIn }) {
       setCoordinatorsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCourses();
+    loadCoordinators();
+  }, []);
 
   const coordinatorByEmail = useMemo(() => {
     const map = new Map();
@@ -123,6 +124,7 @@ function AdminHomePage({ isLoggedIn }) {
       recruitmentEnd: course.recruitmentEnd || "",
       coordinatorEmail:
         coordinatorEmailById.get(String(course.coordinatorId)) || "",
+      isRecruitmentOpen: course.isRecruitmentOpen ?? true,
     });
     setEditingId(course.id);
     setFormError("");
@@ -209,6 +211,7 @@ function AdminHomePage({ isLoggedIn }) {
         description: formData.description,
         price: parseFloat(formData.price),
         placesLimit: parseInt(formData.placesLimit, 10),
+        isRecruitmentOpen: formData.isRecruitmentOpen,
         ...(formData.academicYear && {
           academicYear: parseInt(formData.academicYear, 10),
         }),
@@ -347,6 +350,45 @@ function AdminHomePage({ isLoggedIn }) {
                 />
               </div>
             </div>
+            <div className="form-group">
+              <label>Status rekrutacji</label>
+              <select
+                name="isRecruitmentOpen"
+                value={formData.isRecruitmentOpen ? "true" : "false"}
+                onChange={(e) =>
+                  handleInputChange({
+                    target: {
+                      name: "isRecruitmentOpen",
+                      value: e.target.value === "true",
+                    },
+                  })
+                }
+                style={
+                  formData.isRecruitmentOpen === false
+                    ? {
+                        borderColor: "#e11d48",
+                        color: "#e11d48",
+                        fontWeight: "bold",
+                      }
+                    : {}
+                }
+              >
+                {/* Wymuszamy neutralny kolor na opcjach w dropdownie,
+                    aby nie dziedziczyły czerwonego z wybranego selecta */}
+                <option
+                  value="true"
+                  style={{ color: "#1f2937", fontWeight: "normal" }}
+                >
+                  Otwarta
+                </option>
+                <option
+                  value="false"
+                  style={{ color: "#1f2937", fontWeight: "normal" }}
+                >
+                  Zamknięta
+                </option>
+              </select>
+            </div>
 
             <div className="form-group">
               <label>E-mail koordynatora</label>
@@ -414,12 +456,23 @@ function AdminHomePage({ isLoggedIn }) {
                   {course.description || "Brak opisu dla tego programu."}
                 </p>
                 <div className="course-meta">
-                  {course.recruitmentStart && course.recruitmentEnd ? (
+                  {course.isRecruitmentOpen === false ? (
+                    <span
+                      className="meta-tag"
+                      style={{ color: "#e11d48", fontWeight: "bold" }}
+                    >
+                      Rekrutacja: zamknięta
+                    </span>
+                  ) : course.recruitmentStart && course.recruitmentEnd ? (
                     <span className="meta-tag">
                       Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
                       {formatDisplayDate(course.recruitmentEnd)}
                     </span>
-                  ) : null}
+                  ) : (
+                    <span className="meta-tag">
+                      Termin rekrutacji nie został podany.
+                    </span>
+                  )}
                   {course.placesLimit != null ? (
                     <span className="meta-tag">
                       Limit miejsc: {course.placesLimit}
