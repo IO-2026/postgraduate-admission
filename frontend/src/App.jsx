@@ -12,6 +12,7 @@ import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
+import EditCoursePage from "./pages/AdminPages/EditCoursePage/EditCoursePage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
@@ -429,6 +430,10 @@ function App() {
         <Route
           path="/admin/courses/new"
           element={isAdmin ? <NewCoursePage /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/admin/courses/:courseId/edit"
+          element={isAdmin ? <EditCoursePage /> : <Navigate to="/" replace />}
         />
         <Route path="/admin/courses" element={<Navigate to="/" replace />} />
         <Route

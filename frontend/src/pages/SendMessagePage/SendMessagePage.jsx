@@ -14,6 +14,7 @@ import "./SendMessagePage.css";
 function SendMessagePage({ user }) {
   const [recipients, setRecipients] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   // New state for course-based recipients
   const [activeTab, setActiveTab] = useState("all"); // "all" | "course"
@@ -252,9 +253,11 @@ function SendMessagePage({ user }) {
 
               <div className="recipients-list">
                 <div className="recipients-header">
-                  <span>
-                    Wybierz odbiorców {activeTab === "course" && `(Kierunek)`}:
-                  </span>
+                  <div className="recipients-title-row">
+                    <span>
+                      Wybierz odbiorców {activeTab === "course" && `(Kierunek)`}:
+                    </span>
+                  </div>
                   <button
                     type="button"
                     className="ghost-btn-small"
@@ -292,61 +295,87 @@ function SendMessagePage({ user }) {
                   </div>
                 )}
 
-                <input
-                  type="search"
-                  className="recipients-search"
-                  placeholder="Szukaj po imieniu, nazwisku lub e-mailu…"
-                  value={recipientSearch}
-                  onChange={(e) => setRecipientSearch(e.target.value)}
-                />
-
-                <div className="recipients-table-container">
-                  {activeTab === "course" && loadingCourseCandidates ? (
-                    <span className="recipients-empty">
-                      Ładowanie kandydatów...
-                    </span>
-                  ) : getDisplayedCandidates().length > 0 ? (
-                    <table className="recipients-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: 40 }}></th>
-                          <th>Imię i nazwisko</th>
-                          <th>Email</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {getDisplayedCandidates().map((candidate) => (
-                          <tr
-                            key={candidate.id}
-                            className={
-                              selectedIds.includes(candidate.id)
-                                ? "selected"
-                                : ""
-                            }
-                            onClick={() => toggleRecipient(candidate.id)}
-                          >
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={selectedIds.includes(candidate.id)}
-                                onChange={() => toggleRecipient(candidate.id)}
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </td>
-                            <td>
-                              {candidate.name} {candidate.surname}
-                            </td>
-                            <td>{candidate.email}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <span className="recipients-empty">
-                      Brak kandydatów do wyświetlenia.
-                    </span>
-                  )}
+                <div className="search-and-collapse-row">
+                  <input
+                    type="search"
+                    className="recipients-search"
+                    placeholder="Szukaj po imieniu, nazwisku lub e-mailu…"
+                    value={recipientSearch}
+                    onChange={(e) => {
+                      setRecipientSearch(e.target.value);
+                      if (e.target.value.trim() !== "") {
+                        setIsCollapsed(false);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="collapse-toggle-btn-with-text"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    aria-label={isCollapsed ? "Rozwiń listę odbiorców" : "Zwiń listę odbiorców"}
+                  >
+                    <span>{isCollapsed ? "Rozwiń" : "Zwiń"}</span>
+                    {isCollapsed ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                      </svg>
+                    )}
+                  </button>
                 </div>
+
+                {!isCollapsed && (
+                  <div className="recipients-table-container">
+                    {activeTab === "course" && loadingCourseCandidates ? (
+                      <span className="recipients-empty">
+                        Ładowanie kandydatów...
+                      </span>
+                    ) : getDisplayedCandidates().length > 0 ? (
+                      <table className="recipients-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: 40 }}></th>
+                            <th>Imię i nazwisko</th>
+                            <th>Email</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getDisplayedCandidates().map((candidate) => (
+                            <tr
+                              key={candidate.id}
+                              className={
+                                selectedIds.includes(candidate.id)
+                                  ? "selected"
+                                  : ""
+                              }
+                              onClick={() => toggleRecipient(candidate.id)}
+                            >
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedIds.includes(candidate.id)}
+                                  onChange={() => toggleRecipient(candidate.id)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              </td>
+                              <td>
+                                {candidate.name} {candidate.surname}
+                              </td>
+                              <td>{candidate.email}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <span className="recipients-empty">
+                        Brak kandydatów do wyświetlenia.
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

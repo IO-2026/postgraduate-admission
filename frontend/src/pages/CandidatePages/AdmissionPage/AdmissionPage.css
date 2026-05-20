@@ -72,7 +72,7 @@
   gap: 16px;
 }
 
-/* Course card — bordered, hoverable */
+/* Course card — bordered */
 .admission-course-picker .course-card {
   position: relative;
   display: flex;
@@ -82,13 +82,7 @@
   background: #fff;
   box-shadow: 0 1px 3px rgba(17, 47, 74, 0.06);
   padding: 20px 20px 16px;
-  transition: box-shadow 0.18s ease, border-color 0.18s ease;
   gap: 0;
-}
-
-.admission-course-picker .course-card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 4px 16px rgba(15, 127, 115, 0.12);
 }
 
 /* Header row: title + price badge */
@@ -150,9 +144,11 @@
 
 .course-recruitment-block {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .course-recruitment-status {
@@ -191,15 +187,18 @@
 
 .course-recruitment-dates {
   display: flex;
+  justify-content: center;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .course-date-item {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  text-align: center;
 }
 
 .course-date-label {

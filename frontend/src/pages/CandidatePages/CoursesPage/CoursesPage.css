@@ -221,6 +221,10 @@
 }
 
 .secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   padding: 8px 16px;
   border-radius: 6px;
   font-family: var(--font-display);

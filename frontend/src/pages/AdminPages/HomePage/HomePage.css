@@ -83,3 +83,17 @@
   color: var(--text-muted);
   padding-left: 15px;
 }
+
+.course-card-actions .course-price {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  box-sizing: border-box;
+  width: 100%;
+}

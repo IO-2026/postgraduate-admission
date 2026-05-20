@@ -589,9 +589,6 @@ function AdmissionPage({ isLoggedIn, user }) {
                     {hasRecruitmentRange && (
                       <div className="course-meta">
                         <div className="course-recruitment-block">
-                          <span className={`course-recruitment-status ${recruitmentOpen ? "open" : "closed"}`}>
-                            {recruitmentOpen ? "Otwarta" : "Zamknięta"}
-                          </span>
                           <div className="course-recruitment-dates">
                             <div className="course-date-item">
                               <span className="course-date-label">Od</span>
