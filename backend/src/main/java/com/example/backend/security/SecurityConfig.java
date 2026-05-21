@@ -57,20 +57,12 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/courses").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/courses").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/courses/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers("/api/applications/*/declaration").permitAll()
-                        .requestMatchers("/api/applications/submit", "/api/applications/*/withdraw", "/api/applications/of/**").hasRole("Candidate")
-                        .requestMatchers("/api/applications/**").hasAnyRole("Admin", "Coordinator")
-                        .requestMatchers("/api/users/**").hasRole("Admin")
-                        .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
+
+                        .requestMatchers("/api/auth/**", "/error").permitAll()
+
                         .requestMatchers("/api/messages/inbox", "/api/messages/unread-count", "/api/messages/*/read").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/applications/*/declaration").permitAll()
+                        .requestMatchers("/api/messages/send").hasAnyRole("Coordinator", "Admin")
+
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

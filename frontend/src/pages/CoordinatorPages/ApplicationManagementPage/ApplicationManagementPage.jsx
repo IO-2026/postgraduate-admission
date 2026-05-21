@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   getApplication,
-  updateApplicationStatus,
+  getApplicationDiplomaUrl,
   updateApplication,
+  verifyDiploma,
+  verifyDeclaration,
+  acceptApplication,
 } from "../../../services/applicationApi";
+import { fetchCourseCandidates } from "../../../services/courseApi";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./ApplicationManagementPage.css";
 
@@ -15,10 +19,14 @@ function ApplicationManagementPage() {
     id: applicationId,
     userId: null,
     courseId: null,
-    status: "SUBMITTED",
-    isPaid: false,
-    applicantPesel: "",
-    applicantDateOfBirth: "",
+    isWithdrawn: false,
+    isAccepted: false,
+    isEntryFeePaid: false,
+    isSemesterPaid: false,
+    isDiplomaVerified: false,
+    isDeclarationVerified: false,
+    candidatePesel: "",
+    candidateDateOfBirth: "",
     addressStreet: "",
     addressPostalCode: "",
     addressCity: "",
@@ -26,7 +34,7 @@ function ApplicationManagementPage() {
     fieldOfStudy: "",
     university: "",
     graduationYear: "",
-    diplomaUrl: "",
+    candidatePlaceOfBirth: "",
     notes: "",
     truthfulnessConsent: false,
     gdprConsent: false,
@@ -40,8 +48,9 @@ function ApplicationManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [diplomaLoading, setDiplomaLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [statusSaving, setStatusSaving] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
@@ -51,17 +60,29 @@ function ApplicationManagementPage() {
       try {
         setLoading(true);
         setError("");
-        const data = await getApplication(applicationId);
+        const [data, candidates] = await Promise.all([
+          getApplication(applicationId),
+          fetchCourseCandidates(courseId).catch(() => []),
+        ]);
+
+        const candidateInfo =
+          candidates.find(
+            (c) => String(c.applicationId) === String(applicationId),
+          ) || {};
 
         if (isMounted) {
           setApplicationData({
-            id: data.id || data.applicationId || applicationId,
+            id: data.id || applicationId,
             userId: data.userId || null,
             courseId: data.courseId || null,
-            status: data.status || "SUBMITTED",
-            isPaid: data.isPaid || false,
-            applicantPesel: data.applicantPesel || "",
-            applicantDateOfBirth: data.applicantDateOfBirth || "",
+            isWithdrawn: data.isWithdrawn || false,
+            isAccepted: data.isAccepted || false,
+            isEntryFeePaid: data.isEntryFeePaid || false,
+            isSemesterPaid: data.isSemesterPaid || false,
+            isDiplomaVerified: data.isDiplomaVerified || false,
+            isDeclarationVerified: data.isDeclarationVerified || false,
+            candidatePesel: data.candidatePesel || "",
+            candidateDateOfBirth: data.candidateDateOfBirth || "",
             addressStreet: data.addressStreet || "",
             addressPostalCode: data.addressPostalCode || "",
             addressCity: data.addressCity || "",
@@ -69,15 +90,15 @@ function ApplicationManagementPage() {
             fieldOfStudy: data.fieldOfStudy || "",
             university: data.university || "",
             graduationYear: data.graduationYear || "",
-            diplomaUrl: data.diplomaUrl || "",
+            candidatePlaceOfBirth: data.candidatePlaceOfBirth || "",
             notes: data.notes || "",
             truthfulnessConsent: data.truthfulnessConsent || false,
             gdprConsent: data.gdprConsent || false,
             newsletterConsent: data.newsletterConsent || false,
             submissionDateTime: data.submissionDateTime || "",
-            userName: data.user?.name || "",
-            userSurname: data.user?.surname || "",
-            userEmail: data.user?.email || "",
+            userName: data.user?.name || candidateInfo.name || "",
+            userSurname: data.user?.surname || candidateInfo.surname || "",
+            userEmail: data.user?.email || candidateInfo.email || "",
           });
         }
       } catch (err) {
@@ -96,7 +117,7 @@ function ApplicationManagementPage() {
     return () => {
       isMounted = false;
     };
-  }, [applicationId]);
+  }, [applicationId, courseId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -106,24 +127,58 @@ function ApplicationManagementPage() {
     }));
   };
 
-  const handleStatusChange = async (e) => {
-    const nextStatus = e.target.value;
-
-    setApplicationData((prev) => ({
-      ...prev,
-      status: nextStatus,
-    }));
+  const handleVerifyDiploma = async () => {
     setSuccessMessage("");
     setError("");
 
     try {
-      setStatusSaving(true);
-      await updateApplicationStatus(applicationId, nextStatus);
-      setSuccessMessage("Zapisano status aplikacji.");
+      setActionLoading(true);
+      await verifyDiploma(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isDiplomaVerified: true,
+      }));
+      setSuccessMessage("Dyplom został zweryfikowany pomyślnie.");
     } catch (err) {
-      setError(err.message || "Nie udało się zapisać statusu aplikacji.");
+      setError(err.message || "Nie udało się zweryfikować dyplomu.");
     } finally {
-      setStatusSaving(false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleVerifyDeclaration = async () => {
+    setSuccessMessage("");
+    setError("");
+
+    try {
+      setActionLoading(true);
+      await verifyDeclaration(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isDeclarationVerified: true,
+      }));
+      setSuccessMessage("Oświadczenie zostało zweryfikowane pomyślnie.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleAcceptApplication = async () => {
+    setSuccessMessage("");
+    setError("");
+
+    try {
+      setActionLoading(true);
+      await acceptApplication(applicationId);
+      setApplicationData((prev) => ({
+        ...prev,
+        isAccepted: true,
+      }));
+      setSuccessMessage("Wniosek został zaakceptowany.");
+    } catch (err) {
+      setError(err.message || "Nie udało się zaakceptować wniosku.");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -151,6 +206,47 @@ function ApplicationManagementPage() {
       setSubmitting(false);
     }
   };
+
+  const handleDiplomaDownload = async () => {
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      setDiplomaLoading(true);
+      const response = await getApplicationDiplomaUrl(applicationId);
+      const url = response?.url;
+      if (!url) {
+        throw new Error("Brak linku do dyplomu");
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setError(err.message || "Nie udało się pobrać dyplomu.");
+    } finally {
+      setDiplomaLoading(false);
+    }
+  };
+
+  // Określenie statusu tekstowego na podstawie flag
+  const getStatusText = () => {
+    if (applicationData.isWithdrawn) return "Wycofana";
+    if (applicationData.isAccepted) return "Zaakceptowana";
+    if (applicationData.isDiplomaVerified && applicationData.isEntryFeePaid)
+      return "Gotowa do akceptacji";
+    if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
+    return "W trakcie weryfikacji";
+  };
+
+  // Sprawdzenie czy akcje są dostępne
+  const isWithdrawn = applicationData.isWithdrawn;
+  const isAccepted = applicationData.isAccepted;
+  const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
+  const canVerifyDeclaration =
+    !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
+  const canAcceptApplication =
+    !isWithdrawn &&
+    !isAccepted &&
+    applicationData.isDiplomaVerified &&
+    applicationData.isEntryFeePaid;
 
   if (loading) {
     return (
@@ -197,30 +293,24 @@ function ApplicationManagementPage() {
         <div className="application-management-section">
           <h3>Informacje podstawowe</h3>
           <div className="application-management-form-grid">
-            <div className="application-management-field application-management-field-status">
-              <label htmlFor="app-status">Status</label>
-              <select
-                id="app-status"
-                name="status"
-                value={applicationData.status}
-                onChange={handleStatusChange}
-                disabled={statusSaving}
-              >
-                <option value="SUBMITTED">Wniosek przyjęty</option>
-                <option value="VERIFIED">Wniosek zweryfikowany</option>
-                <option value="WAITING_LIST">
-                  Wniosek na liście rezerwowej
-                </option>
-                <option value="ACCEPTED">Wniosek zaakceptowany</option>
-                <option value="REJECTED">Wniosek odrzucony</option>
-                <option value="WITHDRAWN">Wniosek wycofany</option>
-              </select>
+            <div className="application-management-field">
+              <label>Status aplikacji</label>
+              <div className="application-management-readonly">
+                {getStatusText()}
+              </div>
             </div>
 
             <div className="application-management-field">
-              <label>Opłacone</label>
+              <label>Opłata wpisowa</label>
               <div className="application-management-readonly">
-                {applicationData.isPaid ? "Tak" : "Nie"}
+                {applicationData.isEntryFeePaid ? "Opłacona" : "Nieopłacona"}
+              </div>
+            </div>
+
+            <div className="application-management-field">
+              <label>Opłata za semestr</label>
+              <div className="application-management-readonly">
+                {applicationData.isSemesterPaid ? "Opłacona" : "Nieopłacona"}
               </div>
             </div>
 
@@ -237,6 +327,130 @@ function ApplicationManagementPage() {
                     }).format(new Date(applicationData.submissionDateTime))
                   : "Brak danych"}
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="application-management-section">
+          <h3>Akcje koordynatora</h3>
+          <div className="application-management-form-grid">
+            <div className="application-management-field">
+              <label>Weryfikacja dyplomu</label>
+              <div>
+                {applicationData.isDiplomaVerified ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Dyplom zweryfikowany
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleVerifyDiploma}
+                    disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
+                    style={{
+                      backgroundColor: canVerifyDiploma
+                        ? "var(--primary)"
+                        : "#9ca3af",
+                      cursor: canVerifyDiploma ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="application-management-field">
+              <label>Weryfikacja oświadczenia</label>
+              <div>
+                {applicationData.isDeclarationVerified ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Oświadczenie zweryfikowane
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleVerifyDeclaration}
+                    disabled={
+                      actionLoading || !canVerifyDeclaration || isWithdrawn
+                    }
+                    style={{
+                      backgroundColor: canVerifyDeclaration
+                        ? "var(--primary)"
+                        : "#9ca3af",
+                      cursor: canVerifyDeclaration ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading
+                      ? "Weryfikowanie..."
+                      : "Zweryfikuj oświadczenie"}
+                  </button>
+                )}
+              </div>
+              {!isAccepted && !isWithdrawn && (
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                    marginTop: "4px",
+                  }}
+                >
+                  Oświadczenie można zweryfikować po zaakceptowaniu wniosku
+                </div>
+              )}
+            </div>
+
+            <div className="application-management-field application-management-field-wide">
+              <label>Akceptacja wniosku</label>
+              <div>
+                {isAccepted ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#16a34a" }}
+                  >
+                    ✓ Wniosek zaakceptowany
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="application-management-submit"
+                    onClick={handleAcceptApplication}
+                    disabled={
+                      actionLoading || !canAcceptApplication || isWithdrawn
+                    }
+                    style={{
+                      backgroundColor: canAcceptApplication
+                        ? "#16a34a"
+                        : "#9ca3af",
+                      cursor: canAcceptApplication ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
+                  </button>
+                )}
+              </div>
+              {!canAcceptApplication && !isAccepted && !isWithdrawn && (
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                    marginTop: "4px",
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {!applicationData.isDiplomaVerified &&
+                    "• Wymagana weryfikacja dyplomu\n"}
+                  {!applicationData.isEntryFeePaid &&
+                    "• Wymagana opłata wpisowego"}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -266,37 +480,55 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field">
-              <label htmlFor="applicantPesel">PESEL</label>
+              <label htmlFor="candidatePesel">PESEL</label>
               {isEditMode ? (
                 <input
-                  id="applicantPesel"
+                  id="candidatePesel"
                   type="text"
-                  name="applicantPesel"
-                  value={applicationData.applicantPesel}
+                  name="candidatePesel"
+                  value={applicationData.candidatePesel}
                   onChange={handleChange}
                   className="application-management-input"
                 />
               ) : (
                 <div className="application-management-readonly">
-                  {applicationData.applicantPesel || "Brak danych"}
+                  {applicationData.candidatePesel || "Brak danych"}
                 </div>
               )}
             </div>
 
             <div className="application-management-field">
-              <label htmlFor="applicantDateOfBirth">Data urodzenia</label>
+              <label htmlFor="candidateDateOfBirth">Data urodzenia</label>
               {isEditMode ? (
                 <input
-                  id="applicantDateOfBirth"
+                  id="candidateDateOfBirth"
                   type="date"
-                  name="applicantDateOfBirth"
-                  value={applicationData.applicantDateOfBirth}
+                  name="candidateDateOfBirth"
+                  value={applicationData.candidateDateOfBirth}
                   onChange={handleChange}
                   className="application-management-input"
                 />
               ) : (
                 <div className="application-management-readonly">
-                  {applicationData.applicantDateOfBirth || "Brak danych"}
+                  {applicationData.candidateDateOfBirth || "Brak danych"}
+                </div>
+              )}
+            </div>
+
+            <div className="application-management-field">
+              <label htmlFor="placeOfBirth">Miejsce urodzenia</label>
+              {isEditMode ? (
+                <input
+                  id="placeOfBirth"
+                  type="text"
+                  name="placeOfBirth"
+                  value={applicationData.candidatePlaceOfBirth}
+                  onChange={handleChange}
+                  className="application-management-input"
+                />
+              ) : (
+                <div className="application-management-readonly">
+                  {applicationData.candidatePlaceOfBirth || "Brak danych"}
                 </div>
               )}
             </div>
@@ -428,6 +660,7 @@ function ApplicationManagementPage() {
                   name="graduationYear"
                   value={applicationData.graduationYear}
                   onChange={handleChange}
+                  onWheel={(e) => e.target.blur()}
                   className="application-management-input"
                 />
               ) : (
@@ -438,51 +671,16 @@ function ApplicationManagementPage() {
             </div>
 
             <div className="application-management-field application-management-field-wide">
-              <label htmlFor="diplomaUrl">Link do dyplomu (URL)</label>
-              {isEditMode ? (
-                <input
-                  id="diplomaUrl"
-                  type="url"
-                  name="diplomaUrl"
-                  value={applicationData.diplomaUrl}
-                  onChange={handleChange}
-                  className="application-management-input"
-                />
-              ) : (
-                <div className="application-management-readonly">
-                  {applicationData.diplomaUrl ? (
-                    <a
-                      href={applicationData.diplomaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {applicationData.diplomaUrl}
-                    </a>
-                  ) : (
-                    "Brak danych"
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="application-management-section">
-            <h3>Zdjęcie dyplomu</h3>
-            <div className="application-management-diploma-placeholder">
-              <div className="application-management-diploma-placeholder-content">
-                <svg
-                  className="application-management-diploma-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
+              <label>Dyplom (PDF)</label>
+              <div className="application-management-readonly">
+                <button
+                  type="button"
+                  className="application-management-edit"
+                  onClick={handleDiplomaDownload}
+                  disabled={diplomaLoading}
                 >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-                <p>Zdjęcie dyplomu</p>
-                <span>Zdjęcie dyplomu będzie wyświetlane tutaj</span>
+                  {diplomaLoading ? "Pobieranie..." : "Wyświetl dyplom"}
+                </button>
               </div>
             </div>
           </div>
@@ -608,7 +806,7 @@ function ApplicationManagementPage() {
               type="button"
               className="application-management-edit"
               onClick={toggleEditMode}
-              disabled={submitting || statusSaving}
+              disabled={submitting || actionLoading}
             >
               Edytuj dane
             </button>

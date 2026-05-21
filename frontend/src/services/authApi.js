@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL } from "../config/api";
+import { authFetch } from "../config/auth";
 const AUTH_BASE_PATH = API_URL + "/auth";
 
 function getErrorMessage(payload) {
@@ -7,14 +8,14 @@ function getErrorMessage(payload) {
   }
 
   if (!payload || typeof payload !== "object") {
-    return "Authentication request failed.";
+    return "Żądanie uwierzytelnienia nie powiodło się.";
   }
 
   return (
     payload.message ||
     payload.error ||
     payload.details ||
-    "Authentication request failed."
+    "Żądanie uwierzytelnienia nie powiodło się."
   );
 }
 
@@ -29,7 +30,7 @@ async function parsePayload(response) {
 }
 
 async function postAuth(path, body) {
-  const response = await fetch(`${AUTH_BASE_PATH}${path}`, {
+  const response = await authFetch(`${AUTH_BASE_PATH}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

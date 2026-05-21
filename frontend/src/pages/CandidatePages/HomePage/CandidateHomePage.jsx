@@ -3,18 +3,12 @@ import { Link } from "react-router-dom";
 import {
   fetchApplicationsOfUser,
   withdrawApplication,
+  payEntryFee,
+  paySemester,
+  fetchDeclaration,
 } from "../../../services/applicationApi";
 import { fetchCourseById } from "../../../services/courseApi";
 import "./CandidateHomePage.css";
-
-const STATUS_LABELS = {
-  SUBMITTED: "Wniosek przyjęty",
-  VERIFIED: "Wniosek zweryfikowany",
-  WAITING_LIST: "Wniosek na liście rezerwowej",
-  ACCEPTED: "Wniosek zaakceptowany",
-  REJECTED: "Wniosek odrzucony",
-  WITHDRAWN: "Wniosek wycofany",
-};
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
@@ -30,6 +24,17 @@ function CandidateHomePage({ isLoggedIn, user }) {
   const [courseNames, setCourseNames] = useState({});
   const [loadingApplications, setLoadingApplications] = useState(false);
   const [applicationsError, setApplicationsError] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".application-menu-container")) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const userId = useMemo(() => resolveUserId(user), [user]);
 
@@ -45,6 +50,55 @@ function CandidateHomePage({ isLoggedIn, user }) {
       setApplications(Array.isArray(data) ? data : []);
     } catch (error) {
       alert(error.message || "Wystąpił błąd podczas rezygnacji.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handlePayEntryFee = async (applicationId) => {
+    if (!window.confirm("Czy chcesz potwierdzić dokonanie opłaty wpisowej?")) {
+      return;
+    }
+
+    try {
+      setLoadingApplications(true);
+      await payEntryFee(applicationId);
+      const data = await fetchApplicationsOfUser(userId);
+      setApplications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas opłacania wpisowego.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handleDownloadDeclaration = async (applicationId) => {
+    try {
+      setLoadingApplications(true);
+      await fetchDeclaration(applicationId);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas pobierania deklaracji.");
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handlePaySemester = async (applicationId) => {
+    if (
+      !window.confirm(
+        "Czy chcesz potwierdzić dokonanie opłaty za pierwszy semestr?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setLoadingApplications(true);
+      await paySemester(applicationId);
+      const data = await fetchApplicationsOfUser(userId);
+      setApplications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      alert(error.message || "Wystąpił błąd podczas opłacania semestru.");
     } finally {
       setLoadingApplications(false);
     }
@@ -191,15 +245,6 @@ function CandidateHomePage({ isLoggedIn, user }) {
           <Link className="primary-btn" to="/admission">
             Zapisz się na studia
           </Link>
-          <Link className="ghost-link" to="/courses">
-            Kierunki studiów
-          </Link>
-          <Link className="ghost-link" to="/messages">
-            Wiadomości
-          </Link>
-          <Link className="ghost-link" to="/contact">
-            Formularz kontaktowy
-          </Link>
         </div>
       </header>
 
@@ -222,87 +267,187 @@ function CandidateHomePage({ isLoggedIn, user }) {
         {!loadingApplications && !applicationsError ? (
           <ul className="applications-list" aria-label="Bieżące aplikacje">
             {applications.map((application) => {
-              const status = application.status || "SUBMITTED";
-              const statusLabel = STATUS_LABELS[status] || status;
+              const isWithdrawn = Boolean(application.isWithdrawn);
+              const isAccepted = Boolean(application.isAccepted);
+              const isEntryFeePaid = Boolean(application.isEntryFeePaid);
+              const isSemesterPaid = Boolean(application.isSemesterPaid);
+              const isDiplomaVerified = Boolean(application.isDiplomaVerified);
+              const isDeclarationVerified = Boolean(
+                application.isDeclarationVerified,
+              );
+
               const courseId = Number(application.courseId);
               const courseName =
                 (!Number.isNaN(courseId) && courseNames[courseId]) ||
                 "Nieznany kierunek";
-              const university = application.university || "Brak danych";
-              const isPaid = Boolean(application.isPaid);
 
               return (
-                <li key={application.id || `${courseName}-${status}`}>
-                  <article className="application-item">
-                    <div className="application-item-main">
-                      <h3>{courseName}</h3>
-                      <p>
-                        Uczelnia: <strong>{university}</strong>
-                        {Number.isNaN(courseId)
-                          ? ""
-                          : ` • ID kierunku: ${courseId}`}
-                      </p>
-                      <p className="application-date">
-                        Data złożenia:{" "}
-                        <strong>
-                          {formatDate(application.submissionDateTime)}
-                        </strong>
-                      </p>
-                    </div>
-                    <div className="application-item-meta">
-                      <div className="application-meta-row">
-                        <div className="application-meta-tags">
-                          <span className="application-status">
-                            {statusLabel}
-                          </span>
-                          {!isPaid ? (
-                            <span className="application-payment application-payment-unpaid">
-                              Nieopłacona
-                            </span>
-                          ) : (
-                            <span className="application-payment application-payment-paid">
-                              Opłacona
-                            </span>
-                          )}
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "6px",
-                          }}
-                        >
-                          {!isPaid &&
-                            status !== "WITHDRAWN" &&
-                            status !== "REJECTED" && (
-                              <Link
-                                to={`/payment/${application.id}`}
-                                className="primary-btn application-pay-btn"
-                              >
-                                Opłać
-                              </Link>
-                            )}
-                          {status !== "WITHDRAWN" && status !== "REJECTED" && (
+                <li key={application.id || `${courseName}-${application.id}`}>
+                  <article className="application-item application-item--vertical">
+                    <div className="application-item-top">
+                      <div className="application-item-main">
+                        <h3>{courseName}</h3>
+                        <p className="application-date">
+                          Data złożenia:{" "}
+                          <strong>
+                            {formatDate(application.submissionDateTime)}
+                          </strong>
+                        </p>
+                      </div>
+
+                      <div className="application-item-actions">
+                        {!isEntryFeePaid && !isWithdrawn && (
+                          <button
+                            className="primary-btn application-pay-btn"
+                            onClick={() => handlePayEntryFee(application.id)}
+                          >
+                            Opłać wpisowe
+                          </button>
+                        )}
+                        {isAccepted && !isSemesterPaid && !isWithdrawn && (
+                          <button
+                            className="primary-btn application-pay-btn"
+                            onClick={() => handlePaySemester(application.id)}
+                          >
+                            Opłać I semestr
+                          </button>
+                        )}
+                        {isAccepted &&
+                          !isWithdrawn &&
+                          !isDeclarationVerified && (
                             <button
-                              type="button"
-                              className="ghost-btn application-withdraw-btn"
-                              onClick={() => handleWithdraw(application.id)}
-                              style={{
-                                padding: "8px 20px",
-                                fontSize: "0.8rem",
-                                borderRadius: "10px",
-                                width: "100%",
-                                border: "1px solid #e11d48",
-                                color: "#e11d48",
-                                background: "transparent",
-                              }}
+                              className="primary-btn application-pay-btn"
+                              onClick={() =>
+                                handleDownloadDeclaration(application.id)
+                              }
                             >
-                              Zrezygnuj
+                              Pobierz oświadczenie
                             </button>
                           )}
-                        </div>
+                        {!isWithdrawn && (
+                          <div
+                            className="application-menu-container"
+                            style={{ position: "relative" }}
+                          >
+                            <button
+                              className="application-menu-btn"
+                              onClick={() =>
+                                setOpenMenuId(
+                                  openMenuId === application.id
+                                    ? null
+                                    : application.id,
+                                )
+                              }
+                              aria-label="Więcej opcji"
+                            >
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                              </svg>
+                            </button>
+                            {openMenuId === application.id && (
+                              <div className="application-dropdown-menu">
+                                <button
+                                  className="application-dropdown-item danger"
+                                  onClick={() => {
+                                    setOpenMenuId(null);
+                                    handleWithdraw(application.id);
+                                  }}
+                                >
+                                  Zrezygnuj
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    {isWithdrawn ? (
+                      <div className="application-withdrawn-badge">
+                        Aplikacja wycofana
+                      </div>
+                    ) : (
+                      <div className="application-timeline">
+                        {[
+                          { label: "Aplikacja wysłana", done: true },
+                          { label: "Wpisowe wpłacone", done: isEntryFeePaid },
+                          {
+                            label: "Dyplom potwierdzony",
+                            done: isDiplomaVerified,
+                          },
+                          { label: "Zaakceptowany", done: isAccepted },
+                          { label: "Semestr opłacony", done: isSemesterPaid },
+                          {
+                            label: "Oświadczenie dostarczone",
+                            done: isDeclarationVerified,
+                          },
+                          {
+                            label: "Przyjęty",
+                            done:
+                              isAccepted &&
+                              isEntryFeePaid &&
+                              isDiplomaVerified &&
+                              isSemesterPaid &&
+                              isDeclarationVerified,
+                          },
+                        ].map((step, idx, arr) => (
+                          <div key={idx} className="timeline-step">
+                            <div className="timeline-step-track">
+                              <div
+                                className={`timeline-line ${idx > 0 && step.done ? "done" : ""}`}
+                                style={
+                                  idx === 0
+                                    ? { visibility: "hidden" }
+                                    : undefined
+                                }
+                              />
+                              <div
+                                className={`timeline-dot ${step.done ? "done" : ""}`}
+                              >
+                                {step.done && (
+                                  <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="white"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                )}
+                              </div>
+                              <div
+                                className={`timeline-line ${idx < arr.length - 1 && arr[idx + 1].done ? "done" : ""}`}
+                                style={
+                                  idx === arr.length - 1
+                                    ? { visibility: "hidden" }
+                                    : undefined
+                                }
+                              />
+                            </div>
+                            <span
+                              className={`timeline-label ${step.done ? "done" : ""}`}
+                            >
+                              {step.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </article>
                 </li>
               );

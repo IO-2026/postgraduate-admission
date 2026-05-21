@@ -18,13 +18,11 @@ function UsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
-
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        const data = await fetchUsers(token);
+        const data = await fetchUsers();
         setUsers(data);
       } catch (err) {
         console.error(err);
@@ -35,11 +33,11 @@ function UsersPage() {
     };
 
     loadUsers();
-  }, [token]);
+  }, []);
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await updateUserRole(token, userId, newRole);
+      await updateUserRole(userId, newRole);
       setUsers(
         users.map((user) =>
           user.id === userId ? { ...user, roleName: newRole } : user,
@@ -77,9 +75,10 @@ function UsersPage() {
     );
   }
 
+  const adminCount = users.filter((u) => u.roleName === "Admin").length;
+
   return (
     <div className="users-page">
-      <BackButton />
       <header className="users-header">
         <h1>Zarządzanie Użytkownikami</h1>
         <p className="users-subtitle">
@@ -139,6 +138,7 @@ function UsersPage() {
                     value={user.roleName}
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="role-select"
+                    disabled={user.roleName === "Admin" && adminCount <= 1}
                   >
                     <option value="Admin">Administrator</option>
                     <option value="Coordinator">Koordynator</option>

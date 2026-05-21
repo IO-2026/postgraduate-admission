@@ -51,11 +51,6 @@ function CoordinatorHomePage({ user }) {
       <header className="coordinator-home-header">
         <h1>Strona koordynatora</h1>
         <p>Twoje kierunki studiów podyplomowych.</p>
-        <div className="coordinator-home-actions">
-          <Link className="ghost-link" to="/send-message">
-            Wyślij wiadomość
-          </Link>
-        </div>
       </header>
 
       {loading ? (
@@ -78,7 +73,11 @@ function CoordinatorHomePage({ user }) {
                   {course.description || "Brak opisu dla tego programu."}
                 </p>
                 <div className="coordinator-course-meta">
-                  {course.recruitmentStart && course.recruitmentEnd ? (
+                  {course.isRecruitmentOpen === false ? (
+                    <span style={{ color: "#e11d48", fontWeight: "bold" }}>
+                      Rekrutacja zamknięta
+                    </span>
+                  ) : course.recruitmentStart && course.recruitmentEnd ? (
                     <span>
                       Rekrutacja: {formatDisplayDate(course.recruitmentStart)} -{" "}
                       {formatDisplayDate(course.recruitmentEnd)}

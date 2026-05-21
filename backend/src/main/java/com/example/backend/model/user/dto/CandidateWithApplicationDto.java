@@ -1,4 +1,4 @@
-package com.example.backend.model.user;
+package com.example.backend.model.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +17,12 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
-    private boolean isPaid;
-    private String status;
+    private Boolean isWithdrawn;
+    private Boolean isAccepted;
+    private Boolean isEntryFeePaid;
+    private Boolean isDiplomaVerified;
+    private Boolean isDeclarationVerified;
+    private Boolean isSemesterPaid;
     private String telNumber;
     private String pesel;
     private LocalDate dateOfBirth;

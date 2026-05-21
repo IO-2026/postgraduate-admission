@@ -30,10 +30,10 @@ public class Form {
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 200)
     private String subject;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 4000)
     private String content;
 
     @Column(nullable = false)

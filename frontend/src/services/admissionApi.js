@@ -1,4 +1,6 @@
-const APPLICATIONS_BASE_PATH = "/api/applications";
+import { API_URL } from "../config/api";
+import { authFetch } from "../config/auth";
+const APPLICATIONS_BASE_PATH = API_URL + "/applications";
 
 function getErrorMessage(payload) {
   if (typeof payload === "string" && payload.trim()) {
@@ -6,14 +8,14 @@ function getErrorMessage(payload) {
   }
 
   if (!payload || typeof payload !== "object") {
-    return "Application request failed.";
+    return "Żądanie dotyczące aplikacji nie powiodło się.";
   }
 
   return (
     payload.message ||
     payload.error ||
     payload.details ||
-    "Application request failed."
+    "Żądanie dotyczące aplikacji nie powiodło się."
   );
 }
 
@@ -27,14 +29,17 @@ async function parsePayload(response) {
   return response.text();
 }
 
-export async function submitApplication(payload, token) {
-  const response = await fetch(`${APPLICATIONS_BASE_PATH}/submit`, {
+export async function submitApplication({ payload, diplomaFile }) {
+  const formData = new FormData();
+  formData.append(
+    "application",
+    new Blob([JSON.stringify(payload)], { type: "application/json" }),
+  );
+  formData.append("diploma", diplomaFile);
+
+  const response = await authFetch(`${APPLICATIONS_BASE_PATH}/submit`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
+    body: formData,
   });
 
   const responsePayload = await parsePayload(response);

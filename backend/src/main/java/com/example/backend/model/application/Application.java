@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Id;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +37,8 @@ public class Application {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "diploma_url")
-    private String diplomaUrl;
+    @Column(name = "diploma_bucket_key")
+    private String diplomaBucketKey;
 
     @Column(name = "university")
     private String university;
@@ -48,16 +46,14 @@ public class Application {
     @Column(name = "course_id")
     private Long courseId;
 
-    @Column(name = "is_paid")
-    private Boolean isPaid;
+    @Column(name = "candidate_place_of_birth")
+    private String candidatePlaceOfBirth;
 
-    private String placeOfBirth;
+    @Column(name = "candidate_date_of_birth")
+    private LocalDate candidateDateOfBirth;
 
-    @Column(name = "applicant_date_of_birth")
-    private LocalDate applicantDateOfBirth;
-
-    @Column(name = "applicant_pesel")
-    private String applicantPesel;
+    @Column(name = "candidate_pesel")
+    private String candidatePesel;
 
     @Column(name = "address_street")
     private String addressStreet;
@@ -88,11 +84,25 @@ public class Application {
 
     private Boolean newsletterConsent;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name="status", nullable = false)
-    private ApplicationStatus status;
-
     @CreationTimestamp
     @Column(name = "submission_date")
     private LocalDateTime submissionDateTime;
+
+    @Column(name = "is_withdrawn")
+    private Boolean isWithdrawn = false;
+
+    @Column(name = "is_accepted")
+    private Boolean isAccepted = false;
+
+    @Column(name = "is_entryfee_paid")
+    private Boolean isEntryFeePaid = false;
+
+    @Column(name = "is_diploma_verified")
+    private Boolean isDiplomaVerified = false;
+
+    @Column(name = "is_declaration_verified")
+    private Boolean isDeclarationVerified = false;
+
+    @Column(name = "is_semester_paid")
+    private Boolean isSemesterPaid = false;
 }

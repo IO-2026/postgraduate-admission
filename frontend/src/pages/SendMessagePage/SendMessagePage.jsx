@@ -3,13 +3,12 @@ import { Link } from "react-router-dom";
 import {
   getAvailableRecipients,
   sendMessage,
-} from "../../../services/messageApi.js";
+} from "../../services/messageApi.js";
 import {
   fetchCoursesOfCoordinator,
   fetchCourses,
   fetchCourseCandidates,
-} from "../../../services/courseApi.js";
-import BackButton from "../../../components/BackButton/BackButton";
+} from "../../services/courseApi.js";
 import "./SendMessagePage.css";
 
 function SendMessagePage({ user }) {
@@ -50,9 +49,9 @@ function SendMessagePage({ user }) {
       setLoadingCourses(true);
       try {
         let data = [];
-        if (user?.role === "Coordinator") {
+        if (user?.role === "Coordinator" || user?.roleName === "Coordinator") {
           data = await fetchCoursesOfCoordinator(user.id);
-        } else if (user?.role === "Admin") {
+        } else if (user?.role === "Admin" || user?.roleName === "Admin") {
           data = await fetchCourses();
         }
         setCourses(data);
@@ -180,7 +179,6 @@ function SendMessagePage({ user }) {
 
   return (
     <section className="send-message-view">
-      <BackButton />
       <div className="send-message-card">
         <h1>Wyślij wiadomość do kandydatów</h1>
         <form onSubmit={handleSubmit} className="send-message-form">

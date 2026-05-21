@@ -2,6 +2,8 @@ package com.example.backend.model.message;
 
 import com.example.backend.model.message.dto.MessageResponse;
 import com.example.backend.model.message.dto.MessageSendRequest;
+import com.example.backend.model.message.dto.RecipientStatusResponse;
+import com.example.backend.model.message.dto.SentMessageResponse;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
 import com.example.backend.model.user.UserRepository;
@@ -27,7 +29,7 @@ public class MessageService {
     public void sendMessage(User sender, MessageSendRequest request) {
         String roleName = sender.getRole().getName();
         if (!roleName.equals("Coordinator") && !roleName.equals("Admin")) {
-            throw new SecurityException("Only coordinators or admin can send messages");
+            throw new SecurityException("Tylko koordynatorzy lub administratorzy mogą wysyłać wiadomości");
         }
 
         List<User> recipients = new ArrayList<>();
@@ -36,15 +38,15 @@ public class MessageService {
                     .filter(u -> u.getRole() != null && u.getRole().getId() == 1)
                     .collect(Collectors.toList());
             if (recipients.isEmpty()) {
-                throw new IllegalArgumentException("No candidates found");
+                throw new IllegalArgumentException("Nie znaleziono kandydatów");
             }
         } else if (request.getRecipientIds() != null && !request.getRecipientIds().isEmpty()) {
             recipients = userRepository.findAllById(request.getRecipientIds());
             if (recipients.size() != request.getRecipientIds().size()) {
-                throw new IllegalArgumentException("Some recipients do not exist");
+                throw new IllegalArgumentException("Niektórzy odbiorcy nie istnieją");
             }
         } else {
-            throw new IllegalArgumentException("No recipients specified");
+            throw new IllegalArgumentException("Nie określono odbiorców");
         }
 
         Message message = new Message();
@@ -83,11 +85,42 @@ public class MessageService {
     public void markAsRead(Long recipientId, Long userId) {
         int updated = recipientRepository.markAsRead(recipientId, userId);
         if (updated == 0) {
-            throw new IllegalArgumentException("Message recipient not found or already read");
+            throw new IllegalArgumentException("Odbiorca wiadomości nie znaleziony lub już przeczytany");
         }
     }
 
     public long getUnreadCount(Long userId) {
         return recipientRepository.countByRecipientIdAndIsReadFalse(userId);
+    }
+
+    public List<SentMessageResponse> getMessagesSentBy(Long senderId) {
+
+        List<MessageRecipient> data = recipientRepository.findAllBySenderIdInMessage(senderId);
+
+        return data.stream()
+                .collect(Collectors.groupingBy(MessageRecipient::getMessage))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var message = entry.getKey();
+                    var recipients = entry.getValue();
+
+                    return new SentMessageResponse(
+                            message.getId(),
+                            message.getSubject(),
+                            message.getContent(),
+                            message.getSentAt(),
+                            recipients.stream()
+                                    .map(r -> new RecipientStatusResponse(
+                                            r.getRecipient().getId(),
+                                            r.getRecipient().getName() + " " + r.getRecipient().getSurname(),
+                                            r.getRecipient().getEmail(),
+                                            r.getIsRead()
+                                    ))
+                                    .toList()
+                    );
+                })
+                .sorted((o1, o2) -> o2.getSentAt().compareTo(o1.getSentAt()))
+                .toList();
     }
 }

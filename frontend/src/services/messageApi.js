@@ -1,34 +1,21 @@
 import { fetchCoursesOfCoordinator, fetchCourseCandidates } from "./courseApi";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL } from "../config/api";
+import { authFetch } from "../config/auth";
 const API_BASE = API_URL + "/messages";
 
-function getToken() {
-  try {
-    const savedAuth = localStorage.getItem("pg-admission-auth");
-    if (!savedAuth) return null;
-    const parsed = JSON.parse(savedAuth);
-    return parsed?.token || null;
-  } catch {
-    return null;
-  }
-}
-
 async function request(endpoint, options = {}) {
-  const token = getToken();
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const response = await authFetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
   });
 
   if (!response.ok) {
-    let errorMessage = `Request failed with status ${response.status}`;
+    let errorMessage = `Żądanie nie powiodło się ze statusem ${response.status}`;
     try {
       const data = await response.json();
       errorMessage = data.message || errorMessage;
@@ -60,6 +47,10 @@ export async function fetchUnreadCount() {
   return request("/unread-count");
 }
 
+export async function getSentMessages() {
+  return request("/sent-by");
+}
+
 export async function markAsRead(recipientId) {
   return request(`/${recipientId}/read`, {
     method: "PATCH",
@@ -67,11 +58,8 @@ export async function markAsRead(recipientId) {
 }
 
 export async function getAvailableRecipients(user) {
-  const token = JSON.parse(localStorage.getItem("pg-admission-auth"))?.token;
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  if (user?.role === "Admin") {
-    const res = await fetch(API_URL + "/users", { headers });
+  if (user?.role === "Admin" || user?.roleName === "Admin") {
+    const res = await authFetch(API_URL + "/users");
     if (!res.ok) throw new Error("Błąd pobierania użytkowników");
     const users = await res.json();
     return users.filter(
@@ -79,7 +67,7 @@ export async function getAvailableRecipients(user) {
     );
   }
 
-  if (user?.role === "Coordinator") {
+  if (user?.role === "Coordinator" || user?.roleName === "Coordinator") {
     const myCourses = await fetchCoursesOfCoordinator(user.id);
 
     const candidatesPromises = myCourses.map((course) =>

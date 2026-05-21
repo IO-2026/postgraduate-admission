@@ -1,5 +1,5 @@
 package com.example.backend;
-import com.example.backend.model.course.AssignRequest;
+import com.example.backend.model.course.dto.AssignRequest;
 
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;
@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -31,11 +31,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@WithMockUser(roles = "Admin")
+@Import({TestDynamicProperties.class, TestWebClientConfig.class})
 public class AdminControllerIntegrationTest {
 
     @Autowired
@@ -55,23 +58,19 @@ public class AdminControllerIntegrationTest {
     @Autowired
     CourseRepository courseRepository;
 
-    @DynamicPropertySource
-    static void dynamicProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
-        registry.add("spring.datasource.driver-class-name", () -> "org.h2.Driver");
-        registry.add("spring.datasource.username", () -> "sa");
-        registry.add("spring.datasource.password", () -> "");
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-        registry.add("spring.jpa.show-sql", () -> "false");
-        registry.add("jwt.secret", () -> "01234567890123456789012345678901");
-        registry.add("jwt.expiration", () -> "86400000");
-        registry.add("spring.mail.host", () -> "localhost");
-        registry.add("spring.mail.port", () -> "1025");
-    }
-
     @BeforeEach
     public void setupMockMvc() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    private int getValidAcademicYear() {
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        if (today.isBefore(LocalDate.of(currentYear, 10, 1))) {
+            return currentYear;
+        } else {
+            return currentYear + 1;
+        }
     }
 
     @Test
@@ -95,6 +94,7 @@ public class AdminControllerIntegrationTest {
         Course course = new Course();
         course.setName("TestCourse");
         course.setPrice(0.0);
+        course.setAcademicYear(getValidAcademicYear());
         course = courseRepository.save(course);
 
         AssignRequest req = new AssignRequest(user.getId());
@@ -118,10 +118,13 @@ public class AdminControllerIntegrationTest {
         payload.put("placesLimit", 40);
         payload.put("recruitmentStart", "2026-06-01");
         payload.put("recruitmentEnd", "2026-07-31");
+        payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(post("/api/courses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.placesLimit").value(40));
     }
@@ -134,6 +137,8 @@ public class AdminControllerIntegrationTest {
         payload.put("price", 4500.0);
         payload.put("recruitmentStart", "2026-06-01");
         payload.put("recruitmentEnd", "2026-07-31");
+        payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(post("/api/courses")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -150,6 +155,7 @@ public class AdminControllerIntegrationTest {
         course.setRecruitmentStart(LocalDate.of(2026, 5, 1));
         course.setRecruitmentEnd(LocalDate.of(2026, 8, 1));
         course.setPlacesLimit(25);
+        course.setAcademicYear(getValidAcademicYear());
         course = courseRepository.save(course);
 
         Map<String, Object> payload = new HashMap<>();
@@ -159,6 +165,8 @@ public class AdminControllerIntegrationTest {
         payload.put("placesLimit", 55);
         payload.put("recruitmentStart", "2026-05-01");
         payload.put("recruitmentEnd", "2026-08-01");
+        payload.put("academicYear", getValidAcademicYear());
+        payload.put("isRecruitmentOpen", true);
 
         mockMvc.perform(patch("/api/courses/" + course.getId())
                         .contentType(MediaType.APPLICATION_JSON)

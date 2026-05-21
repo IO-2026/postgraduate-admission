@@ -47,10 +47,11 @@ public class Course {
     private LocalDate recruitmentEnd = LocalDate.now().plusMonths(3);
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coordinator_id", nullable = true)
+    @JoinColumn(name = "coordinator_id")
     private User coordinator;
 
-    private String academicYear;
+    @Column(name = "academic_year")
+    private Integer academicYear;
 
     public Course(Long id, String name) {
         this.id = id;
@@ -61,4 +62,7 @@ public class Course {
     public String toString() {
         return name;
     }
+
+    @Column(name = "is_recruitment_open", nullable = false)
+    private Boolean isRecruitmentOpen = true;
 }

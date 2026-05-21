@@ -4,7 +4,9 @@ import {
   fetchCourseCandidates,
   fetchCourses,
   updateCourse,
+  closeCourseRecruitment,
 } from "../../../services/courseApi";
+import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import BackButton from "../../../components/BackButton/BackButton";
 import "./CourseManagementPage.css";
 
@@ -13,12 +15,14 @@ const INITIAL_FORM_STATE = {
   name: "",
   description: "",
   price: "",
-  academicYear: "",
+  placesLimit: "",
+  academicYear: null,
   recruitmentStart: "",
   recruitmentEnd: "",
   coordinatorId: "",
   coordinatorName: "",
   coordinatorEmail: "",
+  isRecruitmentOpen: true,
 };
 
 function CourseManagementPage() {
@@ -32,6 +36,7 @@ function CourseManagementPage() {
   const [candidates, setCandidates] = useState([]);
   const [candidatesLoading, setCandidatesLoading] = useState(true);
   const [candidatesError, setCandidatesError] = useState("");
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,12 +60,14 @@ function CourseManagementPage() {
             name: course.name || "",
             description: course.description || "",
             price: course.price ?? "",
-            academicYear: course.academicYear || "",
+            placesLimit: course.placesLimit ?? "",
+            academicYear: course.academicYear || null,
             recruitmentStart: course.recruitmentStart || "",
             recruitmentEnd: course.recruitmentEnd || "",
             coordinatorId: course.coordinatorId ?? "",
             coordinatorName: course.coordinatorName || "",
             coordinatorEmail: course.coordinatorEmail || "",
+            isRecruitmentOpen: course.isRecruitmentOpen ?? true,
           });
         }
       } catch (err) {
@@ -151,6 +158,26 @@ function CourseManagementPage() {
     }
 
     if (
+      formData.placesLimit === "" ||
+      Number.isNaN(Number(formData.placesLimit)) ||
+      Number(formData.placesLimit) < 1
+    ) {
+      setFormError("Limit miejsc jest wymagany i musi wynosić co najmniej 1.");
+      return;
+    }
+
+    if (!formData.academicYear) {
+      setFormError("Rok akademicki jest wymagany.");
+      return;
+    }
+
+    const price = parseFloat(formData.price);
+    if (price < 0 || price > 100000) {
+      setFormError("Cena musi być między 0 a 100000.");
+      return;
+    }
+
+    if (
       formData.recruitmentStart &&
       formData.recruitmentEnd &&
       formData.recruitmentStart > formData.recruitmentEnd
@@ -167,7 +194,10 @@ function CourseManagementPage() {
         name: formData.name.trim(),
         description: formData.description,
         price: parseFloat(formData.price),
-        ...(formData.academicYear && { academicYear: formData.academicYear }),
+        placesLimit: parseInt(formData.placesLimit, 10),
+        ...(formData.academicYear && {
+          academicYear: parseInt(formData.academicYear, 10),
+        }),
         ...(formData.recruitmentStart && {
           recruitmentStart: formData.recruitmentStart,
         }),
@@ -186,13 +216,16 @@ function CourseManagementPage() {
         name: updatedCourse.name || "",
         description: updatedCourse.description || "",
         price: updatedCourse.price ?? prev.price,
-        academicYear: updatedCourse.academicYear || prev.academicYear,
+        placesLimit: updatedCourse.placesLimit ?? prev.placesLimit,
+        academicYear: updatedCourse.academicYear || null,
         recruitmentStart: updatedCourse.recruitmentStart || "",
         recruitmentEnd: updatedCourse.recruitmentEnd || "",
         coordinatorId: updatedCourse.coordinatorId ?? prev.coordinatorId,
         coordinatorName: updatedCourse.coordinatorName || prev.coordinatorName,
         coordinatorEmail:
           updatedCourse.coordinatorEmail || prev.coordinatorEmail,
+        isRecruitmentOpen:
+          updatedCourse.isRecruitmentOpen ?? prev.isRecruitmentOpen,
       }));
       setSuccessMessage("Zapisano zmiany kierunku.");
     } catch (err) {
@@ -204,7 +237,7 @@ function CourseManagementPage() {
 
   const handleExportCsv = () => {
     const acceptedAndPaid = candidates.filter(
-      (c) => c.status === "ACCEPTED" && (c.isPaid === true || c.paid === true),
+      (c) => c.isAccepted === true && !c.isWithdrawn && (c.isEntryFeePaid === true || c.isSemesterPaid === true),
     );
 
     if (acceptedAndPaid.length === 0) {
@@ -274,6 +307,33 @@ function CourseManagementPage() {
     document.body.removeChild(link);
   };
 
+  const handleCloseRecruitment = async () => {
+    if (
+      !window.confirm(
+        "Czy na pewno chcesz zamknąć rekrutację na ten kierunek? Kandydaci stracą możliwość aplikowania.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsClosing(true);
+      setFormError("");
+      setSuccessMessage("");
+
+      await closeCourseRecruitment(courseId);
+
+      setFormData((prev) => ({ ...prev, isRecruitmentOpen: false }));
+      setSuccessMessage("Rekrutacja została pomyślnie zamknięta.");
+    } catch (err) {
+      setFormError(
+        err.message || "Wystąpił błąd podczas zamykania rekrutacji.",
+      );
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
   return (
     <section className="course-management-view">
       <BackButton label="Wróć do strony koordynatora" />
@@ -330,20 +390,41 @@ function CourseManagementPage() {
                 step="0.01"
                 value={formData.price}
                 onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
+                required
+              />
+            </div>
+
+            <div className="course-management-field">
+              <label htmlFor="course-places-limit">Limit miejsc</label>
+              <input
+                id="course-places-limit"
+                name="placesLimit"
+                type="number"
+                min="1"
+                step="1"
+                value={formData.placesLimit}
+                onChange={handleInputChange}
+                onWheel={(e) => e.target.blur()}
                 required
               />
             </div>
 
             <div className="course-management-field">
               <label htmlFor="course-academic-year">Rok akademicki</label>
-              <input
+              <select
                 id="course-academic-year"
                 name="academicYear"
-                type="text"
-                value={formData.academicYear}
+                value={formData.academicYear || ""}
                 onChange={handleInputChange}
-                placeholder="np. 2024/2025"
-              />
+              >
+                <option value="">Wybierz rok akademicki</option>
+                {generateValidAcademicYears().map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="course-management-field">
@@ -395,11 +476,37 @@ function CourseManagementPage() {
             </div>
           ) : null}
 
-          <div className="course-management-actions">
+          <div
+            className="course-management-actions"
+            style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}
+          >
+            {formData.isRecruitmentOpen ? (
+              <button
+                type="button"
+                className="course-management-submit"
+                style={{ backgroundColor: "#e11d48", borderColor: "#e11d48" }}
+                onClick={handleCloseRecruitment}
+                disabled={isClosing || submitting}
+              >
+                {isClosing ? "Zamykanie..." : "Zamknij rekrutację"}
+              </button>
+            ) : (
+              <span
+                style={{
+                  color: "#e11d48",
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                Rekrutacja zamknięta
+              </span>
+            )}
+
             <button
               type="submit"
               className="course-management-submit"
-              disabled={submitting}
+              disabled={submitting || isClosing}
             >
               {submitting ? "Zapisywanie..." : "Zapisz zmiany"}
             </button>
@@ -449,26 +556,207 @@ function CourseManagementPage() {
                 .filter(Boolean)
                 .join(" ");
 
+              // Statusy aplikacji
+              const isWithdrawn = Boolean(candidate.isWithdrawn);
+              const isAccepted = Boolean(candidate.isAccepted);
+              const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
+              const isSemesterPaid = Boolean(candidate.isSemesterPaid);
+              const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
+              const isDeclarationVerified = Boolean(
+                candidate.isDeclarationVerified,
+              );
+
+              let displayStatus = "przesłana";
+              let statusColor = "#eab308";
+
+              if (isWithdrawn) {
+                displayStatus = "wycofana";
+                statusColor = "#e11d48";
+              } else if (isAccepted) {
+                displayStatus = "zaakceptowana";
+                statusColor = "#16a34a";
+              }
+
+              const isFullyAccepted =
+                !isWithdrawn &&
+                isAccepted &&
+                isDiplomaVerified &&
+                isDeclarationVerified &&
+                isEntryFeePaid &&
+                isSemesterPaid;
+
               return (
                 <article key={candidate.id} className="course-candidate-card">
                   <div className="course-candidate-main">
                     <h3>{fullName || "Kandydat bez danych"}</h3>
                     <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
                   </div>
-                  <div className="course-candidate-meta">
-                    <span>{candidate.status || "Brak statusu"}</span>
-                    <span
-                      className={
-                        (candidate.paid ?? candidate.isPaid)
-                          ? "course-candidate-paid"
-                          : "course-candidate-unpaid"
-                      }
-                    >
-                      {(candidate.paid ?? candidate.isPaid)
-                        ? "Opłacone"
-                        : "Nieopłacone"}
-                    </span>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: isFullyAccepted
+                        ? "auto 1fr"
+                        : [
+                              true,
+                              !isWithdrawn,
+                              isAccepted && !isWithdrawn,
+                              isEntryFeePaid && !isWithdrawn,
+                              isAccepted && isSemesterPaid && !isWithdrawn,
+                            ].filter(Boolean).length > 3
+                          ? "auto 1fr auto 1fr"
+                          : "auto 1fr",
+                      gap: "6px 10px",
+                      alignItems: "center",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    {isFullyAccepted ? (
+                      <>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
+                        </span>
+                        <div>
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: "#16a34a20",
+                              color: "#16a34a",
+                              fontWeight: "bold",
+                              display: "inline-block",
+                            }}
+                          >
+                            kandydat przyjęty
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ color: "#6b7280", textAlign: "right" }}>
+                          Aplikacja:
+                        </span>
+                        <div>
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: `${statusColor}20`,
+                              color: statusColor,
+                              display: "inline-block",
+                            }}
+                          >
+                            {displayStatus}
+                          </span>
+                        </div>
+
+                        {!isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Dyplom:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: isDiplomaVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDiplomaVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
+                                  display: "inline-block",
+                                }}
+                              >
+                                {isDiplomaVerified
+                                  ? "zweryfikowany"
+                                  : "w trakcie weryfikacji"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isAccepted && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Oświadczenie:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: isDeclarationVerified
+                                    ? "#16a34a20"
+                                    : "#eab30820",
+                                  color: isDeclarationVerified
+                                    ? "#16a34a"
+                                    : "#eab308",
+                                  display: "inline-block",
+                                }}
+                              >
+                                {isDeclarationVerified
+                                  ? "zweryfikowane"
+                                  : "w trakcie weryfikacji"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isEntryFeePaid && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Wpisowe:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#16a34a20",
+                                  color: "#16a34a",
+                                  display: "inline-block",
+                                }}
+                              >
+                                opłacone
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                        {isAccepted && isSemesterPaid && !isWithdrawn && (
+                          <>
+                            <span
+                              style={{ color: "#6b7280", textAlign: "right" }}
+                            >
+                              Semestr:
+                            </span>
+                            <div>
+                              <span
+                                style={{
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#16a34a20",
+                                  color: "#16a34a",
+                                  display: "inline-block",
+                                }}
+                              >
+                                opłacony
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
+
                   <div className="course-candidate-actions">
                     <Link
                       to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}

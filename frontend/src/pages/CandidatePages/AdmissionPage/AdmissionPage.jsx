@@ -3,12 +3,10 @@ import "../CoursesPage/CoursesPage.css";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import BackButton from "../../../components/BackButton/BackButton";
 import { useEffect, useMemo, useState } from "react";
-import { submitApplication } from "./admissionApi";
+import { submitApplication } from "../../../services/admissionApi.js";
 import { fetchCourses } from "../../../services/courseApi";
 import { fetchApplicationsOfUser } from "../../../services/applicationApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-
-const AUTH_STORAGE_KEY = "pg-admission-auth";
 
 function resolveUserId(user) {
   if (!user || typeof user !== "object") return null;
@@ -18,8 +16,9 @@ function resolveUserId(user) {
   const parsedId = Number.parseInt(String(user.id ?? user.userId ?? ""), 10);
   return Number.isNaN(parsedId) ? null : parsedId;
 }
-const DEFAULT_COURSE_ID = 1;
 const REQUIRED_ERROR = "To pole jest wymagane.";
+const MAX_DIPLOMA_BYTES = 10 * 1024 * 1024;
+const PDF_MIME_TYPE = "application/pdf";
 const CONSENT_ERROR_MESSAGES = {
   truthfulnessConsent: "Wymagana zgoda na prawdziwość danych.",
   gdprConsent: "Wymagana zgoda RODO.",
@@ -31,20 +30,6 @@ function safeJsonParse(value) {
   } catch {
     return null;
   }
-}
-
-function loadAuthState() {
-  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) {
-    return null;
-  }
-
-  const parsed = safeJsonParse(raw);
-  if (!parsed || typeof parsed !== "object") {
-    return null;
-  }
-
-  return parsed;
 }
 
 function getDraftStorageKey(courseId) {
@@ -78,8 +63,9 @@ function isBlank(value) {
   return String(value ?? "").trim() === "";
 }
 
-function isValidPesel(value) {
+function isValidPesel(value, dateOfBirth) {
   const pesel = String(value || "").trim();
+
   if (!/^\d{11}$/.test(pesel)) {
     return false;
   }
@@ -90,7 +76,48 @@ function isValidPesel(value) {
     0,
   );
   const checksum = (10 - (sum % 10)) % 10;
-  return checksum === Number.parseInt(pesel[10], 10);
+  if (checksum !== Number.parseInt(pesel[10], 10)) {
+    return false;
+  }
+
+  if (!dateOfBirth || String(dateOfBirth).trim() === "") {
+    return false;
+  }
+
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) {
+    return false;
+  }
+
+  let year = Number(pesel.substring(0, 2));
+  let month = Number(pesel.substring(2, 4));
+  const day = Number(pesel.substring(4, 6));
+
+  let century = 1900;
+
+  if (month > 80) {
+    century = 1800;
+    month -= 80;
+  } else if (month > 60) {
+    century = 2200;
+    month -= 60;
+  } else if (month > 40) {
+    century = 2100;
+    month -= 40;
+  } else if (month > 20) {
+    century = 2000;
+    month -= 20;
+  }
+
+  year = century + year;
+
+  const peselDate = new Date(year, month - 1, day);
+
+  return (
+    peselDate.getFullYear() === dob.getFullYear() &&
+    peselDate.getMonth() === dob.getMonth() &&
+    peselDate.getDate() === dob.getDate()
+  );
 }
 
 function isPastDate(value) {
@@ -109,37 +136,30 @@ function isPastDate(value) {
   return parsed < today;
 }
 
-function isValidHttpUrl(value) {
-  try {
-    const url = new URL(String(value || "").trim());
-    if (!url.hostname) {
-      return false;
-    }
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function validateYear(value) {
-  const raw = String(value || "").trim();
-  if (!raw) {
+function validateGraduationYear(gy, dob) {
+  const gy_raw = String(gy || "").trim();
+  if (!gy_raw) {
     return REQUIRED_ERROR;
   }
 
-  if (!/^\d+$/.test(raw)) {
+  if (!/^\d+$/.test(gy_raw)) {
     return "Rok ukończenia jest nieprawidłowy.";
   }
 
-  const year = Number.parseInt(raw, 10);
-  if (year < 1900 || year > 2100) {
+  const year = Number.parseInt(gy_raw, 10);
+  const currentYear = new Date().getFullYear();
+  if (year < 1900 || year > currentYear) {
     return "Rok ukończenia jest nieprawidłowy.";
+  }
+  const dobYear = new Date(dob).getFullYear();
+  if (year < dobYear) {
+    return "Rok ukończenia nie może być wcześniejszy niż rok urodzenia.";
   }
 
   return "";
 }
 
-function validateDraft({ account, draft }) {
+function validateDraft({ account, draft, diplomaFile }) {
   const errors = {};
 
   if (isBlank(account.dateOfBirth)) {
@@ -150,8 +170,10 @@ function validateDraft({ account, draft }) {
 
   if (isBlank(account.pesel)) {
     errors.pesel = "PESEL jest wymagany.";
-  } else if (!isValidPesel(account.pesel)) {
-    errors.pesel = "Podaj poprawny numer PESEL.";
+  } else if (!account.dateOfBirth) {
+    errors.pesel = "Najpierw podaj datę urodzenia.";
+  } else if (!isValidPesel(account.pesel, account.dateOfBirth)) {
+    errors.pesel = "Podaj poprawny numer PESEL zgodny z datą urodzenia.";
   }
 
   const placeOfBirth = String(account.placeOfBirth || "").trim();
@@ -196,7 +218,10 @@ function validateDraft({ account, draft }) {
     errors.fieldOfStudy = "Nazwa kierunku jest za długa.";
   }
 
-  const yearError = validateYear(draft.graduationYear);
+  const yearError = validateGraduationYear(
+    draft.graduationYear,
+    account.dateOfBirth,
+  );
   if (yearError) {
     errors.graduationYear = yearError;
   }
@@ -208,11 +233,12 @@ function validateDraft({ account, draft }) {
     errors.university = "Nazwa uczelni musi mieć od 2 do 200 znaków.";
   }
 
-  const diplomaUrl = String(draft.diplomaUrl || "").trim();
-  if (!diplomaUrl) {
-    errors.diplomaUrl = REQUIRED_ERROR;
-  } else if (!isValidHttpUrl(diplomaUrl)) {
-    errors.diplomaUrl = "Podaj poprawny link do dyplomu (http/https).";
+  if (!diplomaFile) {
+    errors.diplomaFile = REQUIRED_ERROR;
+  } else if (diplomaFile.type !== PDF_MIME_TYPE) {
+    errors.diplomaFile = "Dozwolony jest wyłącznie plik PDF.";
+  } else if (diplomaFile.size > MAX_DIPLOMA_BYTES) {
+    errors.diplomaFile = "Plik PDF nie może przekraczać 10 MB.";
   }
 
   if (!draft.truthfulnessConsent) {
@@ -252,7 +278,6 @@ function getDraftDefaults(existingDraft) {
     previousDegree: safeDraft.previousDegree || "",
     fieldOfStudy: safeDraft.fieldOfStudy || "",
     graduationYear: safeDraft.graduationYear || "",
-    diplomaUrl: safeDraft.diplomaUrl || "",
     notes: safeDraft.notes || "",
     truthfulnessConsent: Boolean(safeDraft.truthfulnessConsent),
     gdprConsent: Boolean(safeDraft.gdprConsent),
@@ -277,21 +302,17 @@ function isRecruitmentOpen(start, end) {
   return now >= startDate && now <= endDate;
 }
 
-function AdmissionPage() {
+function AdmissionPage({ isLoggedIn, user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const courseIdParam = searchParams.get("courseId");
   const courseId = courseIdParam ? parseInt(courseIdParam, 10) : null;
 
-  const authState = useMemo(loadAuthState, []);
-  const token = authState?.token || null;
-  const user = authState?.user || null;
-  const isLoggedIn = Boolean(authState?.isLoggedIn);
-
   const [account, setAccount] = useState(() => getAccountDefaults(user));
   const [draft, setDraft] = useState(() =>
     getDraftDefaults(loadDraft(courseId)),
   );
+  const [diplomaFile, setDiplomaFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -308,12 +329,16 @@ function AdmissionPage() {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccount(getAccountDefaults(user));
   }, [user]);
 
   useEffect(() => {
     if (courseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(getDraftDefaults(loadDraft(courseId)));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDiplomaFile(null);
     }
   }, [courseId]);
 
@@ -383,8 +408,9 @@ function AdmissionPage() {
   }, [courseId, draft]);
 
   useEffect(() => {
-    setErrors(validateDraft({ account, draft }));
-  }, [account, draft]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setErrors(validateDraft({ account, draft, diplomaFile }));
+  }, [account, draft, diplomaFile]);
 
   const onFieldBlur = (event) => {
     const { name } = event.target;
@@ -412,6 +438,12 @@ function AdmissionPage() {
     setDraft((prev) => ({ ...prev, [name]: checked }));
   };
 
+  const onDiplomaChange = (event) => {
+    const file = event.target.files && event.target.files[0];
+    setDiplomaFile(file || null);
+    setTouched((prev) => ({ ...prev, diplomaFile: true }));
+  };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     setSubmitAttempted(true);
@@ -423,7 +455,7 @@ function AdmissionPage() {
       return;
     }
 
-    const validationErrors = validateDraft({ account, draft });
+    const validationErrors = validateDraft({ account, draft, diplomaFile });
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -431,7 +463,7 @@ function AdmissionPage() {
       return;
     }
 
-    if (!token) {
+    if (!isLoggedIn) {
       setSubmitError("Sesja wygasła. Zaloguj się ponownie.");
       return;
     }
@@ -439,7 +471,6 @@ function AdmissionPage() {
     setIsSubmitting(true);
 
     try {
-      const userId = resolveUserId(user);
       const previousDegree = String(draft.previousDegree || "").trim();
       const fieldOfStudy = String(draft.fieldOfStudy || "").trim();
       const notes = String(draft.notes || "").trim();
@@ -448,33 +479,31 @@ function AdmissionPage() {
         ? Number.parseInt(graduationYearRaw, 10)
         : null;
 
-      await submitApplication(
-        {
-          userId,
-          diplomaUrl: String(draft.diplomaUrl).trim(),
-          university: String(draft.university).trim(),
-          courseId,
-          applicantDateOfBirth: String(account.dateOfBirth).trim(),
-          applicantPesel: String(account.pesel).trim(),
-          placeOfBirth: String(account.placeOfBirth).trim(),
-          addressStreet: String(draft.street).trim(),
-          addressPostalCode: String(draft.postalCode).trim(),
-          addressCity: String(draft.city).trim(),
-          previousDegree: previousDegree || null,
-          fieldOfStudy: fieldOfStudy || null,
-          graduationYear:
-            Number.isFinite(graduationYear) && graduationYear > 0
-              ? graduationYear
-              : null,
-          notes: notes || null,
-          truthfulnessConsent: Boolean(draft.truthfulnessConsent),
-          gdprConsent: Boolean(draft.gdprConsent),
-          newsletterConsent: Boolean(draft.newsletterConsent),
-        },
-        token,
-      );
+      const payload = {
+        university: String(draft.university).trim(),
+        courseId,
+        candidateDateOfBirth: String(account.dateOfBirth).trim(),
+        candidatePlaceOfBirth: String(account.placeOfBirth).trim(),
+        candidatePesel: String(account.pesel).trim(),
+        addressStreet: String(draft.street).trim(),
+        addressPostalCode: String(draft.postalCode).trim(),
+        addressCity: String(draft.city).trim(),
+        previousDegree: previousDegree || null,
+        fieldOfStudy: fieldOfStudy || null,
+        graduationYear:
+          Number.isFinite(graduationYear) && graduationYear > 0
+            ? graduationYear
+            : null,
+        notes: notes || null,
+        truthfulnessConsent: Boolean(draft.truthfulnessConsent),
+        gdprConsent: Boolean(draft.gdprConsent),
+        newsletterConsent: Boolean(draft.newsletterConsent),
+      };
+
+      await submitApplication({ payload, diplomaFile });
 
       clearDraft(courseId);
+      setDiplomaFile(null);
       navigate("/admission/success");
     } catch (requestError) {
       setSubmitError(requestError?.message || "Nie udało się wysłać wniosku.");
@@ -483,7 +512,7 @@ function AdmissionPage() {
     }
   };
 
-  const missingSession = !token;
+  const missingSession = !isLoggedIn;
   const hasValidationErrors = Object.keys(errors).length > 0;
 
   const showFieldError = (name) => {
@@ -557,7 +586,16 @@ function AdmissionPage() {
                       <span className="course-price">{course.price} PLN</span>
                     </div>
                     <div className="course-meta">
-                      {hasRecruitmentRange && (
+                      {course.isRecruitmentOpen === false ? (
+                        <span className="meta-tag meta-tag--dates">
+                          <span
+                            className="meta-label"
+                            style={{ color: "#e11d48" }}
+                          >
+                            Rekrutacja zamknięta
+                          </span>
+                        </span>
+                      ) : hasRecruitmentRange ? (
                         <span className="meta-tag meta-tag--dates">
                           <span className="meta-label">
                             {recruitmentOpen
@@ -579,11 +617,23 @@ function AdmissionPage() {
                             </span>
                           </span>
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        {appliedCourseIds.includes(Number(course.id)) ? (
+                        {course.isRecruitmentOpen === false ? (
+                          <button
+                            disabled
+                            className="primary-btn"
+                            style={{
+                              backgroundColor: "#9ca3af",
+                              borderColor: "#9ca3af",
+                              cursor: "not-allowed",
+                            }}
+                          >
+                            Rekrutacja zamknięta
+                          </button>
+                        ) : appliedCourseIds.includes(Number(course.id)) ? (
                           <button
                             disabled
                             className="primary-btn"
@@ -612,7 +662,7 @@ function AdmissionPage() {
           {missingSession ? (
             <div className="admission-session">
               <p className="form-error" role="alert">
-                Brakuje danych sesji (token). Zaloguj się ponownie.
+                Sesja wygasła. Zaloguj się ponownie.
               </p>
               <div className="admission-actions">
                 <Link className="primary-btn" to="/auth">
@@ -646,7 +696,7 @@ function AdmissionPage() {
                   <input
                     type="date"
                     name="dateOfBirth"
-                    value={account.dateOfBirth}
+                    value={account.candidateDateOfBirth}
                     onChange={onAccountInput}
                     onBlur={onFieldBlur}
                     disabled={isSubmitting}
@@ -663,7 +713,7 @@ function AdmissionPage() {
                     <input
                       type="text"
                       name="pesel"
-                      value={account.pesel}
+                      value={account.candidatePesel}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}
@@ -679,7 +729,7 @@ function AdmissionPage() {
                     <input
                       type="text"
                       name="placeOfBirth"
-                      value={account.placeOfBirth}
+                      value={account.candidatePlaceOfBirth}
                       onChange={onAccountInput}
                       onBlur={onFieldBlur}
                       disabled={isSubmitting}
@@ -819,23 +869,20 @@ function AdmissionPage() {
 
                 <label>
                   <span>
-                    Link do dyplomu (PDF){" "}
-                    <span className="required-star">*</span>
+                    Dyplom (PDF) <span className="required-star">*</span>
                   </span>
                   <input
-                    type="url"
-                    name="diplomaUrl"
-                    value={draft.diplomaUrl}
-                    onChange={onDraftInput}
-                    onBlur={onFieldBlur}
+                    type="file"
+                    name="diplomaFile"
+                    accept="application/pdf"
+                    onChange={onDiplomaChange}
                     disabled={isSubmitting}
-                    aria-invalid={getInputAriaInvalid("diplomaUrl")}
+                    aria-invalid={getInputAriaInvalid("diplomaFile")}
                   />
-                  {renderFieldError("diplomaUrl")}
+                  {renderFieldError("diplomaFile")}
                 </label>
                 <p className="admission-hint">
-                  Na tym etapie wystarczy link. Przesyłanie plików zostanie
-                  dodane później.
+                  Dodaj skan dyplomu w formacie PDF (maksymalnie 10 MB).
                 </p>
               </section>
 
