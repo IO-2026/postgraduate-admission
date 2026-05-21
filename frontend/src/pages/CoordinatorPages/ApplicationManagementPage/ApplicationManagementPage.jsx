@@ -246,12 +246,14 @@ function ApplicationManagementPage() {
   // Sprawdzenie czy akcje są dostępne
   const isWithdrawn = applicationData.isWithdrawn;
   const isAccepted = applicationData.isAccepted;
+  const isWaitlisted = applicationData.isWaitlisted;
   const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
   const canVerifyDeclaration =
     !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
   const canAcceptApplication =
     !isWithdrawn &&
     !isAccepted &&
+    !isWaitlisted &&
     applicationData.isDiplomaVerified &&
     applicationData.isEntryFeePaid;
 
@@ -424,6 +426,13 @@ function ApplicationManagementPage() {
                   >
                     ✓ Wniosek zaakceptowany
                   </div>
+                ) : isWaitlisted ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#2563eb" }}
+                  >
+                    ✓ Wniosek na liście rezerwowej
+                  </div>
                 ) : (
                   <button
                     type="button"
@@ -443,7 +452,7 @@ function ApplicationManagementPage() {
                   </button>
                 )}
               </div>
-              {!canAcceptApplication && !isAccepted && !isWithdrawn && (
+              {!canAcceptApplication && !isAccepted && !isWaitlisted && !isWithdrawn && (
                 <div
                   style={{
                     fontSize: "0.8rem",
