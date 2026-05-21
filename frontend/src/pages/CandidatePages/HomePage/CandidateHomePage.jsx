@@ -277,12 +277,11 @@ function CandidateHomePage({ isLoggedIn, user }) {
                 application.isDeclarationVerified,
               );
 
-              const listBadge =
-                isWaitlisted
-                  ? { label: "Lista rezerwowa", tone: "waitlist" }
-                  : isAccepted
-                    ? { label: "Lista przyjętych", tone: "accepted" }
-                    : null;
+              const listBadge = isWaitlisted
+                ? { label: "Lista rezerwowa", tone: "waitlist" }
+                : isAccepted
+                  ? { label: "Lista przyjętych", tone: "accepted" }
+                  : null;
 
               const courseId = Number(application.courseId);
               const courseName =

@@ -451,21 +451,24 @@ function ApplicationManagementPage() {
                   </button>
                 )}
               </div>
-              {!canAcceptApplication && !isAccepted && !isWaitlisted && !isWithdrawn && (
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                    marginTop: "4px",
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {!applicationData.isDiplomaVerified &&
-                    "• Wymagana weryfikacja dyplomu\n"}
-                  {!applicationData.isEntryFeePaid &&
-                    "• Wymagana opłata wpisowego"}
-                </div>
-              )}
+              {!canAcceptApplication &&
+                !isAccepted &&
+                !isWaitlisted &&
+                !isWithdrawn && (
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "#6b7280",
+                      marginTop: "4px",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {!applicationData.isDiplomaVerified &&
+                      "• Wymagana weryfikacja dyplomu\n"}
+                    {!applicationData.isEntryFeePaid &&
+                      "• Wymagana opłata wpisowego"}
+                  </div>
+                )}
             </div>
           </div>
         </div>
