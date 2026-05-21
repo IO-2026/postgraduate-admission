@@ -593,23 +593,12 @@ function CourseManagementPage() {
               );
 
               let displayStatus = "przesłana";
-              let statusColor = "#eab308";
 
               if (isWithdrawn) {
                 displayStatus = "wycofana";
-                statusColor = "#e11d48";
               } else if (isAccepted) {
                 displayStatus = "zaakceptowana";
-                statusColor = "#16a34a";
               }
-
-              const isFullyAccepted =
-                !isWithdrawn &&
-                isAccepted &&
-                isDiplomaVerified &&
-                isDeclarationVerified &&
-                isEntryFeePaid &&
-                isSemesterPaid;
 
               return (
                 <article key={candidate.id} className="course-candidate-card">

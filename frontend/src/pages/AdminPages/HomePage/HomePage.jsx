@@ -12,8 +12,6 @@ function AdminHomePage({ isLoggedIn }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [coordinators, setCoordinators] = useState([]);
-  const [coordinatorsLoading, setCoordinatorsLoading] = useState(false);
-  const [coordinatorsError, setCoordinatorsError] = useState(null);
 
   const loadCourses = async () => {
     try {

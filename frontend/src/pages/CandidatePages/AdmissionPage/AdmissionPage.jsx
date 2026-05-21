@@ -566,12 +566,6 @@ function AdmissionPage({ isLoggedIn, user }) {
               {courses.map((course) => {
                 const hasRecruitmentRange =
                   course.recruitmentStart && course.recruitmentEnd;
-                const recruitmentOpen =
-                  hasRecruitmentRange &&
-                  isRecruitmentOpen(
-                    course.recruitmentStart,
-                    course.recruitmentEnd,
-                  );
 
                 return (
                   <div key={course.id} className="course-card">
