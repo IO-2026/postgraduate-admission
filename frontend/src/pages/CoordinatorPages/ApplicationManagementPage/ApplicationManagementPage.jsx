@@ -21,6 +21,7 @@ function ApplicationManagementPage() {
     courseId: null,
     isWithdrawn: false,
     isAccepted: false,
+    isWaitlisted: false,
     isEntryFeePaid: false,
     isSemesterPaid: false,
     isDiplomaVerified: false,
@@ -40,7 +41,6 @@ function ApplicationManagementPage() {
     gdprConsent: false,
     newsletterConsent: false,
     submissionDateTime: "",
-    applicationStatus: "",
     userName: "",
     userSurname: "",
     userEmail: "",
@@ -78,6 +78,7 @@ function ApplicationManagementPage() {
             courseId: data.courseId || null,
             isWithdrawn: data.isWithdrawn || false,
             isAccepted: data.isAccepted || false,
+            isWaitlisted: data.isWaitlisted || false,
             isEntryFeePaid: data.isEntryFeePaid || false,
             isSemesterPaid: data.isSemesterPaid || false,
             isDiplomaVerified: data.isDiplomaVerified || false,
@@ -97,7 +98,6 @@ function ApplicationManagementPage() {
             gdprConsent: data.gdprConsent || false,
             newsletterConsent: data.newsletterConsent || false,
             submissionDateTime: data.submissionDateTime || "",
-            applicationStatus: data.applicationStatus || "",
             userName: data.user?.name || candidateInfo.name || "",
             userSurname: data.user?.surname || candidateInfo.surname || "",
             userEmail: data.user?.email || candidateInfo.email || "",
@@ -177,6 +177,7 @@ function ApplicationManagementPage() {
         ...prev,
         ...refreshed,
         isAccepted: refreshed?.isAccepted ?? prev.isAccepted,
+        isWaitlisted: refreshed?.isWaitlisted ?? prev.isWaitlisted,
         isWithdrawn: refreshed?.isWithdrawn ?? prev.isWithdrawn,
       }));
       setSuccessMessage("Status wniosku został zaktualizowany.");
@@ -233,14 +234,9 @@ function ApplicationManagementPage() {
 
   // Określenie statusu tekstowego na podstawie flag
   const getStatusText = () => {
-    if (applicationData.applicationStatus === "WAITING_LIST") {
-      return "Lista rezerwowa";
-    }
-    if (applicationData.applicationStatus === "ACCEPTED") {
-      return "Zaakceptowana";
-    }
     if (applicationData.isWithdrawn) return "Wycofana";
     if (applicationData.isAccepted) return "Zaakceptowana";
+    if (applicationData.isWaitlisted) return "Lista rezerwowa";
     if (applicationData.isDiplomaVerified && applicationData.isEntryFeePaid)
       return "Gotowa do akceptacji";
     if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";

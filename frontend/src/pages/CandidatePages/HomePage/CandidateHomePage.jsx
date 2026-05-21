@@ -269,6 +269,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
             {applications.map((application) => {
               const isWithdrawn = Boolean(application.isWithdrawn);
               const isAccepted = Boolean(application.isAccepted);
+              const isWaitlisted = Boolean(application.isWaitlisted);
               const isEntryFeePaid = Boolean(application.isEntryFeePaid);
               const isSemesterPaid = Boolean(application.isSemesterPaid);
               const isDiplomaVerified = Boolean(application.isDiplomaVerified);
@@ -276,13 +277,10 @@ function CandidateHomePage({ isLoggedIn, user }) {
                 application.isDeclarationVerified,
               );
 
-              const listStatus =
-                application.applicationStatus ||
-                (isWithdrawn ? "WITHDRAWN" : isAccepted ? "ACCEPTED" : null);
               const listBadge =
-                listStatus === "WAITING_LIST"
+                isWaitlisted
                   ? { label: "Lista rezerwowa", tone: "waitlist" }
-                  : listStatus === "ACCEPTED"
+                  : isAccepted
                     ? { label: "Lista przyjętych", tone: "accepted" }
                     : null;
 

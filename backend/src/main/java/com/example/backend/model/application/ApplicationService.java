@@ -45,8 +45,8 @@ public class ApplicationService {
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
-        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
         application.setIsAccepted(false);
+    application.setIsWaitlisted(false);
         application.setIsWithdrawn(false);
 
         Application savedApplication = applicationRepository.saveAndFlush(application);
@@ -90,12 +90,13 @@ public class ApplicationService {
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest już wycofany.");
         }
-        ApplicationStatus previousStatus = application.getApplicationStatus();
+
+        boolean wasAccepted = Boolean.TRUE.equals(application.getIsAccepted());
         application.setIsWithdrawn(true);
         application.setIsAccepted(false);
-        application.setApplicationStatus(ApplicationStatus.WITHDRAWN);
+        application.setIsWaitlisted(false);
 
-        if (previousStatus == ApplicationStatus.ACCEPTED) {
+        if (wasAccepted) {
             promoteFirstWaitlistedCandidate(application.getCourseId());
         }
     }
@@ -154,26 +155,29 @@ public class ApplicationService {
             throw new IllegalStateException("Nie można zaakceptować: brakuje opłaty lub dyplomu.");
         }
 
-        if (application.getApplicationStatus() == ApplicationStatus.ACCEPTED) {
+        if (Boolean.TRUE.equals(application.getIsAccepted())) {
             throw new IllegalStateException("Wniosek został już zaakceptowany.");
         }
 
         Course course = courseRepository.findById(application.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
 
-        long acceptedCount = applicationRepository.countByCourseIdAndApplicationStatus(
-                application.getCourseId(),
-                ApplicationStatus.ACCEPTED
+        boolean wasAccepted = Boolean.TRUE.equals(application.getIsAccepted());
+        boolean wasWaitlisted = Boolean.TRUE.equals(application.getIsWaitlisted());
+
+        long acceptedCount = applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(
+            application.getCourseId()
         );
 
-        ApplicationStatus newStatus = acceptedCount < course.getPlacesLimit()
-                ? ApplicationStatus.ACCEPTED
-                : ApplicationStatus.WAITING_LIST;
+        boolean shouldAccept = acceptedCount < course.getPlacesLimit();
+        application.setIsAccepted(shouldAccept);
+        application.setIsWaitlisted(!shouldAccept);
 
-        application.setApplicationStatus(newStatus);
-        application.setIsAccepted(newStatus == ApplicationStatus.ACCEPTED);
-
-        notifyStatusChange(application, newStatus, course);
+        boolean isStatusChanged = wasAccepted != Boolean.TRUE.equals(application.getIsAccepted())
+                || wasWaitlisted != Boolean.TRUE.equals(application.getIsWaitlisted());
+        if (isStatusChanged) {
+            notifyStatusChange(application, course);
+        }
     }
 
     public List<Application> getAllApplications() {
@@ -232,10 +236,7 @@ public class ApplicationService {
 
     private void promoteFirstWaitlistedCandidate(Long courseId) {
         Optional<Application> nextCandidate = applicationRepository
-                .findFirstByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
-                        courseId,
-                        ApplicationStatus.WAITING_LIST
-                );
+            .findFirstByCourseIdAndIsWaitlistedTrueAndIsWithdrawnFalseOrderBySubmissionDateTimeAscIdAsc(courseId);
 
         if (nextCandidate.isEmpty()) {
             return;
@@ -245,18 +246,18 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
 
         Application application = nextCandidate.get();
-        application.setApplicationStatus(ApplicationStatus.ACCEPTED);
         application.setIsAccepted(true);
+        application.setIsWaitlisted(false);
 
-        notifyStatusChange(application, ApplicationStatus.ACCEPTED, course);
+        notifyStatusChange(application, course);
     }
 
-    private void notifyStatusChange(Application application, ApplicationStatus newStatus, Course course) {
+    private void notifyStatusChange(Application application, Course course) {
         if (application.getUser() == null) {
             return;
         }
 
-        String statusDescription = newStatus.getDescription();
+        String statusDescription = describeCurrentStatus(application);
         String courseName = course != null ? course.getName() : "Nieznany kierunek";
         String subject = "Zmiana statusu rekrutacji";
         String content = String.format(
@@ -271,6 +272,19 @@ public class ApplicationService {
         } else {
             emailService.sendApplicationStatusChange(application.getUser(), application);
         }
+    }
+
+    private String describeCurrentStatus(Application application) {
+        if (Boolean.TRUE.equals(application.getIsWithdrawn())) {
+            return "Wycofane";
+        }
+        if (Boolean.TRUE.equals(application.getIsAccepted())) {
+            return "Przyjęte";
+        }
+        if (Boolean.TRUE.equals(application.getIsWaitlisted())) {
+            return "Lista rezerwowa";
+        }
+        return "Złożone";
     }
 
     private User resolveNotificationSender(Course course) {

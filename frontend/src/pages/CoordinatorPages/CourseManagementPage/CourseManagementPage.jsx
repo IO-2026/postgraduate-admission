@@ -263,11 +263,9 @@ function CourseManagementPage() {
   };
 
   const resolveCandidateStatus = (candidate) => {
-    if (candidate?.applicationStatus) {
-      return candidate.applicationStatus;
-    }
     if (candidate?.isWithdrawn) return "WITHDRAWN";
     if (candidate?.isAccepted) return "ACCEPTED";
+    if (candidate?.isWaitlisted) return "WAITING_LIST";
     return "SUBMITTED";
   };
 
@@ -294,6 +292,7 @@ function CourseManagementPage() {
 
     const isWithdrawn = Boolean(candidate.isWithdrawn);
     const isAccepted = Boolean(candidate.isAccepted);
+    const isWaitlisted = Boolean(candidate.isWaitlisted);
     const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
     const isSemesterPaid = Boolean(candidate.isSemesterPaid);
     const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
@@ -311,7 +310,7 @@ function CourseManagementPage() {
     } else if (status === "ACCEPTED" || isAccepted) {
       displayStatus = "zaakceptowana";
       statusColor = "#16a34a";
-    } else if (status === "WAITING_LIST") {
+    } else if (status === "WAITING_LIST" || isWaitlisted) {
       displayStatus = "lista rezerwowa";
       statusColor = "#2563eb";
     }

@@ -38,26 +38,6 @@ export async function fetchApplicationsOfUser(userId) {
   return response.json();
 }
 
-export async function updateApplicationStatus(applicationId, status) {
-  const response = await authFetch(`${API_URL}/applications/`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: applicationId,
-      applicationStatus: status,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Nie udało się zaktualizować statusu aplikacji");
-  }
-
-  const responseText = await response.text();
-  return responseText ? JSON.parse(responseText) : null;
-}
-
 export async function updateApplication(applicationDto) {
   const response = await authFetch(`${API_URL}/applications/`, {
     method: "PATCH",

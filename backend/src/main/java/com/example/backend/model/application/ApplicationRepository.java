@@ -10,15 +10,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findByCourseIdOrderBySubmissionDateTimeAscIdAsc(Long courseId);
 
-    List<Application> findByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
-            Long courseId,
-            ApplicationStatus applicationStatus
-    );
+    long countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(Long courseId);
 
-    long countByCourseIdAndApplicationStatus(Long courseId, ApplicationStatus applicationStatus);
-
-    Optional<Application> findFirstByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
-            Long courseId,
-            ApplicationStatus applicationStatus
+    Optional<Application> findFirstByCourseIdAndIsWaitlistedTrueAndIsWithdrawnFalseOrderBySubmissionDateTimeAscIdAsc(
+            Long courseId
     );
 }

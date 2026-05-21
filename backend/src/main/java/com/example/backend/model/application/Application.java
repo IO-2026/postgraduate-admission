@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Id;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -90,15 +88,14 @@ public class Application {
     @Column(name = "submission_date")
     private LocalDateTime submissionDateTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "application_status")
-    private ApplicationStatus applicationStatus = ApplicationStatus.SUBMITTED;
-
     @Column(name = "is_withdrawn")
     private Boolean isWithdrawn = false;
 
     @Column(name = "is_accepted")
     private Boolean isAccepted = false;
+
+    @Column(name = "is_waitlisted")
+    private Boolean isWaitlisted = false;
 
     @Column(name = "is_entryfee_paid")
     private Boolean isEntryFeePaid = false;

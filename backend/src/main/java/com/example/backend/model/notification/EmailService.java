@@ -37,9 +37,16 @@ public class EmailService {
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void sendApplicationStatusChange(User user, Application application) {
-        String statusDescription = application.getApplicationStatus() != null
-            ? application.getApplicationStatus().getDescription()
-            : "Nieznany status";
+        String statusDescription;
+        if (Boolean.TRUE.equals(application.getIsWithdrawn())) {
+            statusDescription = "Wycofane";
+        } else if (Boolean.TRUE.equals(application.getIsAccepted())) {
+            statusDescription = "Przyjęte";
+        } else if (Boolean.TRUE.equals(application.getIsWaitlisted())) {
+            statusDescription = "Lista rezerwowa";
+        } else {
+            statusDescription = "Złożone";
+        }
 
         String content = String.format("""
                         Cześć %s!

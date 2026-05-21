@@ -4,7 +4,6 @@ import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
-import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.ApplicationDto;
 import com.example.backend.model.course.Course;
 import com.example.backend.model.course.CourseRepository;
@@ -130,11 +129,11 @@ public class ApplicationServiceTest {
         assertEquals("Test University", result.getUniversity());
         assertEquals(100L, result.getCourseId());
         assertEquals(mockUser, result.getUser());
-        assertEquals(ApplicationStatus.SUBMITTED, result.getApplicationStatus());
 
         // Zamiast enuma statusu, sprawdzamy domyślne flagi
         assertFalse(result.getIsWithdrawn());
         assertFalse(result.getIsAccepted());
+        assertFalse(result.getIsWaitlisted());
         assertFalse(result.getIsEntryFeePaid());
         assertFalse(result.getIsSemesterPaid());
         assertFalse(result.getIsDiplomaVerified());
@@ -172,6 +171,7 @@ public class ApplicationServiceTest {
         ApplicationDto request = createDefaultApplicationDto();
 
         User mockUser = createMockUser(2L, "jan2@example.com");
+        when(applicationRepository.findByUserId(2L)).thenReturn(Collections.emptyList());
 
         Application mockApplication = new Application();
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
@@ -197,18 +197,8 @@ public class ApplicationServiceTest {
     }
 
     @Test
-    void shouldFailWhenUserProfileIsIncomplete() {
+    void shouldFailWhenUserIsNull() {
         ApplicationDto request = createDefaultApplicationDto();
-
-        User incompleteUser = new User();
-        incompleteUser.setId(1L);
-        incompleteUser.setName("Jan");
-        incompleteUser.setSurname("Kowalski");
-        incompleteUser.setEmail("jan@example.com");
-        incompleteUser.setTelNumber(" ");
-
-        when(storageService.getDiplomasBucket()).thenReturn("diplomas");
-        when(storageService.getMaxDiplomaBytes()).thenReturn(10 * 1024 * 1024L);
 
         MockMultipartFile diplomaFile = new MockMultipartFile(
                 "diploma",
@@ -217,7 +207,7 @@ public class ApplicationServiceTest {
                 "fake-pdf".getBytes()
         );
 
-        assertThrows(NullPointerException.class, () -> applicationService.saveApplication(request, diplomaFile, incompleteUser));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(request, diplomaFile, null));
     }
 
     // --- NOWE TESTY FLAG ---
@@ -229,14 +219,14 @@ public class ApplicationServiceTest {
         application.setId(id);
         application.setIsWithdrawn(false);
         application.setCourseId(100L);
-        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
 
         applicationService.withdrawApplication(id);
 
         assertTrue(application.getIsWithdrawn());
-        assertEquals(ApplicationStatus.WITHDRAWN, application.getApplicationStatus());
+        assertFalse(application.getIsAccepted());
+        assertFalse(application.getIsWaitlisted());
     }
 
     @Test
@@ -275,10 +265,9 @@ public class ApplicationServiceTest {
         application.setIsEntryFeePaid(true);
         application.setIsDiplomaVerified(true);
         application.setCourseId(100L);
-        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
-        when(applicationRepository.countByCourseIdAndApplicationStatus(100L, ApplicationStatus.ACCEPTED))
+        when(applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(100L))
             .thenReturn(0L);
 
         Course course = new Course();
@@ -291,7 +280,7 @@ public class ApplicationServiceTest {
         applicationService.acceptApplication(id);
 
         assertTrue(application.getIsAccepted());
-        assertEquals(ApplicationStatus.ACCEPTED, application.getApplicationStatus());
+        assertFalse(application.getIsWaitlisted());
     }
 
     @Test
@@ -303,10 +292,9 @@ public class ApplicationServiceTest {
         application.setIsEntryFeePaid(true);
         application.setIsDiplomaVerified(true);
         application.setCourseId(200L);
-        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
-        when(applicationRepository.countByCourseIdAndApplicationStatus(200L, ApplicationStatus.ACCEPTED))
+        when(applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(200L))
                 .thenReturn(1L);
 
         Course course = new Course();
@@ -317,7 +305,7 @@ public class ApplicationServiceTest {
         applicationService.acceptApplication(id);
 
         assertFalse(application.getIsAccepted());
-        assertEquals(ApplicationStatus.WAITING_LIST, application.getApplicationStatus());
+        assertTrue(application.getIsWaitlisted());
     }
 
     @Test
@@ -328,18 +316,16 @@ public class ApplicationServiceTest {
         accepted.setCourseId(300L);
         accepted.setIsWithdrawn(false);
         accepted.setIsAccepted(true);
-        accepted.setApplicationStatus(ApplicationStatus.ACCEPTED);
 
         Application waitlisted = new Application();
         waitlisted.setId(4L);
         waitlisted.setCourseId(300L);
         waitlisted.setIsAccepted(false);
-        waitlisted.setApplicationStatus(ApplicationStatus.WAITING_LIST);
+        waitlisted.setIsWaitlisted(true);
 
         when(applicationRepository.findById(acceptedId)).thenReturn(Optional.of(accepted));
-        when(applicationRepository.findFirstByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
-                300L,
-                ApplicationStatus.WAITING_LIST
+        when(applicationRepository.findFirstByCourseIdAndIsWaitlistedTrueAndIsWithdrawnFalseOrderBySubmissionDateTimeAscIdAsc(
+            300L
         )).thenReturn(Optional.of(waitlisted));
 
         Course course = new Course();
@@ -351,10 +337,9 @@ public class ApplicationServiceTest {
 
         applicationService.withdrawApplication(acceptedId);
 
-        assertEquals(ApplicationStatus.WITHDRAWN, accepted.getApplicationStatus());
         assertTrue(accepted.getIsWithdrawn());
-        assertEquals(ApplicationStatus.ACCEPTED, waitlisted.getApplicationStatus());
         assertTrue(waitlisted.getIsAccepted());
+        assertFalse(waitlisted.getIsWaitlisted());
     }
 
     @Test
