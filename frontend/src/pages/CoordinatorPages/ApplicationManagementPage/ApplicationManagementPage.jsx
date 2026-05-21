@@ -253,7 +253,6 @@ function ApplicationManagementPage() {
   const canAcceptApplication =
     !isWithdrawn &&
     !isAccepted &&
-    !isWaitlisted &&
     applicationData.isDiplomaVerified &&
     applicationData.isEntryFeePaid;
 
