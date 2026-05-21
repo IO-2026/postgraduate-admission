@@ -276,6 +276,16 @@ function CandidateHomePage({ isLoggedIn, user }) {
                 application.isDeclarationVerified,
               );
 
+              const listStatus =
+                application.applicationStatus ||
+                (isWithdrawn ? "WITHDRAWN" : isAccepted ? "ACCEPTED" : null);
+              const listBadge =
+                listStatus === "WAITING_LIST"
+                  ? { label: "Lista rezerwowa", tone: "waitlist" }
+                  : listStatus === "ACCEPTED"
+                    ? { label: "Lista przyjętych", tone: "accepted" }
+                    : null;
+
               const courseId = Number(application.courseId);
               const courseName =
                 (!Number.isNaN(courseId) && courseNames[courseId]) ||
@@ -293,6 +303,13 @@ function CandidateHomePage({ isLoggedIn, user }) {
                             {formatDate(application.submissionDateTime)}
                           </strong>
                         </p>
+                        {listBadge ? (
+                          <span
+                            className={`application-list-badge application-list-badge--${listBadge.tone}`}
+                          >
+                            {listBadge.label}
+                          </span>
+                        ) : null}
                       </div>
 
                       <div className="application-item-actions">

@@ -262,6 +262,241 @@ function CourseManagementPage() {
     }
   };
 
+  const resolveCandidateStatus = (candidate) => {
+    if (candidate?.applicationStatus) {
+      return candidate.applicationStatus;
+    }
+    if (candidate?.isWithdrawn) return "WITHDRAWN";
+    if (candidate?.isAccepted) return "ACCEPTED";
+    return "SUBMITTED";
+  };
+
+  const groupCandidates = (list) =>
+    (list || []).reduce(
+      (acc, candidate) => {
+        const status = resolveCandidateStatus(candidate);
+        if (status === "ACCEPTED") {
+          acc.accepted.push({ ...candidate, resolvedStatus: status });
+        } else if (status === "WAITING_LIST") {
+          acc.waitlist.push({ ...candidate, resolvedStatus: status });
+        } else {
+          acc.other.push({ ...candidate, resolvedStatus: status });
+        }
+        return acc;
+      },
+      { accepted: [], waitlist: [], other: [] },
+    );
+
+  const renderCandidateCard = (candidate) => {
+    const fullName = [candidate.name, candidate.surname].filter(Boolean).join(" ");
+
+    const isWithdrawn = Boolean(candidate.isWithdrawn);
+    const isAccepted = Boolean(candidate.isAccepted);
+    const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
+    const isSemesterPaid = Boolean(candidate.isSemesterPaid);
+    const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
+    const isDeclarationVerified = Boolean(candidate.isDeclarationVerified);
+
+    const status = candidate.resolvedStatus || resolveCandidateStatus(candidate);
+
+    let displayStatus = "przesłana";
+    let statusColor = "#eab308";
+
+    if (status === "WITHDRAWN" || isWithdrawn) {
+      displayStatus = "wycofana";
+      statusColor = "#e11d48";
+    } else if (status === "ACCEPTED" || isAccepted) {
+      displayStatus = "zaakceptowana";
+      statusColor = "#16a34a";
+    } else if (status === "WAITING_LIST") {
+      displayStatus = "lista rezerwowa";
+      statusColor = "#2563eb";
+    }
+
+    const isFullyAccepted =
+      !isWithdrawn &&
+      isAccepted &&
+      isDiplomaVerified &&
+      isDeclarationVerified &&
+      isEntryFeePaid &&
+      isSemesterPaid;
+
+    return (
+      <article key={candidate.id} className="course-candidate-card">
+        <div className="course-candidate-main">
+          <h3>{fullName || "Kandydat bez danych"}</h3>
+          <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isFullyAccepted
+              ? "auto 1fr"
+              : [
+                    true,
+                    !isWithdrawn,
+                    isAccepted && !isWithdrawn,
+                    isEntryFeePaid && !isWithdrawn,
+                    isAccepted && isSemesterPaid && !isWithdrawn,
+                  ].filter(Boolean).length > 3
+                ? "auto 1fr auto 1fr"
+                : "auto 1fr",
+            gap: "6px 10px",
+            alignItems: "center",
+            fontSize: "0.85rem",
+          }}
+        >
+          {isFullyAccepted ? (
+            <>
+              <span style={{ color: "#6b7280", textAlign: "right" }}>
+                Aplikacja:
+              </span>
+              <div>
+                <span
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                    backgroundColor: "#16a34a20",
+                    color: "#16a34a",
+                    fontWeight: "bold",
+                    display: "inline-block",
+                  }}
+                >
+                  kandydat przyjęty
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <span style={{ color: "#6b7280", textAlign: "right" }}>
+                Aplikacja:
+              </span>
+              <div>
+                <span
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                    backgroundColor: `${statusColor}20`,
+                    color: statusColor,
+                    display: "inline-block",
+                  }}
+                >
+                  {displayStatus}
+                </span>
+              </div>
+
+              {!isWithdrawn && (
+                <>
+                  <span style={{ color: "#6b7280", textAlign: "right" }}>
+                    Dyplom:
+                  </span>
+                  <div>
+                    <span
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        backgroundColor: isDiplomaVerified
+                          ? "#16a34a20"
+                          : "#eab30820",
+                        color: isDiplomaVerified ? "#16a34a" : "#eab308",
+                        display: "inline-block",
+                      }}
+                    >
+                      {isDiplomaVerified
+                        ? "zweryfikowany"
+                        : "w trakcie weryfikacji"}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {isAccepted && !isWithdrawn && (
+                <>
+                  <span style={{ color: "#6b7280", textAlign: "right" }}>
+                    Oświadczenie:
+                  </span>
+                  <div>
+                    <span
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        backgroundColor: isDeclarationVerified
+                          ? "#16a34a20"
+                          : "#eab30820",
+                        color: isDeclarationVerified
+                          ? "#16a34a"
+                          : "#eab308",
+                        display: "inline-block",
+                      }}
+                    >
+                      {isDeclarationVerified
+                        ? "zweryfikowane"
+                        : "w trakcie weryfikacji"}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {isEntryFeePaid && !isWithdrawn && (
+                <>
+                  <span style={{ color: "#6b7280", textAlign: "right" }}>
+                    Wpisowe:
+                  </span>
+                  <div>
+                    <span
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        backgroundColor: "#16a34a20",
+                        color: "#16a34a",
+                        display: "inline-block",
+                      }}
+                    >
+                      opłacone
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {isAccepted && isSemesterPaid && !isWithdrawn && (
+                <>
+                  <span style={{ color: "#6b7280", textAlign: "right" }}>
+                    Semestr:
+                  </span>
+                  <div>
+                    <span
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        backgroundColor: "#16a34a20",
+                        color: "#16a34a",
+                        display: "inline-block",
+                      }}
+                    >
+                      opłacony
+                    </span>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="course-candidate-actions">
+          <Link
+            to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
+            className="candidate-edit-application"
+          >
+            Edytuj aplikację
+          </Link>
+        </div>
+      </article>
+    );
+  };
+
+  const groupedCandidates = groupCandidates(candidates);
+
   return (
     <section className="course-management-view">
       <BackButton label="Wróć do strony koordynatora" />
@@ -463,223 +698,34 @@ function CourseManagementPage() {
           </div>
         ) : (
           <div className="course-candidates-list">
-            {candidates.map((candidate) => {
-              const fullName = [candidate.name, candidate.surname]
-                .filter(Boolean)
-                .join(" ");
+            <div className="course-candidates-group">
+              <h3>Lista przyjętych</h3>
+              {groupedCandidates.accepted.length === 0 ? (
+                <p className="course-management-state">
+                  Brak kandydatów przyjętych.
+                </p>
+              ) : (
+                groupedCandidates.accepted.map(renderCandidateCard)
+              )}
+            </div>
 
-              // Statusy aplikacji
-              const isWithdrawn = Boolean(candidate.isWithdrawn);
-              const isAccepted = Boolean(candidate.isAccepted);
-              const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
-              const isSemesterPaid = Boolean(candidate.isSemesterPaid);
-              const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
-              const isDeclarationVerified = Boolean(
-                candidate.isDeclarationVerified,
-              );
+            <div className="course-candidates-group">
+              <h3>Lista rezerwowa</h3>
+              {groupedCandidates.waitlist.length === 0 ? (
+                <p className="course-management-state">
+                  Brak kandydatów na liście rezerwowej.
+                </p>
+              ) : (
+                groupedCandidates.waitlist.map(renderCandidateCard)
+              )}
+            </div>
 
-              let displayStatus = "przesłana";
-              let statusColor = "#eab308";
-
-              if (isWithdrawn) {
-                displayStatus = "wycofana";
-                statusColor = "#e11d48";
-              } else if (isAccepted) {
-                displayStatus = "zaakceptowana";
-                statusColor = "#16a34a";
-              }
-
-              const isFullyAccepted =
-                !isWithdrawn &&
-                isAccepted &&
-                isDiplomaVerified &&
-                isDeclarationVerified &&
-                isEntryFeePaid &&
-                isSemesterPaid;
-
-              return (
-                <article key={candidate.id} className="course-candidate-card">
-                  <div className="course-candidate-main">
-                    <h3>{fullName || "Kandydat bez danych"}</h3>
-                    <a href={`mailto:${candidate.email}`}>{candidate.email}</a>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: isFullyAccepted
-                        ? "auto 1fr"
-                        : [
-                              true,
-                              !isWithdrawn,
-                              isAccepted && !isWithdrawn,
-                              isEntryFeePaid && !isWithdrawn,
-                              isAccepted && isSemesterPaid && !isWithdrawn,
-                            ].filter(Boolean).length > 3
-                          ? "auto 1fr auto 1fr"
-                          : "auto 1fr",
-                      gap: "6px 10px",
-                      alignItems: "center",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    {isFullyAccepted ? (
-                      <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>
-                          Aplikacja:
-                        </span>
-                        <div>
-                          <span
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              backgroundColor: "#16a34a20",
-                              color: "#16a34a",
-                              fontWeight: "bold",
-                              display: "inline-block",
-                            }}
-                          >
-                            kandydat przyjęty
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ color: "#6b7280", textAlign: "right" }}>
-                          Aplikacja:
-                        </span>
-                        <div>
-                          <span
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: "6px",
-                              backgroundColor: `${statusColor}20`,
-                              color: statusColor,
-                              display: "inline-block",
-                            }}
-                          >
-                            {displayStatus}
-                          </span>
-                        </div>
-
-                        {!isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Dyplom:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: isDiplomaVerified
-                                    ? "#16a34a20"
-                                    : "#eab30820",
-                                  color: isDiplomaVerified
-                                    ? "#16a34a"
-                                    : "#eab308",
-                                  display: "inline-block",
-                                }}
-                              >
-                                {isDiplomaVerified
-                                  ? "zweryfikowany"
-                                  : "w trakcie weryfikacji"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isAccepted && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Oświadczenie:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: isDeclarationVerified
-                                    ? "#16a34a20"
-                                    : "#eab30820",
-                                  color: isDeclarationVerified
-                                    ? "#16a34a"
-                                    : "#eab308",
-                                  display: "inline-block",
-                                }}
-                              >
-                                {isDeclarationVerified
-                                  ? "zweryfikowane"
-                                  : "w trakcie weryfikacji"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isEntryFeePaid && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Wpisowe:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: "#16a34a20",
-                                  color: "#16a34a",
-                                  display: "inline-block",
-                                }}
-                              >
-                                opłacone
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {isAccepted && isSemesterPaid && !isWithdrawn && (
-                          <>
-                            <span
-                              style={{ color: "#6b7280", textAlign: "right" }}
-                            >
-                              Semestr:
-                            </span>
-                            <div>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  backgroundColor: "#16a34a20",
-                                  color: "#16a34a",
-                                  display: "inline-block",
-                                }}
-                              >
-                                opłacony
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  <div className="course-candidate-actions">
-                    <Link
-                      to={`/coordinator/courses/${courseId}/applications/${candidate.applicationId}/manage`}
-                      className="candidate-edit-application"
-                    >
-                      Edytuj aplikację
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
+            {groupedCandidates.other.length > 0 ? (
+              <div className="course-candidates-group">
+                <h3>Pozostałe zgłoszenia</h3>
+                {groupedCandidates.other.map(renderCandidateCard)}
+              </div>
+            ) : null}
           </div>
         )}
       </section>

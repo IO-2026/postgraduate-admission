@@ -224,6 +224,19 @@
   gap: 12px;
 }
 
+.course-candidates-group {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.course-candidates-group h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
 .course-candidate-card {
   display: flex;
   align-items: center;

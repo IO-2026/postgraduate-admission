@@ -1,8 +1,12 @@
 package com.example.backend.model.application;
 
 import com.example.backend.model.application.dto.ApplicationDto;
+import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseRepository;
+import com.example.backend.model.message.MessageService;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
 import com.example.backend.storage.SupabaseStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +15,16 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final MessageService messageService;
     private final EmailService emailService;
     private final ApplicationMapper applicationMapper;
     private final SupabaseStorageService storageService;
@@ -37,6 +45,9 @@ public class ApplicationService {
 
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
+        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
+        application.setIsAccepted(false);
+        application.setIsWithdrawn(false);
 
         Application savedApplication = applicationRepository.saveAndFlush(application);
 
@@ -79,8 +90,14 @@ public class ApplicationService {
         if (application.getIsWithdrawn()) {
             throw new IllegalStateException("Wniosek jest już wycofany.");
         }
-
+        ApplicationStatus previousStatus = application.getApplicationStatus();
         application.setIsWithdrawn(true);
+        application.setIsAccepted(false);
+        application.setApplicationStatus(ApplicationStatus.WITHDRAWN);
+
+        if (previousStatus == ApplicationStatus.ACCEPTED) {
+            promoteFirstWaitlistedCandidate(application.getCourseId());
+        }
     }
 
     @Transactional
@@ -129,15 +146,42 @@ public class ApplicationService {
     public void acceptApplication(Long applicationId) {
         Application application = applicationRepository.findById(applicationId).orElseThrow(() -> new RuntimeException("Wniosek nie znaleziony"));
 
+        if (application.getIsWithdrawn()) {
+            throw new IllegalStateException("Nie można zaakceptować wycofanego wniosku.");
+        }
+
         if(!application.getIsDiplomaVerified() || !application.getIsEntryFeePaid()){
             throw new IllegalStateException("Nie można zaakceptować: brakuje opłaty lub dyplomu.");
         }
 
-        application.setIsAccepted(true);
+        if (application.getApplicationStatus() == ApplicationStatus.ACCEPTED) {
+            throw new IllegalStateException("Wniosek został już zaakceptowany.");
+        }
+
+        Course course = courseRepository.findById(application.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
+
+        long acceptedCount = applicationRepository.countByCourseIdAndApplicationStatus(
+                application.getCourseId(),
+                ApplicationStatus.ACCEPTED
+        );
+
+        ApplicationStatus newStatus = acceptedCount < course.getPlacesLimit()
+                ? ApplicationStatus.ACCEPTED
+                : ApplicationStatus.WAITING_LIST;
+
+        application.setApplicationStatus(newStatus);
+        application.setIsAccepted(newStatus == ApplicationStatus.ACCEPTED);
+
+        notifyStatusChange(application, newStatus, course);
     }
 
     public List<Application> getAllApplications() {
         return applicationRepository.findAll();
+    }
+
+    public List<Application> getApplicationsForCourse(Long courseId) {
+        return applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(courseId);
     }
 
     public void updateApplication(ApplicationDto dto) {
@@ -184,5 +228,56 @@ public class ApplicationService {
     private boolean isCandidate(User user) {
         String roleName = user.getRole() != null ? user.getRole().getName() : "";
         return "Candidate".equalsIgnoreCase(roleName) || "ROLE_Candidate".equalsIgnoreCase(roleName);
+    }
+
+    private void promoteFirstWaitlistedCandidate(Long courseId) {
+        Optional<Application> nextCandidate = applicationRepository
+                .findFirstByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
+                        courseId,
+                        ApplicationStatus.WAITING_LIST
+                );
+
+        if (nextCandidate.isEmpty()) {
+            return;
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
+
+        Application application = nextCandidate.get();
+        application.setApplicationStatus(ApplicationStatus.ACCEPTED);
+        application.setIsAccepted(true);
+
+        notifyStatusChange(application, ApplicationStatus.ACCEPTED, course);
+    }
+
+    private void notifyStatusChange(Application application, ApplicationStatus newStatus, Course course) {
+        if (application.getUser() == null) {
+            return;
+        }
+
+        String statusDescription = newStatus.getDescription();
+        String courseName = course != null ? course.getName() : "Nieznany kierunek";
+        String subject = "Zmiana statusu rekrutacji";
+        String content = String.format(
+                "Twoje zgłoszenie na kierunek %s zostało zaktualizowane. Aktualny status: %s.",
+                courseName,
+                statusDescription
+        );
+
+        User sender = resolveNotificationSender(course);
+        if (sender != null) {
+            messageService.sendSystemMessage(sender, application.getUser(), subject, content);
+        } else {
+            emailService.sendApplicationStatusChange(application.getUser(), application);
+        }
+    }
+
+    private User resolveNotificationSender(Course course) {
+        if (course != null && course.getCoordinator() != null) {
+            return course.getCoordinator();
+        }
+
+        return userRepository.findFirstByRoleName("Admin").orElse(null);
     }
 }

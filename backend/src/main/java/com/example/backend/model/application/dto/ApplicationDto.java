@@ -1,5 +1,6 @@
 package com.example.backend.model.application.dto;
 
+import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.validation.ApplicationConsistent;
 import com.example.backend.validation.GraduationYear;
 import com.example.backend.validation.Pesel;
@@ -82,6 +83,8 @@ public class ApplicationDto {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime submissionDateTime;
+
+    private ApplicationStatus applicationStatus;
 
     private Boolean isWithdrawn;
     private Boolean isAccepted;

@@ -37,7 +37,9 @@ public class EmailService {
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void sendApplicationStatusChange(User user, Application application) {
-        String statusDescription = "To jest to przemyślenia";
+        String statusDescription = application.getApplicationStatus() != null
+            ? application.getApplicationStatus().getDescription()
+            : "Nieznany status";
 
         String content = String.format("""
                         Cześć %s!

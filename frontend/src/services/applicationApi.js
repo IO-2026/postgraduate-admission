@@ -46,7 +46,7 @@ export async function updateApplicationStatus(applicationId, status) {
     },
     body: JSON.stringify({
       id: applicationId,
-      status,
+      applicationStatus: status,
     }),
   });
 
