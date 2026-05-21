@@ -129,7 +129,9 @@
   font-size: 0.85rem;
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
   justify-self: center;
 }
 

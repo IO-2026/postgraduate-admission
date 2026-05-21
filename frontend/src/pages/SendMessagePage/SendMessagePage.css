@@ -163,7 +163,9 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  transition: opacity 0.15s, background 0.15s;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
 }
 
 .recipient-tag-remove:hover {
@@ -281,8 +283,6 @@
 .recipients-table tbody tr:hover {
   background-color: var(--bg-accent);
 }
-
-
 
 .recipients-table tbody tr.selected {
   background-color: rgba(13, 148, 136, 0.12);

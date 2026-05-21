@@ -158,8 +158,6 @@
   transition: all 0.15s ease;
 }
 
-
-
 .application-item--vertical {
   flex-direction: column;
   align-items: stretch;
@@ -347,7 +345,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   border: 1px solid var(--panel-border);
 }
 

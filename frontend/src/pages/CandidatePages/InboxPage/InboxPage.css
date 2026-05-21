@@ -74,8 +74,6 @@
   border-color: var(--panel-border);
 }
 
-
-
 .inbox-item.active {
   background: rgba(13, 148, 136, 0.12);
   border-color: var(--panel-border);
@@ -208,4 +206,3 @@
     padding-top: 24px;
   }
 }
-

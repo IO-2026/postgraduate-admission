@@ -8,9 +8,7 @@ function PaymentPage() {
   return (
     <section className="payment-view animate-fade-in">
       <h1>Strona płatności</h1>
-      <p>
-        Płatność za aplikację nr {id} (moduł w budowie).
-      </p>
+      <p>Płatność za aplikację nr {id} (moduł w budowie).</p>
       <div className="payment-actions">
         <BackButton />
       </div>
@@ -19,4 +17,3 @@ function PaymentPage() {
 }
 
 export default PaymentPage;
-

@@ -115,10 +115,14 @@ function CourseManagementPage() {
                   };
                 }
               } catch (e) {
-                console.error("Error fetching application details for candidate", candidate.id, e);
+                console.error(
+                  "Error fetching application details for candidate",
+                  candidate.id,
+                  e,
+                );
               }
               return candidate;
-            })
+            }),
           );
           setCandidates(candidatesWithDates);
         } else if (isMounted) {
@@ -153,8 +157,8 @@ function CourseManagementPage() {
       await verifyDiploma(applicationId);
       setCandidates((prevCandidates) =>
         prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isDiplomaVerified: true } : c
-        )
+          c.id === candidateId ? { ...c, isDiplomaVerified: true } : c,
+        ),
       );
     } catch (err) {
       setCandidateError((prev) => ({
@@ -173,13 +177,14 @@ function CourseManagementPage() {
       await verifyDeclaration(applicationId);
       setCandidates((prevCandidates) =>
         prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isDeclarationVerified: true } : c
-        )
+          c.id === candidateId ? { ...c, isDeclarationVerified: true } : c,
+        ),
       );
     } catch (err) {
       setCandidateError((prev) => ({
         ...prev,
-        [candidateId]: err.message || "Nie udało się zweryfikować oświadczenia.",
+        [candidateId]:
+          err.message || "Nie udało się zweryfikować oświadczenia.",
       }));
     } finally {
       setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: false }));
@@ -193,8 +198,8 @@ function CourseManagementPage() {
       await acceptApplication(applicationId);
       setCandidates((prevCandidates) =>
         prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isAccepted: true } : c
-        )
+          c.id === candidateId ? { ...c, isAccepted: true } : c,
+        ),
       );
     } catch (err) {
       setCandidateError((prev) => ({
@@ -626,15 +631,17 @@ function CourseManagementPage() {
 
                   <div className="course-candidate-statuses">
                     {/* 1. Aplikacja */}
-                    <span className="course-candidate-status-label">Aplikacja:</span>
+                    <span className="course-candidate-status-label">
+                      Aplikacja:
+                    </span>
                     <div>
                       <span
                         className={`status-badge ${
                           isWithdrawn
                             ? "status-badge--withdrawn"
                             : isAccepted
-                            ? "status-badge--accepted"
-                            : "status-badge--submitted"
+                              ? "status-badge--accepted"
+                              : "status-badge--submitted"
                         }`}
                       >
                         {displayStatus}
@@ -642,35 +649,51 @@ function CourseManagementPage() {
                     </div>
 
                     {/* 2. Dyplom */}
-                    <span className="course-candidate-status-label">Dyplom:</span>
+                    <span className="course-candidate-status-label">
+                      Dyplom:
+                    </span>
                     <div>
                       <span
                         className={`status-badge ${
-                          isDiplomaVerified ? "status-badge--success" : "status-badge--disabled"
+                          isDiplomaVerified
+                            ? "status-badge--success"
+                            : "status-badge--disabled"
                         }`}
                       >
-                        {isDiplomaVerified ? "zweryfikowany" : "niezweryfikowany"}
+                        {isDiplomaVerified
+                          ? "zweryfikowany"
+                          : "niezweryfikowany"}
                       </span>
                     </div>
 
                     {/* 3. Oświadczenie */}
-                    <span className="course-candidate-status-label">Oświadczenie:</span>
+                    <span className="course-candidate-status-label">
+                      Oświadczenie:
+                    </span>
                     <div>
                       <span
                         className={`status-badge ${
-                          isDeclarationVerified ? "status-badge--success" : "status-badge--disabled"
+                          isDeclarationVerified
+                            ? "status-badge--success"
+                            : "status-badge--disabled"
                         }`}
                       >
-                        {isDeclarationVerified ? "zweryfikowane" : "niezweryfikowane"}
+                        {isDeclarationVerified
+                          ? "zweryfikowane"
+                          : "niezweryfikowane"}
                       </span>
                     </div>
 
                     {/* 4. Wpisowe */}
-                    <span className="course-candidate-status-label">Wpisowe:</span>
+                    <span className="course-candidate-status-label">
+                      Wpisowe:
+                    </span>
                     <div>
                       <span
                         className={`status-badge ${
-                          isEntryFeePaid ? "status-badge--success" : "status-badge--disabled"
+                          isEntryFeePaid
+                            ? "status-badge--success"
+                            : "status-badge--disabled"
                         }`}
                       >
                         {isEntryFeePaid ? "opłacone" : "nieopłacone"}
@@ -678,11 +701,15 @@ function CourseManagementPage() {
                     </div>
 
                     {/* 5. Semestr */}
-                    <span className="course-candidate-status-label">Semestr:</span>
+                    <span className="course-candidate-status-label">
+                      Semestr:
+                    </span>
                     <div>
                       <span
                         className={`status-badge ${
-                          isSemesterPaid ? "status-badge--success" : "status-badge--disabled"
+                          isSemesterPaid
+                            ? "status-badge--success"
+                            : "status-badge--disabled"
                         }`}
                       >
                         {isSemesterPaid ? "opłacony" : "nieopłacony"}
@@ -696,9 +723,16 @@ function CourseManagementPage() {
                       type="button"
                       className="candidate-action-btn candidate-action-btn--secondary"
                       onClick={() =>
-                        handleDiplomaDownload(candidate.id, candidate.applicationId)
+                        handleDiplomaDownload(
+                          candidate.id,
+                          candidate.applicationId,
+                        )
                       }
-                      disabled={isWithdrawn || !candidate.applicationId || candidateDiplomaLoading[candidate.id]}
+                      disabled={
+                        isWithdrawn ||
+                        !candidate.applicationId ||
+                        candidateDiplomaLoading[candidate.id]
+                      }
                     >
                       {candidateDiplomaLoading[candidate.id]
                         ? "Pobieranie..."
@@ -710,7 +744,10 @@ function CourseManagementPage() {
                       type="button"
                       className="candidate-action-btn candidate-action-btn--outline"
                       onClick={() =>
-                        handleVerifyDiploma(candidate.id, candidate.applicationId)
+                        handleVerifyDiploma(
+                          candidate.id,
+                          candidate.applicationId,
+                        )
                       }
                       disabled={
                         isDiplomaVerified ||
@@ -719,7 +756,9 @@ function CourseManagementPage() {
                         candidateActionsLoading[candidate.id]
                       }
                     >
-                      {isDiplomaVerified ? "Dyplom zweryfikowany" : "Zweryfikuj dyplom"}
+                      {isDiplomaVerified
+                        ? "Dyplom zweryfikowany"
+                        : "Zweryfikuj dyplom"}
                     </button>
 
                     {/* Verify declaration button */}
@@ -727,7 +766,10 @@ function CourseManagementPage() {
                       type="button"
                       className="candidate-action-btn candidate-action-btn--outline"
                       onClick={() =>
-                        handleVerifyDeclaration(candidate.id, candidate.applicationId)
+                        handleVerifyDeclaration(
+                          candidate.id,
+                          candidate.applicationId,
+                        )
                       }
                       disabled={
                         !isAccepted ||
@@ -737,7 +779,9 @@ function CourseManagementPage() {
                         candidateActionsLoading[candidate.id]
                       }
                     >
-                      {isDeclarationVerified ? "Oświadczenie zweryfikowane" : "Zweryfikuj oświadczenie"}
+                      {isDeclarationVerified
+                        ? "Oświadczenie zweryfikowane"
+                        : "Zweryfikuj oświadczenie"}
                     </button>
 
                     {/* Accept application button */}
@@ -745,7 +789,10 @@ function CourseManagementPage() {
                       type="button"
                       className="candidate-action-btn candidate-action-btn--primary"
                       onClick={() =>
-                        handleAcceptApplication(candidate.id, candidate.applicationId)
+                        handleAcceptApplication(
+                          candidate.id,
+                          candidate.applicationId,
+                        )
                       }
                       disabled={
                         isAccepted ||
@@ -756,7 +803,9 @@ function CourseManagementPage() {
                         candidateActionsLoading[candidate.id]
                       }
                     >
-                      {isAccepted ? "Wniosek zaakceptowany" : "Akceptuj wniosek"}
+                      {isAccepted
+                        ? "Wniosek zaakceptowany"
+                        : "Akceptuj wniosek"}
                     </button>
 
                     {candidateError[candidate.id] && (

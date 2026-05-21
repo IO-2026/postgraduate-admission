@@ -255,7 +255,8 @@ function SendMessagePage({ user }) {
                 <div className="recipients-header">
                   <div className="recipients-title-row">
                     <span>
-                      Wybierz odbiorców {activeTab === "course" && `(Kierunek)`}:
+                      Wybierz odbiorców {activeTab === "course" && `(Kierunek)`}
+                      :
                     </span>
                   </div>
                   <button
@@ -273,8 +274,9 @@ function SendMessagePage({ user }) {
                 {selectedIds.length > 0 && (
                   <div className="selected-recipients-tags">
                     {selectedIds.map((id) => {
-                      const r = recipients.find((x) => x.id === id)
-                        || courseCandidates.find((x) => x.id === id);
+                      const r =
+                        recipients.find((x) => x.id === id) ||
+                        courseCandidates.find((x) => x.id === id);
                       const label = r
                         ? `${r.name || ""} ${r.surname || ""}`.trim() || r.email
                         : `#${id}`;
@@ -312,15 +314,37 @@ function SendMessagePage({ user }) {
                     type="button"
                     className="collapse-toggle-btn-with-text"
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    aria-label={isCollapsed ? "Rozwiń listę odbiorców" : "Zwiń listę odbiorców"}
+                    aria-label={
+                      isCollapsed
+                        ? "Rozwiń listę odbiorców"
+                        : "Zwiń listę odbiorców"
+                    }
                   >
                     <span>{isCollapsed ? "Rozwiń" : "Zwiń"}</span>
                     {isCollapsed ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
                     ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="18 15 12 9 6 15"></polyline>
                       </svg>
                     )}

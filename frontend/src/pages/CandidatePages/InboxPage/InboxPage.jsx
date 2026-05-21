@@ -99,7 +99,12 @@ function InboxPage() {
                 >
                   <div className="inbox-item-header">
                     <div className="inbox-sender-wrapper">
-                      {!msg.isRead && <span className="inbox-unread-dot" aria-label="Nieprzeczytane"></span>}
+                      {!msg.isRead && (
+                        <span
+                          className="inbox-unread-dot"
+                          aria-label="Nieprzeczytane"
+                        ></span>
+                      )}
                       <span className="inbox-sender">{msg.senderName}</span>
                     </div>
                     <span className="inbox-date">{formatDate(msg.sentAt)}</span>
@@ -125,7 +130,13 @@ function InboxPage() {
               </div>
             ) : (
               <div className="inbox-detail-placeholder animate-fade-in">
-                <svg className="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  className="placeholder-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>

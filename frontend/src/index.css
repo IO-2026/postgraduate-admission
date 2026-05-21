@@ -3,37 +3,37 @@
 :root {
   /* Original Color Palette but with White Background */
   --bg-base: #ffffff;
-  --bg-accent: #f0fdfa;       /* Light, subtle teal accent tint matching #0f7f73 */
+  --bg-accent: #f0fdfa; /* Light, subtle teal accent tint matching #0f7f73 */
   --panel-bg: #ffffff;
   --panel-border: rgba(17, 47, 74, 0.12);
-  
+
   --text-strong: #0d2137;
   --text-muted: #0d2137;
   --text-light: #0d2137;
-  
+
   --primary: #0f7f73;
   --primary-hover: #0b6a61;
   --primary-text: #f5fbfa;
-  
+
   --accent: #0f7f73;
   --accent-hover: #0b6a61;
   --accent-bg: rgba(15, 127, 115, 0.1);
   --accent-border: rgba(15, 127, 115, 0.2);
-  
+
   --ghost-bg: rgba(15, 127, 115, 0.14);
   --ghost-hover: rgba(15, 127, 115, 0.24);
-  
+
   --field-bg: #f9fbfd;
   --field-border: #d2dde8;
   --field-focus: #0f7f73;
-  
+
   --error: #b83333;
-  
+
   --switch-bg: #dfe9f0;
   --switch-active-bg: #ffffff;
-  
+
   --shadow-soft: none;
-  
+
   --font-body: "Outfit", "Inter", "Segoe UI", sans-serif;
   --font-display: "Space Grotesk", "Outfit", sans-serif;
 }

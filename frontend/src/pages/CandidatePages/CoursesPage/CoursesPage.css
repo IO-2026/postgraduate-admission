@@ -159,8 +159,6 @@
   box-shadow: none;
 }
 
-
-
 .course-card::after {
   display: none;
 }

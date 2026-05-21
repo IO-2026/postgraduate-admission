@@ -1,10 +1,7 @@
 import { Link } from "react-router-dom";
 import { API_URL } from "../../../config/api";
 import { useEffect, useMemo, useState } from "react";
-import {
-  fetchCourses,
-  deleteCourse,
-} from "../../../services/courseApi";
+import { fetchCourses, deleteCourse } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
 import { authFetch } from "../../../config/auth";
 import "./HomePage.css";

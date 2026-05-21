@@ -64,7 +64,8 @@ function SentMessagesPage() {
                 >
                   <div className="sent-messages-item-header">
                     <span className="sent-messages-sender">
-                      Do: {msg.recipients.length} odbiorc{msg.recipients.length === 1 ? "a" : "ów"}
+                      Do: {msg.recipients.length} odbiorc
+                      {msg.recipients.length === 1 ? "a" : "ów"}
                     </span>
                     <span className="sent-messages-date">
                       {formatDate(msg.sentAt)}
@@ -108,11 +109,20 @@ function SentMessagesPage() {
               </div>
             ) : (
               <div className="sent-messages-detail-placeholder animate-fade-in">
-                <svg className="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  className="placeholder-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
-                <p>Wybierz wiadomość z listy, aby odczytać jej treść i zobaczyć odbiorców</p>
+                <p>
+                  Wybierz wiadomość z listy, aby odczytać jej treść i zobaczyć
+                  odbiorców
+                </p>
               </div>
             )}
           </div>

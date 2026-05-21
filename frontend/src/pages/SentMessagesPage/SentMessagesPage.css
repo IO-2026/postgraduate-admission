@@ -219,7 +219,7 @@
     border-top: 1px solid var(--panel-border);
     padding-top: 24px;
   }
-  
+
   .sent-messages-detail-placeholder {
     display: none;
   }

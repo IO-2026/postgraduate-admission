@@ -77,8 +77,6 @@
   transition: all 0.15s ease;
 }
 
-
-
 .coordinator-course-card::after {
   display: none;
 }
