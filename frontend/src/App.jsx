@@ -28,6 +28,7 @@ import {
   storeAuthState,
 } from "./config/auth";
 import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
+import SentMessagesPage from "./pages/SentMessagesPage/SentMessagesPage.jsx";
 
 function getInitialAuthState() {
   try {
@@ -489,6 +490,16 @@ function App() {
             !isRoleReady ? null : isLoggedIn &&
               (getRoleName(user) === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/sent-messages"
+          element={
+            !isRoleReady ? null : isAdmin || isCoordinator ? (
+              <SentMessagesPage />
             ) : (
               <Navigate to="/" replace />
             )

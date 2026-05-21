@@ -47,6 +47,10 @@ export async function fetchUnreadCount() {
   return request("/unread-count");
 }
 
+export async function getSentMessages() {
+  return request("/sent-by");
+}
+
 export async function markAsRead(recipientId) {
   return request(`/${recipientId}/read`, {
     method: "PATCH",
