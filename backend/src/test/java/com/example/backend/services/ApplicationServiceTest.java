@@ -4,9 +4,14 @@ import com.example.backend.model.application.Application;
 import com.example.backend.model.application.ApplicationMapper;
 import com.example.backend.model.application.ApplicationRepository;
 import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.application.ApplicationStatus;
 import com.example.backend.model.application.dto.ApplicationDto;
+import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseRepository;
+import com.example.backend.model.message.MessageService;
 import com.example.backend.model.notification.EmailService;
 import com.example.backend.model.user.User;
+import com.example.backend.model.user.UserRepository;
 import com.example.backend.storage.SupabaseStorageService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +40,15 @@ import static org.mockito.Mockito.when;
 public class ApplicationServiceTest {
     @Mock
     private ApplicationRepository applicationRepository;
+
+    @Mock
+    private CourseRepository courseRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private MessageService messageService;
 
     @Mock
     private EmailService emailService;
@@ -116,6 +130,7 @@ public class ApplicationServiceTest {
         assertEquals("Test University", result.getUniversity());
         assertEquals(100L, result.getCourseId());
         assertEquals(mockUser, result.getUser());
+        assertEquals(ApplicationStatus.SUBMITTED, result.getApplicationStatus());
 
         // Zamiast enuma statusu, sprawdzamy domyślne flagi
         assertFalse(result.getIsWithdrawn());
@@ -213,12 +228,15 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setId(id);
         application.setIsWithdrawn(false);
+        application.setCourseId(100L);
+        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
 
         applicationService.withdrawApplication(id);
 
         assertTrue(application.getIsWithdrawn());
+        assertEquals(ApplicationStatus.WITHDRAWN, application.getApplicationStatus());
     }
 
     @Test
@@ -254,16 +272,89 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setId(id);
         application.setIsAccepted(false);
-        application.setIsEntryFeePaid(false);
-        application.setIsDiplomaVerified(false);
+        application.setIsEntryFeePaid(true);
+        application.setIsDiplomaVerified(true);
+        application.setCourseId(100L);
+        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(applicationRepository.countByCourseIdAndApplicationStatus(100L, ApplicationStatus.ACCEPTED))
+            .thenReturn(0L);
+
+        Course course = new Course();
+        course.setId(100L);
+        course.setPlacesLimit(2);
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
         applicationService.markDiplomaAsVerified(id);
         applicationService.payEntryFee(id);
 
         applicationService.acceptApplication(id);
 
         assertTrue(application.getIsAccepted());
+        assertEquals(ApplicationStatus.ACCEPTED, application.getApplicationStatus());
+    }
+
+    @Test
+    void shouldMoveApplicationToWaitlistWhenNoPlacesLeft() {
+        Long id = 2L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsAccepted(false);
+        application.setIsEntryFeePaid(true);
+        application.setIsDiplomaVerified(true);
+        application.setCourseId(200L);
+        application.setApplicationStatus(ApplicationStatus.SUBMITTED);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(applicationRepository.countByCourseIdAndApplicationStatus(200L, ApplicationStatus.ACCEPTED))
+                .thenReturn(1L);
+
+        Course course = new Course();
+        course.setId(200L);
+        course.setPlacesLimit(1);
+        when(courseRepository.findById(200L)).thenReturn(Optional.of(course));
+
+        applicationService.acceptApplication(id);
+
+        assertFalse(application.getIsAccepted());
+        assertEquals(ApplicationStatus.WAITING_LIST, application.getApplicationStatus());
+    }
+
+    @Test
+    void shouldPromoteFirstWaitlistedCandidateAfterAcceptedWithdraws() {
+        Long acceptedId = 3L;
+        Application accepted = new Application();
+        accepted.setId(acceptedId);
+        accepted.setCourseId(300L);
+        accepted.setIsWithdrawn(false);
+        accepted.setIsAccepted(true);
+        accepted.setApplicationStatus(ApplicationStatus.ACCEPTED);
+
+        Application waitlisted = new Application();
+        waitlisted.setId(4L);
+        waitlisted.setCourseId(300L);
+        waitlisted.setIsAccepted(false);
+        waitlisted.setApplicationStatus(ApplicationStatus.WAITING_LIST);
+
+        when(applicationRepository.findById(acceptedId)).thenReturn(Optional.of(accepted));
+        when(applicationRepository.findFirstByCourseIdAndApplicationStatusOrderBySubmissionDateTimeAscIdAsc(
+                300L,
+                ApplicationStatus.WAITING_LIST
+        )).thenReturn(Optional.of(waitlisted));
+
+        Course course = new Course();
+        course.setId(300L);
+        course.setPlacesLimit(1);
+        User coordinator = createMockUser(10L, "koord@example.com");
+        course.setCoordinator(coordinator);
+        when(courseRepository.findById(300L)).thenReturn(Optional.of(course));
+
+        applicationService.withdrawApplication(acceptedId);
+
+        assertEquals(ApplicationStatus.WITHDRAWN, accepted.getApplicationStatus());
+        assertTrue(accepted.getIsWithdrawn());
+        assertEquals(ApplicationStatus.ACCEPTED, waitlisted.getApplicationStatus());
+        assertTrue(waitlisted.getIsAccepted());
     }
 
     @Test
