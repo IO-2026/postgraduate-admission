@@ -289,19 +289,6 @@ function isValidDate(value) {
   return !Number.isNaN(new Date(value).getTime());
 }
 
-function isRecruitmentOpen(start, end) {
-  if (!isValidDate(start) || !isValidDate(end)) {
-    return false;
-  }
-
-  const now = new Date();
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-  endDate.setHours(23, 59, 59, 999);
-
-  return now >= startDate && now <= endDate;
-}
-
 function AdmissionPage({ isLoggedIn, user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

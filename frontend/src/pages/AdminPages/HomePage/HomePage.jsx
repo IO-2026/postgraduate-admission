@@ -27,8 +27,6 @@ function AdminHomePage({ isLoggedIn }) {
 
   const loadCoordinators = async () => {
     try {
-      setCoordinatorsLoading(true);
-      setCoordinatorsError(null);
       const response = await authFetch(
         `${API_URL}/admin/coordinators-with-courses`,
       );
@@ -38,9 +36,7 @@ function AdminHomePage({ isLoggedIn }) {
       const data = await response.json();
       setCoordinators(data || []);
     } catch (requestError) {
-      setCoordinatorsError(requestError?.message || "Blad podczas pobierania");
     } finally {
-      setCoordinatorsLoading(false);
     }
   };
 
