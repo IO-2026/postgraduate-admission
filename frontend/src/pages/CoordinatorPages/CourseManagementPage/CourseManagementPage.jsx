@@ -288,7 +288,9 @@ function CourseManagementPage() {
     );
 
   const renderCandidateCard = (candidate) => {
-    const fullName = [candidate.name, candidate.surname].filter(Boolean).join(" ");
+    const fullName = [candidate.name, candidate.surname]
+      .filter(Boolean)
+      .join(" ");
 
     const isWithdrawn = Boolean(candidate.isWithdrawn);
     const isAccepted = Boolean(candidate.isAccepted);
@@ -297,7 +299,8 @@ function CourseManagementPage() {
     const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
     const isDeclarationVerified = Boolean(candidate.isDeclarationVerified);
 
-    const status = candidate.resolvedStatus || resolveCandidateStatus(candidate);
+    const status =
+      candidate.resolvedStatus || resolveCandidateStatus(candidate);
 
     let displayStatus = "przesłana";
     let statusColor = "#eab308";
@@ -424,9 +427,7 @@ function CourseManagementPage() {
                         backgroundColor: isDeclarationVerified
                           ? "#16a34a20"
                           : "#eab30820",
-                        color: isDeclarationVerified
-                          ? "#16a34a"
-                          : "#eab308",
+                        color: isDeclarationVerified ? "#16a34a" : "#eab308",
                         display: "inline-block",
                       }}
                     >
