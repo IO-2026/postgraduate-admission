@@ -285,10 +285,6 @@ function getDraftDefaults(existingDraft) {
   };
 }
 
-function isValidDate(value) {
-  return !Number.isNaN(new Date(value).getTime());
-}
-
 function AdmissionPage({ isLoggedIn, user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

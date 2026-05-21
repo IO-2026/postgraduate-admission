@@ -36,7 +36,7 @@ function AdminHomePage({ isLoggedIn }) {
       const data = await response.json();
       setCoordinators(data || []);
     } catch (requestError) {
-    } finally {
+      console.error("Error fetching coordinators:", requestError);
     }
   };
 
