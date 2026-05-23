@@ -28,4 +28,11 @@ public interface MessageRecipientRepository extends JpaRepository<MessageRecipie
     int markAsRead(@Param("id") Long id, @Param("userId") Long userId);
 
     long countByRecipientIdAndIsReadFalse(@Param("userId") Long userId);
+
+    @Query("SELECT mr FROM MessageRecipient mr " +
+            "JOIN FETCH mr.message m " +
+            "JOIN FETCH m.sender " +
+            "WHERE m.sender.id = :senderId "
+    )
+    List<MessageRecipient> findAllBySenderIdInMessage(@Param("senderId") Long senderId);
 }

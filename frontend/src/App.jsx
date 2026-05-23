@@ -12,6 +12,7 @@ import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
+import EditCoursePage from "./pages/AdminPages/EditCoursePage/EditCoursePage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
@@ -28,6 +29,7 @@ import {
   storeAuthState,
 } from "./config/auth";
 import ContactFormPage from "./pages/CandidatePages/ContactFormPage/ContactFormPage.jsx";
+import SentMessagesPage from "./pages/SentMessagesPage/SentMessagesPage.jsx";
 
 function getInitialAuthState() {
   try {
@@ -430,6 +432,10 @@ function App() {
           path="/admin/courses/new"
           element={isAdmin ? <NewCoursePage /> : <Navigate to="/" replace />}
         />
+        <Route
+          path="/admin/courses/:courseId/edit"
+          element={isAdmin ? <EditCoursePage /> : <Navigate to="/" replace />}
+        />
         <Route path="/admin/courses" element={<Navigate to="/" replace />} />
         <Route
           path="/coordinator/courses/:courseId/manage"
@@ -489,6 +495,16 @@ function App() {
             !isRoleReady ? null : isLoggedIn &&
               (getRoleName(user) === "Coordinator" || isAdmin) ? (
               <SendMessagePage user={user} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/sent-messages"
+          element={
+            !isRoleReady ? null : isAdmin || isCoordinator ? (
+              <SentMessagesPage />
             ) : (
               <Navigate to="/" replace />
             )
