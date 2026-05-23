@@ -1,41 +1,17 @@
 import { Link } from "react-router-dom";
 import { API_URL } from "../../../config/api";
 import { useEffect, useMemo, useState } from "react";
-import {
-  fetchCourses,
-  updateCourse,
-  deleteCourse,
-} from "../../../services/courseApi";
+import { fetchCourses, deleteCourse } from "../../../services/courseApi";
 import { formatDisplayDate } from "../../../utils/dateFormat";
-import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
 import { authFetch } from "../../../config/auth";
 import "./HomePage.css";
 import "../CoursesPage/AdminCoursesPage.css";
-
-const INITIAL_EDIT_FORM_STATE = {
-  name: "",
-  description: "",
-  price: "",
-  placesLimit: "",
-  academicYear: null,
-  recruitmentStart: "",
-  recruitmentEnd: "",
-  coordinatorEmail: "",
-  isRecruitmentOpen: true,
-};
 
 function AdminHomePage({ isLoggedIn }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [coordinators, setCoordinators] = useState([]);
-  const [coordinatorsLoading, setCoordinatorsLoading] = useState(false);
-  const [coordinatorsError, setCoordinatorsError] = useState(null);
-
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState(INITIAL_EDIT_FORM_STATE);
-  const [formError, setFormError] = useState("");
-  const [formSubmitting, setFormSubmitting] = useState(false);
 
   const loadCourses = async () => {
     try {
@@ -51,8 +27,6 @@ function AdminHomePage({ isLoggedIn }) {
 
   const loadCoordinators = async () => {
     try {
-      setCoordinatorsLoading(true);
-      setCoordinatorsError(null);
       const response = await authFetch(
         `${API_URL}/admin/coordinators-with-courses`,
       );
@@ -62,9 +36,7 @@ function AdminHomePage({ isLoggedIn }) {
       const data = await response.json();
       setCoordinators(data || []);
     } catch (requestError) {
-      setCoordinatorsError(requestError?.message || "Blad podczas pobierania");
-    } finally {
-      setCoordinatorsLoading(false);
+      console.error("Error fetching coordinators:", requestError);
     }
   };
 
@@ -72,17 +44,6 @@ function AdminHomePage({ isLoggedIn }) {
     loadCourses();
     loadCoordinators();
   }, []);
-
-  const coordinatorByEmail = useMemo(() => {
-    const map = new Map();
-    (coordinators || []).forEach((coordinator) => {
-      const email = coordinator?.email
-        ? coordinator.email.trim().toLowerCase()
-        : "";
-      if (email) map.set(email, coordinator.id);
-    });
-    return map;
-  }, [coordinators]);
 
   const coordinatorEmailById = useMemo(() => {
     const map = new Map();
@@ -93,145 +54,14 @@ function AdminHomePage({ isLoggedIn }) {
     return map;
   }, [coordinators]);
 
-  useEffect(() => {
-    if (!editingId || formData.coordinatorEmail) return;
-    const course = (courses || []).find((item) => item.id === editingId);
-    if (!course?.coordinatorId) return;
-    const email = coordinatorEmailById.get(String(course.coordinatorId)) || "";
-    if (!email) return;
-    setFormData((prev) => ({ ...prev, coordinatorEmail: email }));
-  }, [courses, coordinatorEmailById, editingId, formData.coordinatorEmail]);
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const resetEditForm = () => {
-    setFormData(INITIAL_EDIT_FORM_STATE);
-    setEditingId(null);
-    setFormError("");
-  };
-
-  const handleEdit = (course) => {
-    setFormData({
-      name: course.name || "",
-      description: course.description || "",
-      price: course.price || "",
-      placesLimit: course.placesLimit ?? "",
-      academicYear: course.academicYear || null,
-      recruitmentStart: course.recruitmentStart || "",
-      recruitmentEnd: course.recruitmentEnd || "",
-      coordinatorEmail:
-        coordinatorEmailById.get(String(course.coordinatorId)) || "",
-      isRecruitmentOpen: course.isRecruitmentOpen ?? true,
-    });
-    setEditingId(course.id);
-    setFormError("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const handleDelete = async (courseId) => {
     if (!window.confirm("Czy na pewno chcesz usunac ten kierunek?")) return;
     try {
       await deleteCourse(courseId);
       await loadCourses();
-      if (editingId === courseId) {
-        resetEditForm();
-      }
     } catch (requestError) {
       console.error("Error deleting course:", requestError);
       alert("Nie udalo sie usunac kierunku.");
-    }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!editingId) return;
-    setFormError("");
-    setFormSubmitting(true);
-
-    if (!formData.name || !formData.price || isNaN(formData.price)) {
-      setFormError("Wypelnij poprawnie nazwe i cene (musi byc liczba).");
-      setFormSubmitting(false);
-      return;
-    }
-
-    const price = parseFloat(formData.price);
-    if (price < 0 || price > 100000) {
-      setFormError("Cena musi być między 0 a 100000.");
-      setFormSubmitting(false);
-      return;
-    }
-
-    if (
-      !formData.placesLimit ||
-      isNaN(formData.placesLimit) ||
-      parseInt(formData.placesLimit, 10) < 1
-    ) {
-      setFormError("Wypelnij poprawnie limit miejsc (minimum 1).");
-      setFormSubmitting(false);
-      return;
-    }
-
-    if (!formData.academicYear) {
-      setFormError("Rok akademicki jest wymagany.");
-      setFormSubmitting(false);
-      return;
-    }
-
-    if (
-      formData.recruitmentStart &&
-      formData.recruitmentEnd &&
-      formData.recruitmentStart > formData.recruitmentEnd
-    ) {
-      setFormError(
-        "Data rozpoczęcia rekrutacji nie może być późniejsza od daty zakończenia.",
-      );
-      setFormSubmitting(false);
-      return;
-    }
-
-    const normalizedEmail = formData.coordinatorEmail
-      ? formData.coordinatorEmail.trim().toLowerCase()
-      : "";
-    const coordinatorId = normalizedEmail
-      ? coordinatorByEmail.get(normalizedEmail)
-      : null;
-
-    if (normalizedEmail && !coordinatorId) {
-      setFormError("Nie znaleziono koordynatora o podanym e-mailu.");
-      setFormSubmitting(false);
-      return;
-    }
-
-    try {
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        placesLimit: parseInt(formData.placesLimit, 10),
-        isRecruitmentOpen: formData.isRecruitmentOpen,
-        ...(formData.academicYear && {
-          academicYear: parseInt(formData.academicYear, 10),
-        }),
-        ...(formData.recruitmentStart && {
-          recruitmentStart: formData.recruitmentStart,
-        }),
-        ...(formData.recruitmentEnd && {
-          recruitmentEnd: formData.recruitmentEnd,
-        }),
-        ...(coordinatorId != null && { coordinatorId }),
-      };
-
-      await updateCourse(editingId, payload);
-      resetEditForm();
-      await loadCourses();
-    } catch (requestError) {
-      console.error("Error updating course:", requestError);
-      setFormError("Wystapil blad podczas zapisywania kierunku.");
-    } finally {
-      setFormSubmitting(false);
     }
   };
 
@@ -266,177 +96,6 @@ function AdminHomePage({ isLoggedIn }) {
         </p>
       </header>
 
-      {editingId && (
-        <div className="course-form-container">
-          <h2>Edytuj kierunek</h2>
-          <form className="course-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Nazwa kierunku</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Cena (PLN)</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                onWheel={(e) => e.target.blur()}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Limit miejsc</label>
-              <input
-                type="number"
-                name="placesLimit"
-                min="1"
-                step="1"
-                value={formData.placesLimit}
-                onChange={handleInputChange}
-                onWheel={(e) => e.target.blur()}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Rok akademicki</label>
-              <select
-                name="academicYear"
-                value={formData.academicYear || ""}
-                onChange={handleInputChange}
-              >
-                <option value="">Wybierz rok akademicki</option>
-                {generateValidAcademicYears().map((year) => (
-                  <option key={year.value} value={year.value}>
-                    {year.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Opis</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows="4"
-                placeholder="Krotki opis programu..."
-              ></textarea>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Data rozpoczęcia rekrutacji</label>
-                <input
-                  type="date"
-                  name="recruitmentStart"
-                  value={formData.recruitmentStart}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Data zakończenia rekrutacji</label>
-                <input
-                  type="date"
-                  name="recruitmentEnd"
-                  value={formData.recruitmentEnd}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Status rekrutacji</label>
-              <select
-                name="isRecruitmentOpen"
-                value={formData.isRecruitmentOpen ? "true" : "false"}
-                onChange={(e) =>
-                  handleInputChange({
-                    target: {
-                      name: "isRecruitmentOpen",
-                      value: e.target.value === "true",
-                    },
-                  })
-                }
-                style={
-                  formData.isRecruitmentOpen === false
-                    ? {
-                        borderColor: "#e11d48",
-                        color: "#e11d48",
-                        fontWeight: "bold",
-                      }
-                    : {}
-                }
-              >
-                {/* Wymuszamy neutralny kolor na opcjach w dropdownie,
-                    aby nie dziedziczyły czerwonego z wybranego selecta */}
-                <option
-                  value="true"
-                  style={{ color: "#1f2937", fontWeight: "normal" }}
-                >
-                  Otwarta
-                </option>
-                <option
-                  value="false"
-                  style={{ color: "#1f2937", fontWeight: "normal" }}
-                >
-                  Zamknięta
-                </option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>E-mail koordynatora</label>
-              <select
-                name="coordinatorEmail"
-                value={formData.coordinatorEmail}
-                onChange={handleInputChange}
-                disabled={coordinatorsLoading}
-              >
-                <option value="">-- Brak koordynatora --</option>
-                {(coordinators || [])
-                  .filter((coordinator) => coordinator?.email)
-                  .map((coordinator) => (
-                    <option key={coordinator.id} value={coordinator.email}>
-                      {coordinator.name
-                        ? `${coordinator.name} (${coordinator.email})`
-                        : coordinator.email}
-                    </option>
-                  ))}
-              </select>
-              {coordinatorsError ? (
-                <div className="form-error">{coordinatorsError}</div>
-              ) : null}
-            </div>
-
-            {formError ? <div className="form-error">{formError}</div> : null}
-
-            <div className="form-actions">
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={resetEditForm}
-                disabled={formSubmitting}
-              >
-                Anuluj
-              </button>
-              <button
-                type="submit"
-                className="primary-btn"
-                disabled={formSubmitting}
-              >
-                {formSubmitting ? "Zapisywanie..." : "Zapisz kierunek"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
       {loading ? (
         <div className="loading-state">Ladowanie kierunkow...</div>
       ) : error ? (
@@ -450,7 +109,6 @@ function AdminHomePage({ isLoggedIn }) {
               <div className="course-card-body">
                 <div className="course-card-header">
                   <h3>{course.name}</h3>
-                  <span className="course-price">{course.price} PLN</span>
                 </div>
                 <p className="course-description">
                   {course.description || "Brak opisu dla tego programu."}
@@ -488,12 +146,15 @@ function AdminHomePage({ isLoggedIn }) {
                 </div>
               </div>
               <div className="course-card-actions">
-                <button
+                <span className="course-price" style={{ textAlign: "center" }}>
+                  {course.price} PLN
+                </span>
+                <Link
                   className="secondary-btn edit-btn"
-                  onClick={() => handleEdit(course)}
+                  to={`/admin/courses/${course.id}/edit`}
                 >
                   Edytuj
-                </button>
+                </Link>
                 <button
                   className="secondary-btn delete-btn"
                   onClick={() => handleDelete(course.id)}

@@ -1,26 +1,41 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap");
 
 :root {
-  --bg-base: #f2f6f3;
-  --bg-accent: #e6eef7;
-  --panel-bg: rgba(255, 255, 255, 0.78);
+  /* Original Color Palette but with White Background */
+  --bg-base: #ffffff;
+  --bg-accent: #f0fdfa; /* Light, subtle teal accent tint matching #0f7f73 */
+  --panel-bg: #ffffff;
   --panel-border: rgba(17, 47, 74, 0.12);
-  --text-strong: #112f4a;
-  --text-muted: #4e5f73;
+
+  --text-strong: #0d2137;
+  --text-muted: #0d2137;
+  --text-light: #0d2137;
+
   --primary: #0f7f73;
   --primary-hover: #0b6a61;
   --primary-text: #f5fbfa;
+
+  --accent: #0f7f73;
+  --accent-hover: #0b6a61;
+  --accent-bg: rgba(15, 127, 115, 0.1);
+  --accent-border: rgba(15, 127, 115, 0.2);
+
   --ghost-bg: rgba(15, 127, 115, 0.14);
   --ghost-hover: rgba(15, 127, 115, 0.24);
+
   --field-bg: #f9fbfd;
   --field-border: #d2dde8;
   --field-focus: #0f7f73;
+
   --error: #b83333;
+
   --switch-bg: #dfe9f0;
   --switch-active-bg: #ffffff;
-  --shadow-soft: 0 12px 30px rgba(17, 47, 74, 0.13);
-  --font-body: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
-  --font-display: "Space Grotesk", "Trebuchet MS", sans-serif;
+
+  --shadow-soft: none;
+
+  --font-body: "Outfit", "Inter", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Outfit", sans-serif;
 }
 
 * {
@@ -36,11 +51,8 @@ body,
 body {
   margin: 0;
   font-family: var(--font-body);
-  color: var(--text-muted);
-  background:
-    radial-gradient(circle at 15% 8%, #c6e7e2 0%, transparent 35%),
-    radial-gradient(circle at 85% 12%, #d7e4fb 0%, transparent 37%),
-    linear-gradient(160deg, var(--bg-base) 0%, var(--bg-accent) 100%);
+  color: var(--text-strong);
+  background-color: var(--bg-base);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -48,15 +60,63 @@ body {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
 h1,
 h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-display);
+}
+
 p {
   margin: 0;
+  line-height: 1.6;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Transitions */
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -338,11 +338,8 @@ function ApplicationManagementPage() {
               <label>Weryfikacja dyplomu</label>
               <div>
                 {applicationData.isDiplomaVerified ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
-                  >
-                    ✓ Dyplom zweryfikowany
+                  <div className="application-management-verified">
+                    Dyplom zweryfikowany
                   </div>
                 ) : (
                   <button
@@ -350,12 +347,6 @@ function ApplicationManagementPage() {
                     className="application-management-submit"
                     onClick={handleVerifyDiploma}
                     disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
-                    style={{
-                      backgroundColor: canVerifyDiploma
-                        ? "var(--primary)"
-                        : "#9ca3af",
-                      cursor: canVerifyDiploma ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
                   </button>
@@ -367,11 +358,8 @@ function ApplicationManagementPage() {
               <label>Weryfikacja oświadczenia</label>
               <div>
                 {applicationData.isDeclarationVerified ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
-                  >
-                    ✓ Oświadczenie zweryfikowane
+                  <div className="application-management-verified">
+                    Oświadczenie zweryfikowane
                   </div>
                 ) : (
                   <button
@@ -381,12 +369,6 @@ function ApplicationManagementPage() {
                     disabled={
                       actionLoading || !canVerifyDeclaration || isWithdrawn
                     }
-                    style={{
-                      backgroundColor: canVerifyDeclaration
-                        ? "var(--primary)"
-                        : "#9ca3af",
-                      cursor: canVerifyDeclaration ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading
                       ? "Weryfikowanie..."
@@ -395,15 +377,9 @@ function ApplicationManagementPage() {
                 )}
               </div>
               {!isAccepted && !isWithdrawn && (
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                    marginTop: "4px",
-                  }}
-                >
+                <p className="application-management-hint">
                   Oświadczenie można zweryfikować po zaakceptowaniu wniosku
-                </div>
+                </p>
               )}
             </div>
 
@@ -411,45 +387,29 @@ function ApplicationManagementPage() {
               <label>Akceptacja wniosku</label>
               <div>
                 {isAccepted ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
-                  >
-                    ✓ Wniosek zaakceptowany
+                  <div className="application-management-verified">
+                    Wniosek zaakceptowany
                   </div>
                 ) : (
                   <button
                     type="button"
-                    className="application-management-submit"
+                    className="application-management-submit application-management-submit--accept"
                     onClick={handleAcceptApplication}
                     disabled={
                       actionLoading || !canAcceptApplication || isWithdrawn
                     }
-                    style={{
-                      backgroundColor: canAcceptApplication
-                        ? "#16a34a"
-                        : "#9ca3af",
-                      cursor: canAcceptApplication ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
                   </button>
                 )}
               </div>
               {!canAcceptApplication && !isAccepted && !isWithdrawn && (
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                    marginTop: "4px",
-                    whiteSpace: "pre-line",
-                  }}
-                >
+                <p className="application-management-hint">
                   {!applicationData.isDiplomaVerified &&
                     "• Wymagana weryfikacja dyplomu\n"}
                   {!applicationData.isEntryFeePaid &&
                     "• Wymagana opłata wpisowego"}
-                </div>
+                </p>
               )}
             </div>
           </div>

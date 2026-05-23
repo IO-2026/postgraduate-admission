@@ -172,7 +172,6 @@ function NewCoursePage() {
       </header>
 
       <div className="course-form-container">
-        <h2>Nowy kierunek</h2>
         <form className="course-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nazwa kierunku</label>
