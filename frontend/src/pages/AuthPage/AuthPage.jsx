@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../../services/authApi";
-import { fetchCurrentUser } from "../../services/userApi";
 import "./AuthPage.css";
 
 const LOGIN_INITIAL_STATE = {
@@ -170,18 +169,7 @@ function AuthPage({ onAuthSuccess }) {
         password: loginData.password,
       });
 
-      // Try to fetch current user to provide full user data to the app
-      let fetchedUser = null;
-      try {
-        fetchedUser = await fetchCurrentUser();
-      } catch (e) {
-        // ignore - we'll still call onAuthSuccess with minimal info
-      }
-
-      onAuthSuccess(
-        fetchedUser || { email: loginData.email.trim() },
-        response,
-      );
+      onAuthSuccess({ email: loginData.email.trim() }, response);
       navigate("/");
     } catch (requestError) {
       setError(
