@@ -244,6 +244,19 @@
   gap: 6px;
 }
 
+.course-candidates-group {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.course-candidates-group h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
 .course-candidate-card {
   display: grid;
   grid-template-columns: 2fr 3.5fr 4fr auto;
@@ -318,6 +331,11 @@
 .status-badge--submitted {
   background-color: rgba(234, 179, 8, 0.1);
   color: #d97706;
+}
+
+.status-badge--waitlisted {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #ea580c;
 }
 
 .status-badge--accepted {

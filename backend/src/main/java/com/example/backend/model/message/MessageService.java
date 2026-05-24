@@ -67,6 +67,28 @@ public class MessageService {
         }
     }
 
+    @Transactional
+    public void sendSystemMessage(User sender, User recipient, String subject, String content) {
+        if (sender == null || recipient == null) {
+            return;
+        }
+
+        Message message = new Message();
+        message.setSender(sender);
+        message.setSubject(subject);
+        message.setContent(content);
+        message.setSentAt(LocalDateTime.now());
+        message.setIsBroadcast(false);
+        message = messageRepository.save(message);
+
+        MessageRecipient mr = new MessageRecipient();
+        mr.setMessage(message);
+        mr.setRecipient(recipient);
+        recipientRepository.save(mr);
+
+        emailService.sendMessageToCandidate(recipient, subject, content);
+    }
+
     public List<MessageResponse> getInboxForUser(Long userId) {
         List<MessageRecipient> recipients = recipientRepository.findAllByRecipientIdWithMessage(userId);
         return recipients.stream()

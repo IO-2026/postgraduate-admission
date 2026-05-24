@@ -94,6 +94,9 @@ public class Application {
     @Column(name = "is_accepted")
     private Boolean isAccepted = false;
 
+    @Column(name = "is_waitlisted")
+    private Boolean isWaitlisted = false;
+
     @Column(name = "is_entryfee_paid")
     private Boolean isEntryFeePaid = false;
 

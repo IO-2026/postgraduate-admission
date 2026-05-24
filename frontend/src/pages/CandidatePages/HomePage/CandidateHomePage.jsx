@@ -269,12 +269,19 @@ function CandidateHomePage({ isLoggedIn, user }) {
             {applications.map((application) => {
               const isWithdrawn = Boolean(application.isWithdrawn);
               const isAccepted = Boolean(application.isAccepted);
+              const isWaitlisted = Boolean(application.isWaitlisted);
               const isEntryFeePaid = Boolean(application.isEntryFeePaid);
               const isSemesterPaid = Boolean(application.isSemesterPaid);
               const isDiplomaVerified = Boolean(application.isDiplomaVerified);
               const isDeclarationVerified = Boolean(
                 application.isDeclarationVerified,
               );
+
+              const listBadge = isWaitlisted
+                ? { label: "Lista rezerwowa", tone: "waitlist" }
+                : isAccepted
+                  ? { label: "Lista przyjętych", tone: "accepted" }
+                  : null;
 
               const courseId = Number(application.courseId);
               const courseName =
@@ -293,6 +300,13 @@ function CandidateHomePage({ isLoggedIn, user }) {
                             {formatDate(application.submissionDateTime)}
                           </strong>
                         </p>
+                        {listBadge ? (
+                          <span
+                            className={`application-list-badge application-list-badge--${listBadge.tone}`}
+                          >
+                            {listBadge.label}
+                          </span>
+                        ) : null}
                       </div>
 
                       <div className="application-item-actions">

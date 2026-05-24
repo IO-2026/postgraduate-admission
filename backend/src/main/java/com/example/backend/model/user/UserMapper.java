@@ -35,6 +35,7 @@ public interface UserMapper {
 
     @Mapping(source = "user.id", target = "id")
     @Mapping(source = "application.id", target = "applicationId")
+    @Mapping(source = "application.submissionDateTime", target = "submissionDateTime")
     CandidateWithApplicationDto toCandidateWithApplicationDto(User user, Application application);
 
     CourseBriefDto toCourseBriefDto(Course course);

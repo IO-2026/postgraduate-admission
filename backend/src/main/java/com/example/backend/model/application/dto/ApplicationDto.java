@@ -85,6 +85,7 @@ public class ApplicationDto {
 
     private Boolean isWithdrawn;
     private Boolean isAccepted;
+    private Boolean isWaitlisted;
     private Boolean isEntryFeePaid;
     private Boolean isDiplomaVerified;
     private Boolean isDeclarationVerified;

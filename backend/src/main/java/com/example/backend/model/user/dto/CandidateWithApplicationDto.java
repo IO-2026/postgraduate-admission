@@ -15,8 +15,10 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
+    private java.time.LocalDateTime submissionDateTime;
     private Boolean isWithdrawn;
     private Boolean isAccepted;
+    private Boolean isWaitlisted;
     private Boolean isEntryFeePaid;
     private Boolean isDiplomaVerified;
     private Boolean isDeclarationVerified;

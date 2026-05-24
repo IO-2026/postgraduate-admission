@@ -21,6 +21,7 @@ function ApplicationManagementPage() {
     courseId: null,
     isWithdrawn: false,
     isAccepted: false,
+    isWaitlisted: false,
     isEntryFeePaid: false,
     isSemesterPaid: false,
     isDiplomaVerified: false,
@@ -77,6 +78,7 @@ function ApplicationManagementPage() {
             courseId: data.courseId || null,
             isWithdrawn: data.isWithdrawn || false,
             isAccepted: data.isAccepted || false,
+            isWaitlisted: data.isWaitlisted || false,
             isEntryFeePaid: data.isEntryFeePaid || false,
             isSemesterPaid: data.isSemesterPaid || false,
             isDiplomaVerified: data.isDiplomaVerified || false,
@@ -170,11 +172,15 @@ function ApplicationManagementPage() {
     try {
       setActionLoading(true);
       await acceptApplication(applicationId);
+      const refreshed = await getApplication(applicationId);
       setApplicationData((prev) => ({
         ...prev,
-        isAccepted: true,
+        ...refreshed,
+        isAccepted: refreshed?.isAccepted ?? prev.isAccepted,
+        isWaitlisted: refreshed?.isWaitlisted ?? prev.isWaitlisted,
+        isWithdrawn: refreshed?.isWithdrawn ?? prev.isWithdrawn,
       }));
-      setSuccessMessage("Wniosek został zaakceptowany.");
+      setSuccessMessage("Status wniosku został zaktualizowany.");
     } catch (err) {
       setError(err.message || "Nie udało się zaakceptować wniosku.");
     } finally {
@@ -230,6 +236,7 @@ function ApplicationManagementPage() {
   const getStatusText = () => {
     if (applicationData.isWithdrawn) return "Wycofana";
     if (applicationData.isAccepted) return "Zaakceptowana";
+    if (applicationData.isWaitlisted) return "Lista rezerwowa";
     if (applicationData.isDiplomaVerified && applicationData.isEntryFeePaid)
       return "Gotowa do akceptacji";
     if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
@@ -239,6 +246,7 @@ function ApplicationManagementPage() {
   // Sprawdzenie czy akcje są dostępne
   const isWithdrawn = applicationData.isWithdrawn;
   const isAccepted = applicationData.isAccepted;
+  const isWaitlisted = applicationData.isWaitlisted;
   const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
   const canVerifyDeclaration =
     !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
@@ -389,6 +397,13 @@ function ApplicationManagementPage() {
                 {isAccepted ? (
                   <div className="application-management-verified">
                     Wniosek zaakceptowany
+                  </div>
+                ) : isWaitlisted ? (
+                  <div
+                    className="application-management-readonly"
+                    style={{ color: "#2563eb" }}
+                  >
+                    ✓ Wniosek na liście rezerwowej
                   </div>
                 ) : (
                   <button
