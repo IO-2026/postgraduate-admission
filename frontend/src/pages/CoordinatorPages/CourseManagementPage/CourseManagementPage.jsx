@@ -587,10 +587,23 @@ function CourseManagementPage() {
           >
             <button
               type="button"
-              className="primary-btn"
+              className="ghost-btn back-button-link"
               onClick={handleExportCsv}
             >
-              Eksportuj przyjętych (CSV)
+              <svg
+                style={{ width: "14px", height: "14px" }}
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4 4m0 0l-4-4m4 4V4"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Pobierz listę
             </button>
             <span className="course-candidates-count">
               {activeCandidates.length}
