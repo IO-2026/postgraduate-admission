@@ -17,7 +17,7 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
-    private java.time.LocalDateTime submissionDateTime;
+    private LocalDateTime submissionDateTime;
     private Boolean isWithdrawn;
     private Boolean isAccepted;
     private Boolean isWaitlisted;
