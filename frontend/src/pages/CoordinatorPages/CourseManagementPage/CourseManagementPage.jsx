@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   fetchCourseCandidates,
@@ -57,11 +57,7 @@ function CourseManagementPage() {
     };
   }, [courseId]);
 
-  useEffect(() => {
-    loadCandidates();
-  }, [courseId]);
-
-  const loadCandidates = async () => {
+  const loadCandidates = useCallback(async () => {
     try {
       setCandidatesLoading(true);
       setCandidatesError("");
@@ -75,7 +71,11 @@ function CourseManagementPage() {
     } finally {
       setCandidatesLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    loadCandidates();
+  }, [loadCandidates]);
 
   const handleVerifyDiploma = async (candidateId, applicationId) => {
     setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
