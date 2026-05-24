@@ -12,8 +12,10 @@ import MessagesPage from "./pages/CandidatePages/MessagesPage/MessagesPage.jsx";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import AdminHomePage from "./pages/AdminPages/HomePage/HomePage";
 import NewCoursePage from "./pages/AdminPages/NewCoursePage/NewCoursePage";
+import EditCoursePage from "./pages/AdminPages/EditCoursePage/EditCoursePage";
 import UsersPage from "./pages/AdminPages/UsersPage/UsersPage";
 import CourseManagementPage from "./pages/CoordinatorPages/CourseManagementPage/CourseManagementPage";
+import CoordinatorEditCoursePage from "./pages/CoordinatorPages/EditCoursePage/CoordinatorEditCoursePage";
 import ApplicationManagementPage from "./pages/CoordinatorPages/ApplicationManagementPage/ApplicationManagementPage";
 import Navbar from "./components/Navbar/Navbar";
 import "./styles/layout.css";
@@ -431,7 +433,21 @@ function App() {
           path="/admin/courses/new"
           element={isAdmin ? <NewCoursePage /> : <Navigate to="/" replace />}
         />
+        <Route
+          path="/admin/courses/:courseId/edit"
+          element={isAdmin ? <EditCoursePage /> : <Navigate to="/" replace />}
+        />
         <Route path="/admin/courses" element={<Navigate to="/" replace />} />
+        <Route
+          path="/coordinator/courses/:courseId/edit"
+          element={
+            !isRoleReady ? null : isCoordinator ? (
+              <CoordinatorEditCoursePage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
         <Route
           path="/coordinator/courses/:courseId/manage"
           element={

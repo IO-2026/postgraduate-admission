@@ -2,17 +2,23 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  min-height: 48px;
-  margin: 8px 0 16px;
+  margin: 0px 0 20px;
 }
 
 .back-button-link {
-  gap: 8px;
+  gap: 6px;
   padding: 8px 14px;
   font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
 }
 
 .back-button-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.back-button-link:hover .back-button-icon {
+  transform: translateX(-3px);
 }

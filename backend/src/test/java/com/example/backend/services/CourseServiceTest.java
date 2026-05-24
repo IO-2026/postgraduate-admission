@@ -1,8 +1,12 @@
 package com.example.backend.services;
 
 import com.example.backend.model.course.Course;
+import com.example.backend.model.course.CourseMapper;
 import com.example.backend.model.course.CourseRepository;
 import com.example.backend.model.course.CourseService;
+import com.example.backend.model.application.ApplicationService;
+import com.example.backend.model.course.dto.CourseDTO;
+import com.example.backend.model.user.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +27,15 @@ import static org.mockito.Mockito.when;
 public class CourseServiceTest {
     @Mock
     private CourseRepository courseRepository;
+
+    @Mock
+    private ApplicationService applicationService;
+
+    @Mock
+    private CourseMapper courseMapper;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private CourseService courseService;
@@ -49,7 +62,7 @@ public class CourseServiceTest {
         Long courseId = 99L;
         when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> courseService.closeRecruitment(courseId));
+        assertThrows(RuntimeException.class, () -> courseService.closeRecruitment(courseId));
 
         verify(courseRepository, never()).save(any());
     }
@@ -64,8 +77,32 @@ public class CourseServiceTest {
 
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> courseService.closeRecruitment(courseId));
+        assertThrows(IllegalStateException.class, () -> courseService.closeRecruitment(courseId));
 
         verify(courseRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldRecalculateStatusesAfterUpdatingPlacesLimit() {
+        Long courseId = 5L;
+        Course course = new Course();
+        course.setId(courseId);
+        course.setName("Informatyka");
+        course.setPlacesLimit(10);
+
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+        when(courseRepository.save(course)).thenReturn(course);
+        when(courseMapper.toDTO(course)).thenReturn(CourseDTO.builder().id(courseId).build());
+
+        CourseDTO dto = CourseDTO.builder()
+                .name("Informatyka")
+                .placesLimit(8)
+                .academicYear(2026)
+                .build();
+
+        courseService.updateCourse(courseId, dto);
+
+        verify(applicationService).recalculateCourseStatuses(courseId);
+        verify(courseRepository).save(course);
     }
 }

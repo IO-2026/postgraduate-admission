@@ -1,19 +1,15 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import BackButton from "../../../components/BackButton/BackButton";
+import "./PaymentPage.css";
 
 function PaymentPage() {
   const { id } = useParams();
 
   return (
-    <section
-      className="payment-view"
-      style={{ padding: "4rem 2rem", textAlign: "center" }}
-    >
+    <section className="payment-view animate-fade-in">
       <h1>Strona płatności</h1>
-      <p style={{ marginTop: "1rem", color: "var(--text-secondary)" }}>
-        Płatność za aplikację nr {id} (moduł w budowie).
-      </p>
-      <div style={{ marginTop: "2rem" }}>
+      <p>Płatność za aplikację nr {id} (moduł w budowie).</p>
+      <div className="payment-actions">
         <BackButton />
       </div>
     </section>

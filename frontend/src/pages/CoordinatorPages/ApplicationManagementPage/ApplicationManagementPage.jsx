@@ -21,6 +21,7 @@ function ApplicationManagementPage() {
     courseId: null,
     isWithdrawn: false,
     isAccepted: false,
+    isWaitlisted: false,
     isEntryFeePaid: false,
     isSemesterPaid: false,
     isDiplomaVerified: false,
@@ -77,6 +78,7 @@ function ApplicationManagementPage() {
             courseId: data.courseId || null,
             isWithdrawn: data.isWithdrawn || false,
             isAccepted: data.isAccepted || false,
+            isWaitlisted: data.isWaitlisted || false,
             isEntryFeePaid: data.isEntryFeePaid || false,
             isSemesterPaid: data.isSemesterPaid || false,
             isDiplomaVerified: data.isDiplomaVerified || false,
@@ -170,11 +172,15 @@ function ApplicationManagementPage() {
     try {
       setActionLoading(true);
       await acceptApplication(applicationId);
+      const refreshed = await getApplication(applicationId);
       setApplicationData((prev) => ({
         ...prev,
-        isAccepted: true,
+        ...refreshed,
+        isAccepted: refreshed?.isAccepted ?? prev.isAccepted,
+        isWaitlisted: refreshed?.isWaitlisted ?? prev.isWaitlisted,
+        isWithdrawn: refreshed?.isWithdrawn ?? prev.isWithdrawn,
       }));
-      setSuccessMessage("Wniosek został zaakceptowany.");
+      setSuccessMessage("Status wniosku został zaktualizowany.");
     } catch (err) {
       setError(err.message || "Nie udało się zaakceptować wniosku.");
     } finally {
@@ -230,6 +236,7 @@ function ApplicationManagementPage() {
   const getStatusText = () => {
     if (applicationData.isWithdrawn) return "Wycofana";
     if (applicationData.isAccepted) return "Zaakceptowana";
+    if (applicationData.isWaitlisted) return "Lista rezerwowa";
     if (applicationData.isDiplomaVerified && applicationData.isEntryFeePaid)
       return "Gotowa do akceptacji";
     if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
@@ -239,6 +246,7 @@ function ApplicationManagementPage() {
   // Sprawdzenie czy akcje są dostępne
   const isWithdrawn = applicationData.isWithdrawn;
   const isAccepted = applicationData.isAccepted;
+  const isWaitlisted = applicationData.isWaitlisted;
   const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
   const canVerifyDeclaration =
     !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
@@ -338,11 +346,8 @@ function ApplicationManagementPage() {
               <label>Weryfikacja dyplomu</label>
               <div>
                 {applicationData.isDiplomaVerified ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
-                  >
-                    ✓ Dyplom zweryfikowany
+                  <div className="application-management-verified">
+                    Dyplom zweryfikowany
                   </div>
                 ) : (
                   <button
@@ -350,12 +355,6 @@ function ApplicationManagementPage() {
                     className="application-management-submit"
                     onClick={handleVerifyDiploma}
                     disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
-                    style={{
-                      backgroundColor: canVerifyDiploma
-                        ? "var(--primary)"
-                        : "#9ca3af",
-                      cursor: canVerifyDiploma ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
                   </button>
@@ -367,11 +366,8 @@ function ApplicationManagementPage() {
               <label>Weryfikacja oświadczenia</label>
               <div>
                 {applicationData.isDeclarationVerified ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
-                  >
-                    ✓ Oświadczenie zweryfikowane
+                  <div className="application-management-verified">
+                    Oświadczenie zweryfikowane
                   </div>
                 ) : (
                   <button
@@ -381,12 +377,6 @@ function ApplicationManagementPage() {
                     disabled={
                       actionLoading || !canVerifyDeclaration || isWithdrawn
                     }
-                    style={{
-                      backgroundColor: canVerifyDeclaration
-                        ? "var(--primary)"
-                        : "#9ca3af",
-                      cursor: canVerifyDeclaration ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading
                       ? "Weryfikowanie..."
@@ -395,15 +385,9 @@ function ApplicationManagementPage() {
                 )}
               </div>
               {!isAccepted && !isWithdrawn && (
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                    marginTop: "4px",
-                  }}
-                >
+                <p className="application-management-hint">
                   Oświadczenie można zweryfikować po zaakceptowaniu wniosku
-                </div>
+                </p>
               )}
             </div>
 
@@ -411,45 +395,36 @@ function ApplicationManagementPage() {
               <label>Akceptacja wniosku</label>
               <div>
                 {isAccepted ? (
+                  <div className="application-management-verified">
+                    Wniosek zaakceptowany
+                  </div>
+                ) : isWaitlisted ? (
                   <div
                     className="application-management-readonly"
-                    style={{ color: "#16a34a" }}
+                    style={{ color: "#2563eb" }}
                   >
-                    ✓ Wniosek zaakceptowany
+                    ✓ Wniosek na liście rezerwowej
                   </div>
                 ) : (
                   <button
                     type="button"
-                    className="application-management-submit"
+                    className="application-management-submit application-management-submit--accept"
                     onClick={handleAcceptApplication}
                     disabled={
                       actionLoading || !canAcceptApplication || isWithdrawn
                     }
-                    style={{
-                      backgroundColor: canAcceptApplication
-                        ? "#16a34a"
-                        : "#9ca3af",
-                      cursor: canAcceptApplication ? "pointer" : "not-allowed",
-                    }}
                   >
                     {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
                   </button>
                 )}
               </div>
               {!canAcceptApplication && !isAccepted && !isWithdrawn && (
-                <div
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                    marginTop: "4px",
-                    whiteSpace: "pre-line",
-                  }}
-                >
+                <p className="application-management-hint">
                   {!applicationData.isDiplomaVerified &&
                     "• Wymagana weryfikacja dyplomu\n"}
                   {!applicationData.isEntryFeePaid &&
                     "• Wymagana opłata wpisowego"}
-                </div>
+                </p>
               )}
             </div>
           </div>

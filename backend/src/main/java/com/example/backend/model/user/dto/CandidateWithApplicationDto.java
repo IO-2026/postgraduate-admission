@@ -17,8 +17,10 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
+    private java.time.LocalDateTime submissionDateTime;
     private Boolean isWithdrawn;
     private Boolean isAccepted;
+    private Boolean isWaitlisted;
     private Boolean isEntryFeePaid;
     private Boolean isDiplomaVerified;
     private Boolean isDeclarationVerified;
@@ -26,5 +28,4 @@ public class CandidateWithApplicationDto {
     private String telNumber;
     private String pesel;
     private LocalDate dateOfBirth;
-    private LocalDateTime submissionDateTime;
 }

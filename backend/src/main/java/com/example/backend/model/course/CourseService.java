@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +61,7 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
@@ -73,6 +73,7 @@ public class CourseService {
         }
         courseMapper.updateEntityFromDTO(courseDTO, course);
         courseMapper.toDTO(courseRepository.save(course));
+        applicationService.recalculateCourseStatuses(id);
     }
 
 
@@ -92,8 +93,7 @@ public class CourseService {
     }
 
     public List<CandidateWithApplicationDto> getCourseCandidates(Long courseId) {
-        return applicationService.getAllApplications().stream()
-                .filter(a -> Objects.equals(a.getCourseId(), courseId))
+        return applicationService.getApplicationsForCourse(courseId).stream()
                 .map(a -> userMapper.toCandidateWithApplicationDto(a.getUser(), a))
                 .sorted(Comparator.comparing(CandidateWithApplicationDto::getSurname))
                 .collect(Collectors.toList());
