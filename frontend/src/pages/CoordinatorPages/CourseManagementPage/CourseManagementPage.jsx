@@ -18,8 +18,6 @@ function CourseManagementPage() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [courseName, setCourseName] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [candidates, setCandidates] = useState([]);
   const [candidatesLoading, setCandidatesLoading] = useState(true);
   const [candidatesError, setCandidatesError] = useState("");
@@ -32,8 +30,6 @@ function CourseManagementPage() {
 
     async function loadCourse() {
       try {
-        setLoading(true);
-        setError("");
         const courses = await fetchCourses();
         const course = (courses || []).find(
           (item) => String(item.id) === String(courseId),
@@ -49,11 +45,7 @@ function CourseManagementPage() {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err.message || "Nie udało się pobrać danych kierunku.");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
+          console.error("Błąd podczas ładowania kursu:", err);
         }
       }
     }
