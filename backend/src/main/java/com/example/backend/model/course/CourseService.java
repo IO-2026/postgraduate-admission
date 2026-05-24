@@ -61,6 +61,7 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void updateCourse(Long id, CourseDTO courseDTO) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
@@ -72,6 +73,7 @@ public class CourseService {
         }
         courseMapper.updateEntityFromDTO(courseDTO, course);
         courseMapper.toDTO(courseRepository.save(course));
+        applicationService.recalculateCourseStatuses(id);
     }
 
 

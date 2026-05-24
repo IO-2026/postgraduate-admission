@@ -15,7 +15,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.List;
 
 @Service
@@ -91,14 +92,16 @@ public class ApplicationService {
             throw new IllegalStateException("Wniosek jest już wycofany.");
         }
 
-        boolean wasAccepted = Boolean.TRUE.equals(application.getIsAccepted());
+        Course course = courseRepository.findById(application.getCourseId())
+            .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
+
         application.setIsWithdrawn(true);
         application.setIsAccepted(false);
         application.setIsWaitlisted(false);
 
-        if (wasAccepted) {
-            promoteFirstWaitlistedCandidate(application.getCourseId());
-        }
+        notifyStatusChange(application, course);
+
+        recalculateCourseStatuses(application.getCourseId(), null);
     }
 
     @Transactional
@@ -151,6 +154,10 @@ public class ApplicationService {
             throw new IllegalStateException("Nie można zaakceptować wycofanego wniosku.");
         }
 
+        if (Boolean.TRUE.equals(application.getIsWaitlisted())) {
+            throw new IllegalStateException("Nie można ręcznie zaakceptować wniosku z listy rezerwowej.");
+        }
+
         if(!application.getIsDiplomaVerified() || !application.getIsEntryFeePaid()){
             throw new IllegalStateException("Nie można zaakceptować: brakuje opłaty lub dyplomu.");
         }
@@ -159,25 +166,7 @@ public class ApplicationService {
             throw new IllegalStateException("Wniosek został już zaakceptowany.");
         }
 
-        Course course = courseRepository.findById(application.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
-
-        boolean wasAccepted = Boolean.TRUE.equals(application.getIsAccepted());
-        boolean wasWaitlisted = Boolean.TRUE.equals(application.getIsWaitlisted());
-
-        long acceptedCount = applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(
-            application.getCourseId()
-        );
-
-        boolean shouldAccept = acceptedCount < course.getPlacesLimit();
-        application.setIsAccepted(shouldAccept);
-        application.setIsWaitlisted(!shouldAccept);
-
-        boolean isStatusChanged = wasAccepted != Boolean.TRUE.equals(application.getIsAccepted())
-                || wasWaitlisted != Boolean.TRUE.equals(application.getIsWaitlisted());
-        if (isStatusChanged) {
-            notifyStatusChange(application, course);
-        }
+        recalculateCourseStatuses(application.getCourseId(), application.getId());
     }
 
     public List<Application> getAllApplications() {
@@ -208,6 +197,11 @@ public class ApplicationService {
                 .toList();
     }
 
+    @Transactional
+    public void recalculateCourseStatuses(Long courseId) {
+        recalculateCourseStatuses(courseId, null);
+    }
+
 
     private void registerRollbackCleanup(String bucket, String objectKey) {
         // Only register synchronization when a transaction is active.
@@ -234,22 +228,38 @@ public class ApplicationService {
         return "Candidate".equalsIgnoreCase(roleName) || "ROLE_Candidate".equalsIgnoreCase(roleName);
     }
 
-    private void promoteFirstWaitlistedCandidate(Long courseId) {
-        Optional<Application> nextCandidate = applicationRepository
-            .findFirstByCourseIdAndIsWaitlistedTrueAndIsWithdrawnFalseOrderBySubmissionDateTimeAscIdAsc(courseId);
-
-        if (nextCandidate.isEmpty()) {
-            return;
-        }
-
+    private void recalculateCourseStatuses(Long courseId, Long applicationIdToInclude) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Kurs nie znaleziony"));
 
-        Application application = nextCandidate.get();
-        application.setIsAccepted(true);
-        application.setIsWaitlisted(false);
+        int placesLimit = course.getPlacesLimit() == null ? 0 : course.getPlacesLimit();
+        List<Application> rankedApplications = applicationRepository
+                .findByCourseIdOrderBySubmissionDateTimeAscIdAsc(courseId)
+                .stream()
+                .filter(application -> !Boolean.TRUE.equals(application.getIsWithdrawn()))
+                .filter(application -> Boolean.TRUE.equals(application.getIsAccepted())
+                        || Boolean.TRUE.equals(application.getIsWaitlisted())
+                        || Objects.equals(application.getId(), applicationIdToInclude))
+                .sorted(Comparator
+                        .comparing(Application::getSubmissionDateTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Application::getId, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
 
-        notifyStatusChange(application, course);
+        for (int index = 0; index < rankedApplications.size(); index++) {
+            Application rankedApplication = rankedApplications.get(index);
+            boolean shouldBeAccepted = index < placesLimit;
+            boolean shouldBeWaitlisted = !shouldBeAccepted;
+
+            boolean wasAccepted = Boolean.TRUE.equals(rankedApplication.getIsAccepted());
+            boolean wasWaitlisted = Boolean.TRUE.equals(rankedApplication.getIsWaitlisted());
+            if (wasAccepted == shouldBeAccepted && wasWaitlisted == shouldBeWaitlisted) {
+                continue;
+            }
+
+            rankedApplication.setIsAccepted(shouldBeAccepted);
+            rankedApplication.setIsWaitlisted(shouldBeWaitlisted);
+            notifyStatusChange(rankedApplication, course);
+        }
     }
 
     private void notifyStatusChange(Application application, Course course) {

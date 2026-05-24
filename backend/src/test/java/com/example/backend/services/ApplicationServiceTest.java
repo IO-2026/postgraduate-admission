@@ -24,7 +24,9 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -221,6 +223,12 @@ public class ApplicationServiceTest {
         application.setCourseId(100L);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+        when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(100L))
+            .thenReturn(Collections.emptyList());
+        Course course = new Course();
+        course.setId(100L);
+        course.setPlacesLimit(1);
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
 
         applicationService.withdrawApplication(id);
 
@@ -267,8 +275,8 @@ public class ApplicationServiceTest {
         application.setCourseId(100L);
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
-        when(applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(100L))
-            .thenReturn(0L);
+        when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(100L))
+                .thenReturn(Collections.singletonList(application));
 
         Course course = new Course();
         course.setId(100L);
@@ -284,6 +292,27 @@ public class ApplicationServiceTest {
     }
 
     @Test
+    void shouldRejectManualAcceptanceForWaitlistedApplication() {
+        Long id = 2L;
+        Application application = new Application();
+        application.setId(id);
+        application.setIsAccepted(false);
+        application.setIsWaitlisted(true);
+        application.setIsEntryFeePaid(true);
+        application.setIsDiplomaVerified(true);
+        application.setCourseId(200L);
+
+        when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> applicationService.acceptApplication(id)
+        );
+
+        assertEquals("Nie można ręcznie zaakceptować wniosku z listy rezerwowej.", exception.getMessage());
+    }
+
+    @Test
     void shouldMoveApplicationToWaitlistWhenNoPlacesLeft() {
         Long id = 2L;
         Application application = new Application();
@@ -292,10 +321,18 @@ public class ApplicationServiceTest {
         application.setIsEntryFeePaid(true);
         application.setIsDiplomaVerified(true);
         application.setCourseId(200L);
+        application.setSubmissionDateTime(LocalDateTime.of(2026, 1, 2, 12, 0));
+
+        Application accepted = new Application();
+        accepted.setId(1L);
+        accepted.setCourseId(200L);
+        accepted.setIsAccepted(true);
+        accepted.setIsWaitlisted(false);
+        accepted.setSubmissionDateTime(LocalDateTime.of(2026, 1, 1, 12, 0));
 
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
-        when(applicationRepository.countByCourseIdAndIsAcceptedTrueAndIsWithdrawnFalse(200L))
-                .thenReturn(1L);
+        when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(200L))
+            .thenReturn(List.of(accepted, application));
 
         Course course = new Course();
         course.setId(200L);
@@ -309,6 +346,40 @@ public class ApplicationServiceTest {
     }
 
     @Test
+    void shouldDemoteAcceptedApplicationWhenPlacesLimitShrinks() {
+        Long courseId = 400L;
+
+        Application first = new Application();
+        first.setId(1L);
+        first.setCourseId(courseId);
+        first.setIsAccepted(true);
+        first.setIsWaitlisted(false);
+        first.setSubmissionDateTime(LocalDateTime.of(2026, 1, 1, 10, 0));
+
+        Application second = new Application();
+        second.setId(2L);
+        second.setCourseId(courseId);
+        second.setIsAccepted(true);
+        second.setIsWaitlisted(false);
+        second.setSubmissionDateTime(LocalDateTime.of(2026, 1, 1, 11, 0));
+
+        when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(courseId))
+                .thenReturn(List.of(first, second));
+
+        Course course = new Course();
+        course.setId(courseId);
+        course.setPlacesLimit(1);
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+
+        applicationService.recalculateCourseStatuses(courseId);
+
+        assertTrue(first.getIsAccepted());
+        assertFalse(first.getIsWaitlisted());
+        assertFalse(second.getIsAccepted());
+        assertTrue(second.getIsWaitlisted());
+    }
+
+    @Test
     void shouldPromoteFirstWaitlistedCandidateAfterAcceptedWithdraws() {
         Long acceptedId = 3L;
         Application accepted = new Application();
@@ -316,17 +387,18 @@ public class ApplicationServiceTest {
         accepted.setCourseId(300L);
         accepted.setIsWithdrawn(false);
         accepted.setIsAccepted(true);
+        accepted.setSubmissionDateTime(LocalDateTime.of(2026, 1, 1, 9, 0));
 
         Application waitlisted = new Application();
         waitlisted.setId(4L);
         waitlisted.setCourseId(300L);
         waitlisted.setIsAccepted(false);
         waitlisted.setIsWaitlisted(true);
+        waitlisted.setSubmissionDateTime(LocalDateTime.of(2026, 1, 1, 10, 0));
 
         when(applicationRepository.findById(acceptedId)).thenReturn(Optional.of(accepted));
-        when(applicationRepository.findFirstByCourseIdAndIsWaitlistedTrueAndIsWithdrawnFalseOrderBySubmissionDateTimeAscIdAsc(
-            300L
-        )).thenReturn(Optional.of(waitlisted));
+        when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(300L))
+                .thenReturn(List.of(accepted, waitlisted));
 
         Course course = new Course();
         course.setId(300L);

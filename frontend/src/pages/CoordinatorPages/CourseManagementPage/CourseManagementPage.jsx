@@ -7,7 +7,6 @@ import {
   closeCourseRecruitment,
 } from "../../../services/courseApi";
 import {
-  getApplication,
   verifyDiploma,
   verifyDeclaration,
   acceptApplication,
@@ -44,6 +43,9 @@ function CourseManagementPage() {
   const [candidatesLoading, setCandidatesLoading] = useState(true);
   const [candidatesError, setCandidatesError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
+  const [candidateActionsLoading, setCandidateActionsLoading] = useState({});
+  const [candidateDiplomaLoading, setCandidateDiplomaLoading] = useState({});
+  const [candidateError, setCandidateError] = useState({});
 
   useEffect(() => {
     let isMounted = true;
@@ -96,70 +98,31 @@ function CourseManagementPage() {
   }, [courseId]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadCandidates() {
-      try {
-        setCandidatesLoading(true);
-        setCandidatesError("");
-        const data = await fetchCourseCandidates(courseId);
-        if (isMounted && Array.isArray(data)) {
-          const candidatesWithDates = await Promise.all(
-            data.map(async (candidate) => {
-              try {
-                if (candidate.applicationId) {
-                  const appData = await getApplication(candidate.applicationId);
-                  return {
-                    ...candidate,
-                    submissionDateTime: appData.submissionDateTime || null,
-                  };
-                }
-              } catch (e) {
-                console.error(
-                  "Error fetching application details for candidate",
-                  candidate.id,
-                  e,
-                );
-              }
-              return candidate;
-            }),
-          );
-          setCandidates(candidatesWithDates);
-        } else if (isMounted) {
-          setCandidates([]);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setCandidatesError(err.message || "Nie udało się pobrać kandydatów.");
-        }
-      } finally {
-        if (isMounted) {
-          setCandidatesLoading(false);
-        }
-      }
-    }
-
     loadCandidates();
-
-    return () => {
-      isMounted = false;
-    };
   }, [courseId]);
 
-  const [candidateActionsLoading, setCandidateActionsLoading] = useState({});
-  const [candidateDiplomaLoading, setCandidateDiplomaLoading] = useState({});
-  const [candidateError, setCandidateError] = useState({});
+  const loadCandidates = async () => {
+    try {
+      setCandidatesLoading(true);
+      setCandidatesError("");
+
+      const data = await fetchCourseCandidates(courseId);
+      const candidatesWithDates = Array.isArray(data) ? data : [];
+
+      setCandidates(candidatesWithDates);
+    } catch (err) {
+      setCandidatesError(err.message || "Nie udało się pobrać kandydatów.");
+    } finally {
+      setCandidatesLoading(false);
+    }
+  };
 
   const handleVerifyDiploma = async (candidateId, applicationId) => {
     setCandidateError((prev) => ({ ...prev, [candidateId]: "" }));
     try {
       setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
       await verifyDiploma(applicationId);
-      setCandidates((prevCandidates) =>
-        prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isDiplomaVerified: true } : c,
-        ),
-      );
+      await loadCandidates();
     } catch (err) {
       setCandidateError((prev) => ({
         ...prev,
@@ -175,11 +138,7 @@ function CourseManagementPage() {
     try {
       setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
       await verifyDeclaration(applicationId);
-      setCandidates((prevCandidates) =>
-        prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isDeclarationVerified: true } : c,
-        ),
-      );
+      await loadCandidates();
     } catch (err) {
       setCandidateError((prev) => ({
         ...prev,
@@ -196,11 +155,7 @@ function CourseManagementPage() {
     try {
       setCandidateActionsLoading((prev) => ({ ...prev, [candidateId]: true }));
       await acceptApplication(applicationId);
-      setCandidates((prevCandidates) =>
-        prevCandidates.map((c) =>
-          c.id === candidateId ? { ...c, isAccepted: true } : c,
-        ),
-      );
+      await loadCandidates();
     } catch (err) {
       setCandidateError((prev) => ({
         ...prev,
@@ -341,6 +296,7 @@ function CourseManagementPage() {
         isRecruitmentOpen:
           updatedCourse.isRecruitmentOpen ?? prev.isRecruitmentOpen,
       }));
+      await loadCandidates();
       setSuccessMessage("Zapisano zmiany kierunku.");
     } catch (err) {
       setFormError(err.message || "Nie udało się zapisać zmian.");
@@ -375,6 +331,33 @@ function CourseManagementPage() {
       setIsClosing(false);
     }
   };
+
+  const sortedCandidates = [...candidates].sort((left, right) => {
+    const leftWithdrawn = Boolean(left.isWithdrawn);
+    const rightWithdrawn = Boolean(right.isWithdrawn);
+    if (leftWithdrawn !== rightWithdrawn) {
+      return leftWithdrawn ? 1 : -1;
+    }
+
+    const leftAccepted = Boolean(left.isAccepted);
+    const rightAccepted = Boolean(right.isAccepted);
+    if (leftAccepted !== rightAccepted) {
+      return leftAccepted ? -1 : 1;
+    }
+
+    const leftSubmissionTime = left.submissionDateTime
+      ? new Date(left.submissionDateTime).getTime()
+      : Number.POSITIVE_INFINITY;
+    const rightSubmissionTime = right.submissionDateTime
+      ? new Date(right.submissionDateTime).getTime()
+      : Number.POSITIVE_INFINITY;
+
+    if (leftSubmissionTime !== rightSubmissionTime) {
+      return leftSubmissionTime - rightSubmissionTime;
+    }
+
+    return Number(left.id || 0) - Number(right.id || 0);
+  });
 
   return (
     <section className="course-management-view">
@@ -577,7 +560,7 @@ function CourseManagementPage() {
           </div>
         ) : (
           <div className="course-candidates-list">
-            {candidates.map((candidate) => {
+            {sortedCandidates.map((candidate) => {
               const fullName = [candidate.name, candidate.surname]
                 .filter(Boolean)
                 .join(" ");
@@ -585,6 +568,7 @@ function CourseManagementPage() {
               // Statusy aplikacji
               const isWithdrawn = Boolean(candidate.isWithdrawn);
               const isAccepted = Boolean(candidate.isAccepted);
+              const isWaitlisted = Boolean(candidate.isWaitlisted);
               const isEntryFeePaid = Boolean(candidate.isEntryFeePaid);
               const isSemesterPaid = Boolean(candidate.isSemesterPaid);
               const isDiplomaVerified = Boolean(candidate.isDiplomaVerified);
@@ -596,6 +580,8 @@ function CourseManagementPage() {
 
               if (isWithdrawn) {
                 displayStatus = "wycofana";
+              } else if (isWaitlisted) {
+                displayStatus = "lista rezerwowa";
               } else if (isAccepted) {
                 displayStatus = "zaakceptowana";
               }
@@ -630,7 +616,9 @@ function CourseManagementPage() {
                             ? "status-badge--withdrawn"
                             : isAccepted
                               ? "status-badge--accepted"
-                              : "status-badge--submitted"
+                              : isWaitlisted
+                                ? "status-badge--waitlisted"
+                                : "status-badge--submitted"
                         }`}
                       >
                         {displayStatus}
@@ -785,6 +773,7 @@ function CourseManagementPage() {
                       }
                       disabled={
                         isAccepted ||
+                        isWaitlisted ||
                         !isDiplomaVerified ||
                         !isEntryFeePaid ||
                         isWithdrawn ||
@@ -794,7 +783,9 @@ function CourseManagementPage() {
                     >
                       {isAccepted
                         ? "Wniosek zaakceptowany"
-                        : "Akceptuj wniosek"}
+                        : isWaitlisted
+                          ? "Na liście rezerwowej"
+                          : "Akceptuj wniosek"}
                     </button>
 
                     {candidateError[candidate.id] && (

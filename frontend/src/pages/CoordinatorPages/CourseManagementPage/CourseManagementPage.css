@@ -333,6 +333,11 @@
   color: #d97706;
 }
 
+.status-badge--waitlisted {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #ea580c;
+}
+
 .status-badge--accepted {
   background-color: rgba(22, 163, 74, 0.1);
   color: #16a34a;
