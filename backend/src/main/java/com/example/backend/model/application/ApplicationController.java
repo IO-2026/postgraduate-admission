@@ -117,8 +117,7 @@ public class ApplicationController {
 
     @GetMapping("/{id}/diploma-url")
     @PreAuthorize("hasAnyRole('Candidate', 'Coordinator', 'Admin')")
-    public ResponseEntity<?> getDiplomaUrl(@PathVariable Long id,
-                                           @AuthenticationPrincipal User user) {
+    public ResponseEntity<?> getDiplomaUrl(@PathVariable Long id, @AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
