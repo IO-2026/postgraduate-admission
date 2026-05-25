@@ -312,15 +312,12 @@ function AdmissionPage({ isLoggedIn, user }) {
   );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAccount(getAccountDefaults(user));
   }, [user]);
 
   useEffect(() => {
     if (courseId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(getDraftDefaults(loadDraft(courseId)));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiplomaFile(null);
     }
   }, [courseId]);
@@ -391,7 +388,6 @@ function AdmissionPage({ isLoggedIn, user }) {
   }, [courseId, draft]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrors(validateDraft({ account, draft, diplomaFile }));
   }, [account, draft, diplomaFile]);
 

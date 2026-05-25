@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,7 +17,7 @@ public class CandidateWithApplicationDto {
     private String surname;
     private String email;
     private long applicationId;
-    private java.time.LocalDateTime submissionDateTime;
+    private LocalDateTime submissionDateTime;
     private Boolean isWithdrawn;
     private Boolean isAccepted;
     private Boolean isWaitlisted;
@@ -23,4 +25,7 @@ public class CandidateWithApplicationDto {
     private Boolean isDiplomaVerified;
     private Boolean isDeclarationVerified;
     private Boolean isSemesterPaid;
+    private String telNumber;
+    private String pesel;
+    private LocalDate dateOfBirth;
 }

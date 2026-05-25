@@ -1,5 +1,5 @@
 import { API_URL } from "../../../config/api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchCourseById, updateCourse } from "../../../services/courseApi";
 import { generateValidAcademicYears } from "../../../utils/academicYearUtils";
@@ -37,12 +37,7 @@ function EditCoursePage() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [courseCoordinatorId, setCourseCoordinatorId] = useState(null);
 
-  useEffect(() => {
-    loadCoordinators();
-    loadCourseDetails();
-  }, [courseId]);
-
-  const loadCoordinators = async () => {
+  const loadCoordinators = useCallback(async () => {
     try {
       setCoordinatorsLoading(true);
       setCoordinatorsError(null);
@@ -59,9 +54,9 @@ function EditCoursePage() {
     } finally {
       setCoordinatorsLoading(false);
     }
-  };
+  }, []);
 
-  const loadCourseDetails = async () => {
+  const loadCourseDetails = useCallback(async () => {
     try {
       setCourseLoading(true);
       setCourseError(null);
@@ -83,7 +78,12 @@ function EditCoursePage() {
     } finally {
       setCourseLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    loadCoordinators();
+    loadCourseDetails();
+  }, [loadCoordinators, loadCourseDetails]);
 
   const coordinatorEmailById = useMemo(() => {
     const map = new Map();
