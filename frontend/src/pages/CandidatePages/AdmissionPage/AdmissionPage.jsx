@@ -543,11 +543,21 @@ function AdmissionPage({ isLoggedIn, user }) {
           ) : (
             <div className="courses-grid">
               {courses.map((course) => {
-                const hasRecruitmentRange =
-                  course.recruitmentStart && course.recruitmentEnd;
+                const now = new Date();
+                const startDate = course.recruitmentStart ? new Date(course.recruitmentStart) : null;
+                const endDate = course.recruitmentEnd ? new Date(course.recruitmentEnd) : null;
+                const isClosedByDates = startDate && endDate && (now < startDate || now > endDate);
+                const isClosedByFlag = course.isRecruitmentOpen === false;
+                
+                const showDates = course.recruitmentStart && course.recruitmentEnd && !isClosedByFlag;
 
                 return (
-                  <div key={course.id} className="course-card">
+                  <div
+                    key={course.id}
+                    className={`course-card ${
+                      showDates ? "course-card-has-dates" : "course-card-no-dates"
+                    }`}
+                  >
                     <div className="course-card-header">
                       <div className="course-title">
                         <h3>{course.name}</h3>
@@ -559,7 +569,7 @@ function AdmissionPage({ isLoggedIn, user }) {
                       <span className="course-price">{course.price} PLN</span>
                     </div>
 
-                    {hasRecruitmentRange && (
+                    {showDates && (
                       <div className="course-meta">
                         <div className="course-recruitment-block">
                           <div className="course-recruitment-dates">
@@ -583,7 +593,7 @@ function AdmissionPage({ isLoggedIn, user }) {
 
                     {isLoggedIn ? (
                       <div className="course-card-actions">
-                        {course.isRecruitmentOpen === false ? (
+                        {isClosedByFlag || isClosedByDates ? (
                           <button
                             disabled
                             className="primary-btn"
@@ -874,6 +884,12 @@ function AdmissionPage({ isLoggedIn, user }) {
                     </div>
                   </label>
                   {renderFieldError("diplomaFile")}
+                  {diplomaFile ? (
+                    <p className="admission-warning" role="alert">
+                      Pamiętaj o dostarczeniu orygnialnego dokumentu do
+                      dziekanatu!
+                    </p>
+                  ) : null}
                 </div>
                 <p className="admission-hint">
                   Dodaj skan dyplomu w formacie PDF (maksymalnie 10 MB).

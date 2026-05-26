@@ -15,6 +15,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.List;
@@ -44,10 +46,17 @@ public class ApplicationService {
             return null;
         }
 
+        Course course = courseRepository.findById(courseId).get();
+        LocalDate now = LocalDate.now();
+
+        if (now.isBefore(course.getRecruitmentStart()) || now.isAfter(course.getRecruitmentEnd())) {
+            return null;
+        }
+
         Application application = applicationMapper.toEntity(admissionRequest);
         application.setUser(user);
         application.setIsAccepted(false);
-    application.setIsWaitlisted(false);
+        application.setIsWaitlisted(false);
         application.setIsWithdrawn(false);
 
         Application savedApplication = applicationRepository.saveAndFlush(application);

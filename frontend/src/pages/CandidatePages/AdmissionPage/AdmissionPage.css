@@ -139,7 +139,7 @@
 .admission-course-picker .course-meta {
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid var(--panel-border);
+  border-top: 0;
 }
 
 .course-recruitment-block {
@@ -223,11 +223,13 @@
 
 /* ─── Card actions ───────────────────────────────────────── */
 .admission-course-picker .course-card-actions {
-  margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid var(--panel-border);
   display: flex;
   justify-content: flex-end;
+}
+
+.admission-course-picker .course-card-no-dates .course-card-actions {
+  margin-top: auto;
 }
 
 .admission-course-picker .course-card-actions .primary-btn {
@@ -305,6 +307,18 @@
   margin: 0;
   font-size: 0.82rem;
   color: var(--text-light);
+}
+
+.admission-warning {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .admission-checkbox {

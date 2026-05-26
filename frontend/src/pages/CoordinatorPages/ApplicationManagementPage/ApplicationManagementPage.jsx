@@ -340,97 +340,6 @@ function ApplicationManagementPage() {
         </div>
 
         <div className="application-management-section">
-          <h3>Akcje koordynatora</h3>
-          <div className="application-management-form-grid">
-            <div className="application-management-field">
-              <label>Weryfikacja dyplomu</label>
-              <div>
-                {applicationData.isDiplomaVerified ? (
-                  <div className="application-management-verified">
-                    Dyplom zweryfikowany
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit"
-                    onClick={handleVerifyDiploma}
-                    disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
-                  >
-                    {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="application-management-field">
-              <label>Weryfikacja oświadczenia</label>
-              <div>
-                {applicationData.isDeclarationVerified ? (
-                  <div className="application-management-verified">
-                    Oświadczenie zweryfikowane
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit"
-                    onClick={handleVerifyDeclaration}
-                    disabled={
-                      actionLoading || !canVerifyDeclaration || isWithdrawn
-                    }
-                  >
-                    {actionLoading
-                      ? "Weryfikowanie..."
-                      : "Zweryfikuj oświadczenie"}
-                  </button>
-                )}
-              </div>
-              {!isAccepted && !isWithdrawn && (
-                <p className="application-management-hint">
-                  Oświadczenie można zweryfikować po zaakceptowaniu wniosku
-                </p>
-              )}
-            </div>
-
-            <div className="application-management-field application-management-field-wide">
-              <label>Akceptacja wniosku</label>
-              <div>
-                {isAccepted ? (
-                  <div className="application-management-verified">
-                    Wniosek zaakceptowany
-                  </div>
-                ) : isWaitlisted ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#2563eb" }}
-                  >
-                    ✓ Wniosek na liście rezerwowej
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit application-management-submit--accept"
-                    onClick={handleAcceptApplication}
-                    disabled={
-                      actionLoading || !canAcceptApplication || isWithdrawn
-                    }
-                  >
-                    {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
-                  </button>
-                )}
-              </div>
-              {!canAcceptApplication && !isAccepted && !isWithdrawn && (
-                <p className="application-management-hint">
-                  {!applicationData.isDiplomaVerified &&
-                    "• Wymagana weryfikacja dyplomu\n"}
-                  {!applicationData.isEntryFeePaid &&
-                    "• Wymagana opłata wpisowego"}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="application-management-section">
           <h3>Dane Kandydata</h3>
           <div className="application-management-form-grid">
             <div className="application-management-field">
@@ -644,20 +553,6 @@ function ApplicationManagementPage() {
                 </div>
               )}
             </div>
-
-            <div className="application-management-field application-management-field-wide">
-              <label>Dyplom (PDF)</label>
-              <div className="application-management-readonly">
-                <button
-                  type="button"
-                  className="application-management-edit"
-                  onClick={handleDiplomaDownload}
-                  disabled={diplomaLoading}
-                >
-                  {diplomaLoading ? "Pobieranie..." : "Wyświetl dyplom"}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -689,7 +584,7 @@ function ApplicationManagementPage() {
           <div className="application-management-form-grid">
             <div className="application-management-field application-management-field-checkbox">
               <label htmlFor="truthfulnessConsent">
-                Zgoda na rzetelność informacji
+                Zaświadczenie o rzetelności informacji
               </label>
               {isEditMode ? (
                 <input

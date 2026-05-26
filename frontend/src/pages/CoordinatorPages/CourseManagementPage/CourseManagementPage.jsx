@@ -446,7 +446,7 @@ function CourseManagementPage() {
           >
             {candidateDiplomaLoading[candidate.id]
               ? "Pobieranie..."
-              : "Wyświetl dyplom"}
+              : "Wyświetl skan dyplomu"}
           </button>
 
           {/* Verify diploma button */}
@@ -463,7 +463,7 @@ function CourseManagementPage() {
               candidateActionsLoading[candidate.id]
             }
           >
-            {isDiplomaVerified ? "Dyplom zweryfikowany" : "Zweryfikuj dyplom"}
+            {isDiplomaVerified ? "Dyplom potwierdzony" : "Potwierdź dostarczenie dyplomu"}
           </button>
 
           {/* Verify declaration button */}
@@ -482,8 +482,8 @@ function CourseManagementPage() {
             }
           >
             {isDeclarationVerified
-              ? "Oświadczenie zweryfikowane"
-              : "Zweryfikuj oświadczenie"}
+              ? "Oświadczenie potwierdzone"
+              : "Potwierdź dostarczenie oświadczenia"}
           </button>
 
           {/* Accept application button */}
