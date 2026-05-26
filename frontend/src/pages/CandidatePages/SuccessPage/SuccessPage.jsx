@@ -34,9 +34,7 @@ function SuccessPage() {
           aplikacji.
         </p>
 
-        <h3>
-          Pamiętaj o dostarczeniu dyplomu do dziekanatu!
-        </h3>
+        <h3>Pamiętaj o dostarczeniu dyplomu do dziekanatu!</h3>
 
         <div className="success-actions">
           <Link to="/" className="primary-btn">

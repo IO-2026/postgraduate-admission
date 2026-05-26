@@ -340,9 +340,18 @@ function CourseManagementPage() {
           }}
         >
           {/* Grupa 1: wpisowe, dyplom */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="course-candidate-status-label" style={{ textAlign: "left" }}>Wpisowe:</span>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Wpisowe:
+              </span>
               <span
                 className={`status-badge ${
                   isEntryFeePaid
@@ -353,8 +362,15 @@ function CourseManagementPage() {
                 {isEntryFeePaid ? "opłacone" : "nieopłacone"}
               </span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="course-candidate-status-label" style={{ textAlign: "left" }}>Dyplom:</span>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Dyplom:
+              </span>
               <span
                 className={`status-badge ${
                   isDiplomaVerified
@@ -367,17 +383,42 @@ function CourseManagementPage() {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", color: "var(--text-muted)", opacity: 0.5 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "var(--text-muted)",
+              opacity: 0.5,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
           </div>
 
           {/* Grupa 2: zaakceptowany (Aplikacja) */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="course-candidate-status-label" style={{ textAlign: "left" }}>Aplikacja:</span>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Aplikacja:
+              </span>
               <span
                 className={`status-badge ${
                   isWithdrawn
@@ -394,17 +435,42 @@ function CourseManagementPage() {
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", color: "var(--text-muted)", opacity: 0.5 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "var(--text-muted)",
+              opacity: 0.5,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
           </div>
 
           {/* Grupa 3: oświadczenie, semestr */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="course-candidate-status-label" style={{ textAlign: "left" }}>Oświadczenie:</span>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Oświadczenie:
+              </span>
               <span
                 className={`status-badge ${
                   isDeclarationVerified
@@ -415,8 +481,15 @@ function CourseManagementPage() {
                 {isDeclarationVerified ? "zweryfikowane" : "niezweryfikowane"}
               </span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span className="course-candidate-status-label" style={{ textAlign: "left" }}>Semestr:</span>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Semestr:
+              </span>
               <span
                 className={`status-badge ${
                   isSemesterPaid
@@ -463,7 +536,9 @@ function CourseManagementPage() {
               candidateActionsLoading[candidate.id]
             }
           >
-            {isDiplomaVerified ? "Dyplom potwierdzony" : "Potwierdź dostarczenie dyplomu"}
+            {isDiplomaVerified
+              ? "Dyplom potwierdzony"
+              : "Potwierdź dostarczenie dyplomu"}
           </button>
 
           {/* Verify declaration button */}
@@ -679,7 +754,9 @@ function CourseManagementPage() {
                 >
                   <div>
                     <h2>Kandydaci w trakcie rekrutacji</h2>
-                    <p>Lista osób biorących udział w rekrutacji na ten kierunek.</p>
+                    <p>
+                      Lista osób biorących udział w rekrutacji na ten kierunek.
+                    </p>
                   </div>
                   <span className="course-candidates-count">
                     {activeCandidates.length}

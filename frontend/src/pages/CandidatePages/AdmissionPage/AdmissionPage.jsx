@@ -544,18 +544,28 @@ function AdmissionPage({ isLoggedIn, user }) {
             <div className="courses-grid">
               {courses.map((course) => {
                 const now = new Date();
-                const startDate = course.recruitmentStart ? new Date(course.recruitmentStart) : null;
-                const endDate = course.recruitmentEnd ? new Date(course.recruitmentEnd) : null;
-                const isClosedByDates = startDate && endDate && (now < startDate || now > endDate);
+                const startDate = course.recruitmentStart
+                  ? new Date(course.recruitmentStart)
+                  : null;
+                const endDate = course.recruitmentEnd
+                  ? new Date(course.recruitmentEnd)
+                  : null;
+                const isClosedByDates =
+                  startDate && endDate && (now < startDate || now > endDate);
                 const isClosedByFlag = course.isRecruitmentOpen === false;
-                
-                const showDates = course.recruitmentStart && course.recruitmentEnd && !isClosedByFlag;
+
+                const showDates =
+                  course.recruitmentStart &&
+                  course.recruitmentEnd &&
+                  !isClosedByFlag;
 
                 return (
                   <div
                     key={course.id}
                     className={`course-card ${
-                      showDates ? "course-card-has-dates" : "course-card-no-dates"
+                      showDates
+                        ? "course-card-has-dates"
+                        : "course-card-no-dates"
                     }`}
                   >
                     <div className="course-card-header">
