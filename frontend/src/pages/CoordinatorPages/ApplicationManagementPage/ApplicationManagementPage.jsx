@@ -2,11 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   getApplication,
-  getApplicationDiplomaUrl,
   updateApplication,
-  verifyDiploma,
-  verifyDeclaration,
-  acceptApplication,
 } from "../../../services/applicationApi";
 import { fetchCourseCandidates } from "../../../services/courseApi";
 import BackButton from "../../../components/BackButton/BackButton";
@@ -49,9 +45,7 @@ function ApplicationManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [diplomaLoading, setDiplomaLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
@@ -129,65 +123,6 @@ function ApplicationManagementPage() {
     }));
   };
 
-  const handleVerifyDiploma = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await verifyDiploma(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        isDiplomaVerified: true,
-      }));
-      setSuccessMessage("Dyplom został zweryfikowany pomyślnie.");
-    } catch (err) {
-      setError(err.message || "Nie udało się zweryfikować dyplomu.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleVerifyDeclaration = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await verifyDeclaration(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        isDeclarationVerified: true,
-      }));
-      setSuccessMessage("Oświadczenie zostało zweryfikowane pomyślnie.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleAcceptApplication = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await acceptApplication(applicationId);
-      const refreshed = await getApplication(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        ...refreshed,
-        isAccepted: refreshed?.isAccepted ?? prev.isAccepted,
-        isWaitlisted: refreshed?.isWaitlisted ?? prev.isWaitlisted,
-        isWithdrawn: refreshed?.isWithdrawn ?? prev.isWithdrawn,
-      }));
-      setSuccessMessage("Status wniosku został zaktualizowany.");
-    } catch (err) {
-      setError(err.message || "Nie udało się zaakceptować wniosku.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
     setSuccessMessage("");
@@ -213,25 +148,6 @@ function ApplicationManagementPage() {
     }
   };
 
-  const handleDiplomaDownload = async () => {
-    setError("");
-    setSuccessMessage("");
-
-    try {
-      setDiplomaLoading(true);
-      const response = await getApplicationDiplomaUrl(applicationId);
-      const url = response?.url;
-      if (!url) {
-        throw new Error("Brak linku do dyplomu");
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch (err) {
-      setError(err.message || "Nie udało się pobrać dyplomu.");
-    } finally {
-      setDiplomaLoading(false);
-    }
-  };
-
   // Określenie statusu tekstowego na podstawie flag
   const getStatusText = () => {
     if (applicationData.isWithdrawn) return "Wycofana";
@@ -242,19 +158,6 @@ function ApplicationManagementPage() {
     if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
     return "W trakcie weryfikacji";
   };
-
-  // Sprawdzenie czy akcje są dostępne
-  const isWithdrawn = applicationData.isWithdrawn;
-  const isAccepted = applicationData.isAccepted;
-  const isWaitlisted = applicationData.isWaitlisted;
-  const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
-  const canVerifyDeclaration =
-    !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
-  const canAcceptApplication =
-    !isWithdrawn &&
-    !isAccepted &&
-    applicationData.isDiplomaVerified &&
-    applicationData.isEntryFeePaid;
 
   if (loading) {
     return (
@@ -676,7 +579,7 @@ function ApplicationManagementPage() {
               type="button"
               className="application-management-edit"
               onClick={toggleEditMode}
-              disabled={submitting || actionLoading}
+              disabled={submitting}
             >
               Edytuj dane
             </button>
