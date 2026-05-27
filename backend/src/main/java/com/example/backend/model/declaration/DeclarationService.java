@@ -52,7 +52,7 @@ public class DeclarationService {
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.useFont(new File(Objects.requireNonNull(getClass().getResource("/fonts/Roboto-Regular.ttf")).getFile()), "Roboto");
+            builder.useFont(() -> getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf"), "Roboto");
             builder.useFastMode();
             builder.withHtmlContent(htmlContent, "/");
             builder.toStream(os);
