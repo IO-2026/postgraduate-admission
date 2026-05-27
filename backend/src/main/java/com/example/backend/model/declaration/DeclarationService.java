@@ -18,8 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.context.Context;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.Objects;
 
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
