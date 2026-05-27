@@ -313,4 +313,10 @@ public class ApplicationService {
 
         return userRepository.findFirstByRoleName("Admin").orElse(null);
     }
+
+    public void deleteAllByCourseId(long courseId) {
+        applicationRepository.findAll().stream()
+                .filter(a -> a.getCourseId() == courseId)
+                .forEach(applicationRepository::delete);
+    }
 }

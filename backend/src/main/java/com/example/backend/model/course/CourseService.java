@@ -51,6 +51,7 @@ public class CourseService {
     }
 
     public void deleteCourse(Long id) {
+        applicationService.deleteAllByCourseId(id);
         courseRepository.deleteById(id);
     }
 
