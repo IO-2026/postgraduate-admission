@@ -191,8 +191,28 @@ function CourseManagementPage() {
     return Number(left.id || 0) - Number(right.id || 0);
   });
 
+  const enrolledCandidates = sortedCandidates.filter(
+    (c) =>
+      !c.isWithdrawn &&
+      !c.isWaitlisted &&
+      c.isAccepted &&
+      c.isDiplomaVerified &&
+      c.isDeclarationVerified &&
+      c.isEntryFeePaid &&
+      c.isSemesterPaid,
+  );
+
   const activeCandidates = sortedCandidates.filter(
-    (c) => !c.isWithdrawn && !c.isWaitlisted,
+    (c) =>
+      !c.isWithdrawn &&
+      !c.isWaitlisted &&
+      !(
+        c.isAccepted &&
+        c.isDiplomaVerified &&
+        c.isDeclarationVerified &&
+        c.isEntryFeePaid &&
+        c.isSemesterPaid
+      ),
   );
   const waitlistedCandidates = sortedCandidates.filter(
     (c) => !c.isWithdrawn && c.isWaitlisted,
@@ -200,16 +220,9 @@ function CourseManagementPage() {
   const withdrawnCandidates = sortedCandidates.filter((c) => c.isWithdrawn);
 
   const handleExportCsv = () => {
-    const acceptedAndPaid = candidates.filter(
-      (c) =>
-        c.isAccepted === true &&
-        !c.isWithdrawn &&
-        (c.isEntryFeePaid === true || c.isSemesterPaid === true),
-    );
-
-    if (acceptedAndPaid.length === 0) {
+    if (enrolledCandidates.length === 0) {
       alert(
-        "Brak kandydatów spełniających kryteria (zaakceptowany i opłacony).",
+        "Brak kandydatów spełniających kryteria (przyjęci ze wszystkimi formalnościami).",
       );
       return;
     }
@@ -248,7 +261,7 @@ function CourseManagementPage() {
       return date.toLocaleDateString("pl-PL");
     };
 
-    const rows = acceptedAndPaid.map((c) => {
+    const rows = enrolledCandidates.map((c) => {
       const fullName = [c.name, c.surname].filter(Boolean).join(" ");
       return [
         escapeCsv(fullName),
@@ -316,79 +329,177 @@ function CourseManagementPage() {
           )}
         </div>
 
-        <div className="course-candidate-statuses">
-          {/* 1. Aplikacja */}
-          <span className="course-candidate-status-label">Aplikacja:</span>
-          <div>
-            <span
-              className={`status-badge ${
-                isWithdrawn
-                  ? "status-badge--withdrawn"
-                  : isAccepted
-                    ? "status-badge--accepted"
-                    : isWaitlisted
-                      ? "status-badge--waitlisted"
-                      : "status-badge--submitted"
-              }`}
+        <div
+          className="course-candidate-statuses"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            flexWrap: "wrap",
+            fontSize: "0.85rem",
+          }}
+        >
+          {/* Grupa 1: wpisowe, dyplom */}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
             >
-              {displayStatus}
-            </span>
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Wpisowe:
+              </span>
+              <span
+                className={`status-badge ${
+                  isEntryFeePaid
+                    ? "status-badge--success"
+                    : "status-badge--disabled"
+                }`}
+              >
+                {isEntryFeePaid ? "opłacone" : "nieopłacone"}
+              </span>
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Dyplom:
+              </span>
+              <span
+                className={`status-badge ${
+                  isDiplomaVerified
+                    ? "status-badge--success"
+                    : "status-badge--disabled"
+                }`}
+              >
+                {isDiplomaVerified ? "zweryfikowany" : "niezweryfikowany"}
+              </span>
+            </div>
           </div>
 
-          {/* 2. Dyplom */}
-          <span className="course-candidate-status-label">Dyplom:</span>
-          <div>
-            <span
-              className={`status-badge ${
-                isDiplomaVerified
-                  ? "status-badge--success"
-                  : "status-badge--disabled"
-              }`}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "var(--text-muted)",
+              opacity: 0.5,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {isDiplomaVerified ? "zweryfikowany" : "niezweryfikowany"}
-            </span>
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
           </div>
 
-          {/* 3. Oświadczenie */}
-          <span className="course-candidate-status-label">Oświadczenie:</span>
-          <div>
-            <span
-              className={`status-badge ${
-                isDeclarationVerified
-                  ? "status-badge--success"
-                  : "status-badge--disabled"
-              }`}
+          {/* Grupa 2: zaakceptowany (Aplikacja) */}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
             >
-              {isDeclarationVerified ? "zweryfikowane" : "niezweryfikowane"}
-            </span>
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Aplikacja:
+              </span>
+              <span
+                className={`status-badge ${
+                  isWithdrawn
+                    ? "status-badge--withdrawn"
+                    : isAccepted
+                      ? "status-badge--accepted"
+                      : isWaitlisted
+                        ? "status-badge--waitlisted"
+                        : "status-badge--submitted"
+                }`}
+              >
+                {displayStatus}
+              </span>
+            </div>
           </div>
 
-          {/* 4. Wpisowe */}
-          <span className="course-candidate-status-label">Wpisowe:</span>
-          <div>
-            <span
-              className={`status-badge ${
-                isEntryFeePaid
-                  ? "status-badge--success"
-                  : "status-badge--disabled"
-              }`}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              color: "var(--text-muted)",
+              opacity: 0.5,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {isEntryFeePaid ? "opłacone" : "nieopłacone"}
-            </span>
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
           </div>
 
-          {/* 5. Semestr */}
-          <span className="course-candidate-status-label">Semestr:</span>
-          <div>
-            <span
-              className={`status-badge ${
-                isSemesterPaid
-                  ? "status-badge--success"
-                  : "status-badge--disabled"
-              }`}
+          {/* Grupa 3: oświadczenie, semestr */}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
             >
-              {isSemesterPaid ? "opłacony" : "nieopłacony"}
-            </span>
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Oświadczenie:
+              </span>
+              <span
+                className={`status-badge ${
+                  isDeclarationVerified
+                    ? "status-badge--success"
+                    : "status-badge--disabled"
+                }`}
+              >
+                {isDeclarationVerified ? "zweryfikowane" : "niezweryfikowane"}
+              </span>
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+            >
+              <span
+                className="course-candidate-status-label"
+                style={{ textAlign: "left" }}
+              >
+                Semestr:
+              </span>
+              <span
+                className={`status-badge ${
+                  isSemesterPaid
+                    ? "status-badge--success"
+                    : "status-badge--disabled"
+                }`}
+              >
+                {isSemesterPaid ? "opłacony" : "nieopłacony"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -408,7 +519,7 @@ function CourseManagementPage() {
           >
             {candidateDiplomaLoading[candidate.id]
               ? "Pobieranie..."
-              : "Wyświetl dyplom"}
+              : "Wyświetl skan dyplomu"}
           </button>
 
           {/* Verify diploma button */}
@@ -425,7 +536,9 @@ function CourseManagementPage() {
               candidateActionsLoading[candidate.id]
             }
           >
-            {isDiplomaVerified ? "Dyplom zweryfikowany" : "Zweryfikuj dyplom"}
+            {isDiplomaVerified
+              ? "Dyplom potwierdzony"
+              : "Potwierdź dostarczenie dyplomu"}
           </button>
 
           {/* Verify declaration button */}
@@ -444,8 +557,8 @@ function CourseManagementPage() {
             }
           >
             {isDeclarationVerified
-              ? "Oświadczenie zweryfikowane"
-              : "Zweryfikuj oświadczenie"}
+              ? "Oświadczenie potwierdzone"
+              : "Potwierdź dostarczenie oświadczenia"}
           </button>
 
           {/* Accept application button */}
@@ -572,45 +685,6 @@ function CourseManagementPage() {
       </header>
 
       <section className="course-candidates-panel">
-        <div className="course-candidates-header">
-          <div>
-            <h2>Kandydaci</h2>
-            <p>Lista osób biorących udział w rekrutacji na ten kierunek.</p>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              type="button"
-              className="ghost-btn back-button-link"
-              onClick={handleExportCsv}
-            >
-              <svg
-                style={{ width: "14px", height: "14px" }}
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4 4m0 0l-4-4m4 4V4"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Pobierz listę
-            </button>
-            <span className="course-candidates-count">
-              {activeCandidates.length}
-            </span>
-          </div>
-        </div>
-
         {candidatesLoading ? (
           <div className="course-management-state">Ładowanie kandydatów...</div>
         ) : candidatesError ? (
@@ -623,14 +697,81 @@ function CourseManagementPage() {
           </div>
         ) : (
           <>
+            {enrolledCandidates.length > 0 && (
+              <>
+                <div
+                  className="course-candidates-header"
+                  style={{ marginTop: "1rem" }}
+                >
+                  <div>
+                    <h2>Przyjęci</h2>
+                    <p>Kandydaci, którzy dopełnili wszystkich formalności.</p>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="ghost-btn back-button-link"
+                      onClick={handleExportCsv}
+                    >
+                      <svg
+                        style={{ width: "14px", height: "14px" }}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4 4m0 0l-4-4m4 4V4"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      Pobierz listę
+                    </button>
+                    <span className="course-candidates-count">
+                      {enrolledCandidates.length}
+                    </span>
+                  </div>
+                </div>
+                <div className="course-candidates-list">
+                  {enrolledCandidates.map(renderCandidateCard)}
+                </div>
+              </>
+            )}
+
             {activeCandidates.length > 0 ? (
-              <div className="course-candidates-list">
-                {activeCandidates.map(renderCandidateCard)}
-              </div>
+              <>
+                <div
+                  className="course-candidates-header"
+                  style={{ marginTop: "2rem" }}
+                >
+                  <div>
+                    <h2>Kandydaci w trakcie rekrutacji</h2>
+                    <p>
+                      Lista osób biorących udział w rekrutacji na ten kierunek.
+                    </p>
+                  </div>
+                  <span className="course-candidates-count">
+                    {activeCandidates.length}
+                  </span>
+                </div>
+                <div className="course-candidates-list">
+                  {activeCandidates.map(renderCandidateCard)}
+                </div>
+              </>
             ) : (
-              <div className="course-management-state">
-                Brak aktywnych kandydatów.
-              </div>
+              enrolledCandidates.length === 0 && (
+                <div className="course-management-state">
+                  Brak aktywnych kandydatów.
+                </div>
+              )
             )}
 
             {waitlistedCandidates.length > 0 && (

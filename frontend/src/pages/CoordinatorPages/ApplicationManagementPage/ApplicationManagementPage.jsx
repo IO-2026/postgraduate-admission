@@ -2,11 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   getApplication,
-  getApplicationDiplomaUrl,
   updateApplication,
-  verifyDiploma,
-  verifyDeclaration,
-  acceptApplication,
 } from "../../../services/applicationApi";
 import { fetchCourseCandidates } from "../../../services/courseApi";
 import BackButton from "../../../components/BackButton/BackButton";
@@ -49,9 +45,7 @@ function ApplicationManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [diplomaLoading, setDiplomaLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
@@ -129,65 +123,6 @@ function ApplicationManagementPage() {
     }));
   };
 
-  const handleVerifyDiploma = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await verifyDiploma(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        isDiplomaVerified: true,
-      }));
-      setSuccessMessage("Dyplom został zweryfikowany pomyślnie.");
-    } catch (err) {
-      setError(err.message || "Nie udało się zweryfikować dyplomu.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleVerifyDeclaration = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await verifyDeclaration(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        isDeclarationVerified: true,
-      }));
-      setSuccessMessage("Oświadczenie zostało zweryfikowane pomyślnie.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleAcceptApplication = async () => {
-    setSuccessMessage("");
-    setError("");
-
-    try {
-      setActionLoading(true);
-      await acceptApplication(applicationId);
-      const refreshed = await getApplication(applicationId);
-      setApplicationData((prev) => ({
-        ...prev,
-        ...refreshed,
-        isAccepted: refreshed?.isAccepted ?? prev.isAccepted,
-        isWaitlisted: refreshed?.isWaitlisted ?? prev.isWaitlisted,
-        isWithdrawn: refreshed?.isWithdrawn ?? prev.isWithdrawn,
-      }));
-      setSuccessMessage("Status wniosku został zaktualizowany.");
-    } catch (err) {
-      setError(err.message || "Nie udało się zaakceptować wniosku.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
     setSuccessMessage("");
@@ -213,25 +148,6 @@ function ApplicationManagementPage() {
     }
   };
 
-  const handleDiplomaDownload = async () => {
-    setError("");
-    setSuccessMessage("");
-
-    try {
-      setDiplomaLoading(true);
-      const response = await getApplicationDiplomaUrl(applicationId);
-      const url = response?.url;
-      if (!url) {
-        throw new Error("Brak linku do dyplomu");
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch (err) {
-      setError(err.message || "Nie udało się pobrać dyplomu.");
-    } finally {
-      setDiplomaLoading(false);
-    }
-  };
-
   // Określenie statusu tekstowego na podstawie flag
   const getStatusText = () => {
     if (applicationData.isWithdrawn) return "Wycofana";
@@ -242,19 +158,6 @@ function ApplicationManagementPage() {
     if (applicationData.isDiplomaVerified) return "Dyplom zweryfikowany";
     return "W trakcie weryfikacji";
   };
-
-  // Sprawdzenie czy akcje są dostępne
-  const isWithdrawn = applicationData.isWithdrawn;
-  const isAccepted = applicationData.isAccepted;
-  const isWaitlisted = applicationData.isWaitlisted;
-  const canVerifyDiploma = !isWithdrawn && !applicationData.isDiplomaVerified;
-  const canVerifyDeclaration =
-    !isWithdrawn && !applicationData.isDeclarationVerified && isAccepted;
-  const canAcceptApplication =
-    !isWithdrawn &&
-    !isAccepted &&
-    applicationData.isDiplomaVerified &&
-    applicationData.isEntryFeePaid;
 
   if (loading) {
     return (
@@ -335,97 +238,6 @@ function ApplicationManagementPage() {
                     }).format(new Date(applicationData.submissionDateTime))
                   : "Brak danych"}
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="application-management-section">
-          <h3>Akcje koordynatora</h3>
-          <div className="application-management-form-grid">
-            <div className="application-management-field">
-              <label>Weryfikacja dyplomu</label>
-              <div>
-                {applicationData.isDiplomaVerified ? (
-                  <div className="application-management-verified">
-                    Dyplom zweryfikowany
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit"
-                    onClick={handleVerifyDiploma}
-                    disabled={actionLoading || !canVerifyDiploma || isWithdrawn}
-                  >
-                    {actionLoading ? "Weryfikowanie..." : "Zweryfikuj dyplom"}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="application-management-field">
-              <label>Weryfikacja oświadczenia</label>
-              <div>
-                {applicationData.isDeclarationVerified ? (
-                  <div className="application-management-verified">
-                    Oświadczenie zweryfikowane
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit"
-                    onClick={handleVerifyDeclaration}
-                    disabled={
-                      actionLoading || !canVerifyDeclaration || isWithdrawn
-                    }
-                  >
-                    {actionLoading
-                      ? "Weryfikowanie..."
-                      : "Zweryfikuj oświadczenie"}
-                  </button>
-                )}
-              </div>
-              {!isAccepted && !isWithdrawn && (
-                <p className="application-management-hint">
-                  Oświadczenie można zweryfikować po zaakceptowaniu wniosku
-                </p>
-              )}
-            </div>
-
-            <div className="application-management-field application-management-field-wide">
-              <label>Akceptacja wniosku</label>
-              <div>
-                {isAccepted ? (
-                  <div className="application-management-verified">
-                    Wniosek zaakceptowany
-                  </div>
-                ) : isWaitlisted ? (
-                  <div
-                    className="application-management-readonly"
-                    style={{ color: "#2563eb" }}
-                  >
-                    ✓ Wniosek na liście rezerwowej
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="application-management-submit application-management-submit--accept"
-                    onClick={handleAcceptApplication}
-                    disabled={
-                      actionLoading || !canAcceptApplication || isWithdrawn
-                    }
-                  >
-                    {actionLoading ? "Akceptowanie..." : "Akceptuj wniosek"}
-                  </button>
-                )}
-              </div>
-              {!canAcceptApplication && !isAccepted && !isWithdrawn && (
-                <p className="application-management-hint">
-                  {!applicationData.isDiplomaVerified &&
-                    "• Wymagana weryfikacja dyplomu\n"}
-                  {!applicationData.isEntryFeePaid &&
-                    "• Wymagana opłata wpisowego"}
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -644,20 +456,6 @@ function ApplicationManagementPage() {
                 </div>
               )}
             </div>
-
-            <div className="application-management-field application-management-field-wide">
-              <label>Dyplom (PDF)</label>
-              <div className="application-management-readonly">
-                <button
-                  type="button"
-                  className="application-management-edit"
-                  onClick={handleDiplomaDownload}
-                  disabled={diplomaLoading}
-                >
-                  {diplomaLoading ? "Pobieranie..." : "Wyświetl dyplom"}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -689,7 +487,7 @@ function ApplicationManagementPage() {
           <div className="application-management-form-grid">
             <div className="application-management-field application-management-field-checkbox">
               <label htmlFor="truthfulnessConsent">
-                Zgoda na rzetelność informacji
+                Zaświadczenie o rzetelności informacji
               </label>
               {isEditMode ? (
                 <input
@@ -781,7 +579,7 @@ function ApplicationManagementPage() {
               type="button"
               className="application-management-edit"
               onClick={toggleEditMode}
-              disabled={submitting || actionLoading}
+              disabled={submitting}
             >
               Edytuj dane
             </button>

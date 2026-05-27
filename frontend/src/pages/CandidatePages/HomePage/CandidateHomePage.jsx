@@ -397,7 +397,7 @@ function CandidateHomePage({ isLoggedIn, user }) {
                           { label: "Aplikacja wysłana", done: true },
                           { label: "Wpisowe wpłacone", done: isEntryFeePaid },
                           {
-                            label: "Dyplom potwierdzony",
+                            label: "Dyplom dostarczony",
                             done: isDiplomaVerified,
                           },
                           { label: "Zaakceptowany", done: isAccepted },

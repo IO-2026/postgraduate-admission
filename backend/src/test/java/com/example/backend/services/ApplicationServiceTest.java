@@ -90,6 +90,20 @@ public class ApplicationServiceTest {
         return user;
     }
 
+    private Course createMockCourse(Long id, int placesLimit) {
+        Course course = new Course();
+        course.setId(id);
+        course.setName("Test Course");
+        course.setDescription("Test course description");
+        course.setPrice(1000.0);
+        course.setPlacesLimit(placesLimit);
+        course.setRecruitmentStart(LocalDate.of(2026, 1, 1));
+        course.setRecruitmentEnd(LocalDate.of(2026, 6, 30));
+        course.setAcademicYear(2026);
+        course.setIsRecruitmentOpen(true);
+        return course;
+    }
+
     // --- TESTY TWORZENIA APLIKACJI ---
 
     @Test
@@ -111,6 +125,7 @@ public class ApplicationServiceTest {
         mockApplication.setIsDiplomaVerified(false);
         mockApplication.setIsDeclarationVerified(false);
 
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(createMockCourse(100L, 30)));
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
         when(storageService.getDiplomasBucket()).thenReturn("diplomas");
@@ -150,6 +165,7 @@ public class ApplicationServiceTest {
 
         User mockUser = createMockUser(3L, "jan3@example.com");
         when(applicationRepository.findByUserId(3L)).thenReturn(Collections.emptyList());
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(createMockCourse(100L, 30)));
         Application mockApplication = new Application();
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
         when(applicationRepository.saveAndFlush(any(Application.class))).thenAnswer(i -> i.getArguments()[0]);
@@ -174,6 +190,7 @@ public class ApplicationServiceTest {
 
         User mockUser = createMockUser(2L, "jan2@example.com");
         when(applicationRepository.findByUserId(2L)).thenReturn(Collections.emptyList());
+        when(courseRepository.findById(100L)).thenReturn(Optional.of(createMockCourse(100L, 30)));
 
         Application mockApplication = new Application();
         when(applicationMapper.toEntity(request)).thenReturn(mockApplication);
@@ -225,9 +242,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.findById(id)).thenReturn(Optional.of(application));
         when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(100L))
             .thenReturn(Collections.emptyList());
-        Course course = new Course();
-        course.setId(100L);
-        course.setPlacesLimit(1);
+        Course course = createMockCourse(100L, 1);
         when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
 
         applicationService.withdrawApplication(id);
@@ -278,9 +293,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(100L))
                 .thenReturn(Collections.singletonList(application));
 
-        Course course = new Course();
-        course.setId(100L);
-        course.setPlacesLimit(2);
+        Course course = createMockCourse(100L, 2);
         when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
         applicationService.markDiplomaAsVerified(id);
         applicationService.payEntryFee(id);
@@ -334,9 +347,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(200L))
             .thenReturn(List.of(accepted, application));
 
-        Course course = new Course();
-        course.setId(200L);
-        course.setPlacesLimit(1);
+        Course course = createMockCourse(200L, 1);
         when(courseRepository.findById(200L)).thenReturn(Optional.of(course));
 
         applicationService.acceptApplication(id);
@@ -366,9 +377,7 @@ public class ApplicationServiceTest {
         when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(courseId))
                 .thenReturn(List.of(first, second));
 
-        Course course = new Course();
-        course.setId(courseId);
-        course.setPlacesLimit(1);
+        Course course = createMockCourse(courseId, 1);
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
 
         applicationService.recalculateCourseStatuses(courseId);
@@ -400,11 +409,8 @@ public class ApplicationServiceTest {
         when(applicationRepository.findByCourseIdOrderBySubmissionDateTimeAscIdAsc(300L))
                 .thenReturn(List.of(accepted, waitlisted));
 
-        Course course = new Course();
-        course.setId(300L);
-        course.setPlacesLimit(1);
-        User coordinator = createMockUser(10L, "koord@example.com");
-        course.setCoordinator(coordinator);
+        Course course = createMockCourse(300L, 1);
+        course.setCoordinator(createMockUser(10L, "koord@example.com"));
         when(courseRepository.findById(300L)).thenReturn(Optional.of(course));
 
         applicationService.withdrawApplication(acceptedId);

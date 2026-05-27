@@ -41,6 +41,15 @@
   color: var(--text-strong);
 }
 
+.success-container h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  color: var(--text-strong);
+}
+
 .success-message {
   font-size: 16px;
   line-height: 1.6;
@@ -52,13 +61,21 @@
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-light);
-  margin-bottom: 40px;
+  margin-bottom: 24px;
+}
+
+.success-reminder {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin: 0 0 40px;
 }
 
 .success-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 36px;
 }
 
 .success-actions .primary-btn {
@@ -131,6 +148,10 @@
   }
 
   .success-info {
+    font-size: 13px;
+  }
+
+  .success-reminder {
     font-size: 13px;
   }
 }
